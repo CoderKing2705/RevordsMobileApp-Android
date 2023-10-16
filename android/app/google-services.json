@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "634872460796",
+    "project_id": "revordspn",
+    "storage_bucket": "revordspn.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:634872460796:android:01311c1b001758ca0cae79",
+        "android_client_info": {
+          "package_name": "com.kiran.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD__qP7COoQCqdGGOZ6zsa94okv2pSQjPA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

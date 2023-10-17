@@ -20,6 +20,9 @@ const Location = ({ navigation }) => {
     const NavigateToMapView = () => {
         navigation.navigate("MapView")
     }
+    const NavigateToBusinessDetails = () => {
+        navigation.navigate("BusinessDetails")
+    }
     useEffect(() => {
         axios({
             method: 'GET',
@@ -57,7 +60,7 @@ const Location = ({ navigation }) => {
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item }) => {
                             return (
-                                <Card style={styles.card}>
+                                <Card style={styles.card} onPress={NavigateToBusinessDetails}>
                                     <Card.Cover source={{ uri: imagePath }} style={styles.cardCover} />
                                     <Card.Title style={styles.avatarImg} left={() => <Avatar.Image size={50} left="70%" source={require('../assets/image-4-LPb.png')} />} />
                                     <Card.Content style={styles.cardContent}>

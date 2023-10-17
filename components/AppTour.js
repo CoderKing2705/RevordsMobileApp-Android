@@ -7,8 +7,9 @@ import TourPage2 from './TourPage2';
 import TourPage3 from './TourPage3';
 import TourPage4 from './TourPage4';
 
-const AppTourGuide = ({ navigation }) => {
+const AppTourGuide = ({ route, navigation }) => {
     const [step, setStep] = useState(1);
+    const { MemberData, Phone } = route.params;
 
     const nextStep = () => {
         setStep(step + 1);
@@ -16,11 +17,25 @@ const AppTourGuide = ({ navigation }) => {
 
     const closeTour = () => {
         setStep(null);
-        navigation.navigate('RegistrationPage');
+        if (MemberData) {
+            console.log(1)
+            navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
+        } else {
+            console.log(2)
+            navigation.navigate('RegistrationPage', { Phone: Phone });
+        }
+        // navigation.navigate('RegistrationPage', { Phone: Phone });
     };
 
     const GotoRegistration = () => {
-        navigation.navigate('RegistrationPage');
+        if (MemberData) {
+            console.log(1)
+            navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
+        } else {
+            console.log(2)
+            navigation.navigate('RegistrationPage', { Phone: Phone });
+        }
+        // navigation.navigate('RegistrationPage', { Phone: Phone });
     }
 
     const tourSteps = [

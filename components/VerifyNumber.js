@@ -59,10 +59,10 @@ const VerifyNumber = ({ navigation }) => {
         Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + unMaskPhone)
       const json = await response.json();
       // console.log(json);
-      this.CustomerExists = json != undefined && json.length > 0 ? json : false;
+      this.CustomerExists = json != undefined && json.length > 0 ? json : null;
       this.ToEmail = "parthskyward@gmail.com";
       await MailSendAPI(ToEmail).then(
-        navigation.navigate('GetOtp', { OTP: this.randomnumber, CustomerExists: this.CustomerExists })
+        navigation.navigate('GetOtp', { OTP: this.randomnumber, CustomerExists: this.CustomerExists, Phone: unMaskPhone })
       ).catch();
       setLoading(false);
       return json;

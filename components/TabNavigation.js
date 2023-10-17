@@ -7,12 +7,39 @@ import { Ionicons } from '@expo/vector-icons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ProfileStack from './ProfileStack';
 import LocationStack from './LocationStack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function TabNavigation({ route, navigation }) {
     const Tab = createBottomTabNavigator();
     const { MemberData } = route.params;
     console.log(MemberData)
     const Stack = createNativeStackNavigator();
+
+    AsyncStorage.getItem('token')
+        .then(value => {
+            if (value !== null) {
+                console.log(value)
+            } else {
+                AsyncStorage.setItem('token', JSON.stringify(MemberData))
+                    .then(() => {
+                        console.log('Data saved successfully!');
+                    })
+                    .catch(error => {
+                        console.error('Error saving data:', error);
+                    });
+            }
+        })
+        .catch(error => {
+            console.error('Error retrieving data:', error);
+        });
+
+//     AsyncStorage.clear()
+//   .then(() => {
+//     console.log('All data cleared successfully!');
+//   })
+//   .catch(error => {
+//     console.error('Error clearing data:', error);
+//   });
 
     return (
         <>

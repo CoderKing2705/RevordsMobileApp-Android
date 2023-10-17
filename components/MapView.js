@@ -4,9 +4,13 @@ import { TouchableHighlight } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import customIcon from '../assets/location.png';
+import GeoLocation from 'react-native-geolocation-service';
+import { PERMISSIONS } from 'react-native-permissions';
 
 export default function MapViewing({ navigation }) {
     const [initialRegion, setInitialRegion] = useState(null);
+    const [userLocation, setUserLocation] = useState(null);
+
     // const navigation = useNavigation();
     const navigateToList = () => {
         navigation.navigate("TabNavigation");
@@ -29,12 +33,37 @@ export default function MapViewing({ navigation }) {
             setInitialRegion({
                 latitude: centerLat,
                 longitude: centerLong,
-                longitudeDelta: 0.0121,
-                latitudeDelta: 0.015
+                longitudeDelta: 5.13,
+                latitudeDelta: 0.011
             });
         }
     }, []);
 
+    useEffect(() => {
+        PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+        PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION;
+        GeoLocation.getCurrentPosition(
+            (position) => {
+                setUserLocation({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                });
+
+                setInitialRegion({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    longitudeDelta: 5.13,
+                    latitudeDelta: 0.011
+                });
+            },
+            (error) => console.error("Error getting location", error),
+            {
+                enableHighAccuracy: true,
+                timeout: 2000,
+                maximumAge: 1000
+            }
+        )
+    })
     return (
         <View style={styles.container}>
 
@@ -56,7 +85,16 @@ export default function MapViewing({ navigation }) {
                     provider={PROVIDER_GOOGLE}
                     region={initialRegion}
                     // minZoomLevel={15}
-                    >
+                    showsMyLocationButton={true}
+                    pitchEnabled={true}
+                >
+                    {userLocation && (
+                        <Marker
+                            coordinate={userLocation}
+                            title="My Location"
+                            image={customIcon}
+                        />
+                    )}
                     {markers.map((marker, index) => (
                         <Marker
                             key={index}
@@ -134,7 +172,7 @@ const styles = StyleSheet.create({
     },
     mapViewMain: {
         position: 'relative',
-        flex: 1,
+        flex: 0,
         marginTop: '5%'
     },
     mapView: {

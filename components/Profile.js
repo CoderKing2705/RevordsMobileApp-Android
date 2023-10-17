@@ -18,7 +18,7 @@ const Profile = ({ route, navigation }) => {
                 <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={{ flexDirection: 'row', width: '95%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
                         <Text style={styles.welcomeText}>User Profile</Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('ProfileEdit')}>
+                        <TouchableOpacity onPress={() => navigation.navigate('ProfileEdit', {MemberData: MemberData})}>
                             <Image source={require('../assets/more-button.png')} style={styles.setimg1} />
                         </TouchableOpacity>
                     </View>
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
         marginTop: -16,
         position: 'absolute',
         alignSelf: 'flex-end',
-        right: 0
+        right: -20
     },
     iconimg1: {
         width: 35,

@@ -6,14 +6,16 @@ import { TouchableOpacity } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import SelectDropdown from 'react-native-select-dropdown';
+import Globals from '../components/Globals';
 
 
-export default function RegistrationPage() {
+export default function RegistrationPage({ route }) {
     const [selectedMonths, setSelectedMonth] = useState('January');
     const [selectDays, setSelectedDays] = useState('1');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-
+    const { Phone } = route.params;
+    console.log(Phone)
     const months = [
         'January', 'February', 'March', 'April', 'May',
         'June', 'July', 'August', 'September', 'October',
@@ -23,34 +25,42 @@ export default function RegistrationPage() {
     const days = Array.from({ length: 31 }, (_, index) => (index + 1).toString());
     const navigation = useNavigation();
     const start = () => {
-        // navigation.navigate('TabNavigation');
-        console.log(name)
-        console.log(email)
-        console.log(selectDays)
-        console.log(selectedMonths)
-        // let currentDate = (new Date()).toISOString();
-        // let currentYear = new Date().getFullYear();
-        // fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileByPhone', {
-        //     method: 'POST',
-        //     headers: {
-        //         Accept: 'application/json',
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({
-        //         "uniqueID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        //         "id": 0,
-        //         "memberName": name,
-        //         "birthDate": `${currentYear}-${selectedMonths}-${selectDays}`,
-        //         "emailID": email,
-        //         "phoneNo": currentDate,
-        //         "isActive": true,
-        //         "createdBy": 1,
-        //         "createdDate": currentDate,
-        //         "lastModifiedBy": 1,
-        //         "lastModifiedDate": currentDate,
-        //         "memberProfile": []
-        //     }),
-        // }).then((res) => console.log(res.json())).then((json) => {console.log(json)});
+
+        const monthIndex = months.findIndex(month => month.toLowerCase() === selectedMonths.toLowerCase());
+        const birthMonth = monthIndex > 8 ? monthIndex + 1 : '0' + (monthIndex + 1);
+        const birthDay = selectDays > 9 ? selectDays : '0' + selectDays;
+
+        const MemberData = [{
+            "name": name,
+            "phone": Phone,
+            "emailId": email
+        }]
+        let currentDate = (new Date()).toISOString();
+        let currentYear = new Date().getFullYear();
+        fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileByPhone', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "uniqueID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                "id": 0,
+                "memberName": name,
+                "birthDate": `${currentYear}-${birthMonth}-${selectDays}`,
+                "emailID": email,
+                "phoneNo": Phone,
+                "isActive": true,
+                "createdBy": 1,
+                "createdDate": currentDate,
+                "lastModifiedBy": 1,
+                "lastModifiedDate": currentDate,
+                "memberProfile": []
+            }),
+        }).then((res) => {
+            console.log(JSON.stringify(res))
+            navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
+        });
     }
 
     return (

@@ -2,16 +2,16 @@ import { StyleSheet, Image, Text, View } from 'react-native';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import { useRef, useState } from 'react';
 
-
 const GetOtp = ({ route, navigation }) => {
     const [otp, setOtp] = useState(['', '', '', '']);
     const refs = [useRef(), useRef(), useRef(), useRef()];
     // const verificationCode = 1234;
     const [isVerified, setIsVerified] = useState(true);
-    const { OTP, CustomerExists } = route.params;
+    const { OTP, CustomerExists, Phone } = route.params;
     console.log(OTP);
 
-    
+    const [token, setToken] = useState(null);
+
     const handleInputChange = (text, index) => {
         let newOtp = [...otp];
         newOtp[index] = text;
@@ -38,18 +38,25 @@ const GetOtp = ({ route, navigation }) => {
         console.log('resend')
     }
 
-    const verifyOtp = () => {
-        if (otp.join('').length !== 0) {
-            if (otp.join('') == OTP) {
-                setIsVerified(true);
-                if (CustomerExists) {
-                    navigation.navigate('TabNavigation', { MemberData: CustomerExists });
+    const verifyOtp = async () => {
+        try {
+            if (otp.join('').length !== 0) {
+                if (otp.join('') == OTP) {
+                    setIsVerified(true);
+                    // if (CustomerExists) {
+                    // navigation.navigate('TabNavigation', { MemberData: CustomerExists });
+                    // } else {
+
+                    navigation.navigate('AppTour', { MemberData: CustomerExists, Phone: Phone });
+
+                    // }
                 } else {
-                    navigation.navigate('AppTour');
+                    setIsVerified(false);
                 }
-            } else {
-                setIsVerified(false);
             }
+        }
+        catch (error) {
+            console.error('Error storing token:', error);
         }
     }
 

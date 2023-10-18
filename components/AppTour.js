@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import GetStarted from './GetStarted';
-import VerifyNumber from './VerifyNumber';
 import TourPage1 from './TourPage1';
 import TourPage2 from './TourPage2';
 import TourPage3 from './TourPage3';
@@ -24,7 +22,6 @@ const AppTourGuide = ({ route, navigation }) => {
             console.log(2)
             navigation.navigate('RegistrationPage', { Phone: Phone });
         }
-        // navigation.navigate('RegistrationPage', { Phone: Phone });
     };
 
     const GotoRegistration = () => {
@@ -35,7 +32,7 @@ const AppTourGuide = ({ route, navigation }) => {
             console.log(2)
             navigation.navigate('RegistrationPage', { Phone: Phone });
         }
-        // navigation.navigate('RegistrationPage', { Phone: Phone });
+
     }
 
     const tourSteps = [
@@ -64,7 +61,6 @@ const AppTourGuide = ({ route, navigation }) => {
 
     return (
         <View style={styles.overlay}>
-            {/* <Text style={styles.tourText}>{tourSteps[step - 1].text}</Text> */}
             <View style={styles.tourPages}>
                 {tourSteps[step - 1].targetComponent}
             </View>

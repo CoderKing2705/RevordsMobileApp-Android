@@ -3,16 +3,15 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import { Avatar, Card, Drawer, Title } from 'react-native-paper';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { TouchableHighlight } from 'react-native-gesture-handler';
 import { FlatList } from 'react-native-gesture-handler';
-import MapViewing from './MapView';
-import { createStackNavigator } from '@react-navigation/stack';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const Location = ({ navigation }) => {
 
     // const navigation = useNavigation();
+    // const businessId = ;
+    const [loadingData, setLoadingData] = useState(true);
     const [userData, setUserData] = useState('');
     const userId = "1";
     const imagePath = "http://ho.hitechprojects.co.in:8101/wwwroot/bg-01.png";
@@ -20,17 +19,19 @@ const Location = ({ navigation }) => {
     const NavigateToMapView = () => {
         navigation.navigate("MapView")
     }
-    const NavigateToBusinessDetails = () => {
-        navigation.navigate("BusinessDetails")
+    NavigateToBusinessDetails = (item) => {
+        navigation.navigate("BusinessDetails", { id: item })
+        //console.log(item);
     }
     useEffect(() => {
+        setLoadingData(true);
         axios({
             method: 'GET',
             url: `${baseUrl}/${userId}`
         })
             .then(response => {
                 setUserData(response.data);
-                console.log(response.data[0])
+                //console.log(response.data[0])
             })
             .catch((error) => {
                 console.error("Error fetching data", error)
@@ -60,7 +61,7 @@ const Location = ({ navigation }) => {
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item }) => {
                             return (
-                                <Card style={styles.card} onPress={NavigateToBusinessDetails}>
+                                <Card style={styles.card} onPress={() => this.NavigateToBusinessDetails(item.id)}>
                                     <Card.Cover source={{ uri: imagePath }} style={styles.cardCover} />
                                     <Card.Title style={styles.avatarImg} left={() => <Avatar.Image size={50} left="70%" source={require('../assets/image-4-LPb.png')} />} />
                                     <Card.Content style={styles.cardContent}>
@@ -72,12 +73,23 @@ const Location = ({ navigation }) => {
                         }}
                     />
                 </View>
+                <SafeAreaView>
+                    <View style={styles.container}>
+                        <Spinner
+                            visible={loadingData}
+                            textContent={''}
+                            textStyle={styles.spinnerStyle} />
+                    </View>
+                </SafeAreaView>
             </View>
         </>
     );
 };
 
 const styles = StyleSheet.create({
+    spinnerStyle: {
+
+    },
     cardContent: {
         margin: '2%',
         flexDirection: 'column',

@@ -21,7 +21,7 @@ const Location = ({ navigation }) => {
     }
     NavigateToBusinessDetails = (item) => {
         navigation.navigate("BusinessDetails", { id: item })
-        //console.log(item);
+        console.log(item);
     }
     useEffect(() => {
         setLoadingData(true);
@@ -31,13 +31,14 @@ const Location = ({ navigation }) => {
         })
             .then(response => {
                 setUserData(response.data);
-                //console.log(response.data[0])
+                setLoadingData(false)
+                console.log(response.data[0])
+                
             })
             .catch((error) => {
                 console.error("Error fetching data", error)
             });
     }, []);
-
 
     return (
         <>

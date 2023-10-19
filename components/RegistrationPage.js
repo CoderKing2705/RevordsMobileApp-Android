@@ -1,6 +1,6 @@
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { View, Text, Image } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { StyleSheet } from 'react-native';
@@ -9,13 +9,14 @@ import SelectDropdown from 'react-native-select-dropdown';
 import Globals from '../components/Globals';
 
 
+
 export default function RegistrationPage({ route }) {
     const [selectedMonths, setSelectedMonth] = useState('January');
     const [selectDays, setSelectedDays] = useState('1');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const { Phone } = route.params;
-    console.log(Phone)
+    //console.log(Phone)
     const months = [
         'January', 'February', 'March', 'April', 'May',
         'June', 'July', 'August', 'September', 'October',
@@ -30,13 +31,19 @@ export default function RegistrationPage({ route }) {
         const birthMonth = monthIndex > 8 ? monthIndex + 1 : '0' + (monthIndex + 1);
         const birthDay = selectDays > 9 ? selectDays : '0' + selectDays;
 
-        const MemberData = [{
-            "name": name,
-            "phone": Phone,
-            "emailId": email
-        }]
+        const MemberData = [];
         let currentDate = (new Date()).toISOString();
         let currentYear = new Date().getFullYear();
+        // fetch(Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/',{
+        //     method:'GET',
+        //     headers: {
+        //         Accept: 'application/json',
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({
+
+        //     })
+        // })
         fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileByPhone', {
             method: 'POST',
             headers: {
@@ -59,10 +66,17 @@ export default function RegistrationPage({ route }) {
             }),
         }).then((res) => {
             console.log(JSON.stringify(res))
-            navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
+            getMemberData();
         });
     }
+    const getMemberData = async () => {
+        const response = await fetch(
+            Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + Phone)
+        const json = await response.json();
+        // MemberData = json;
+        navigation.navigate('TabNavigation', { MemberData: json, Phone: Phone });
 
+    }
     return (
         <View style={styles.screen93X}>
             <Text style={styles.createYourAccount}> Create your Account! </Text>

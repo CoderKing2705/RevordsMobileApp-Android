@@ -18,7 +18,7 @@ const Profile = ({ route, navigation }) => {
                 <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={{ flexDirection: 'row', width: '95%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
                         <Text style={styles.welcomeText}>User Profile</Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('ProfileEdit', {MemberData: MemberData})}>
+                        <TouchableOpacity onPress={() => navigation.navigate('ProfileEdit', { MemberData: MemberData })}>
                             <Image source={require('../assets/more-button.png')} style={styles.setimg1} />
                         </TouchableOpacity>
                     </View>

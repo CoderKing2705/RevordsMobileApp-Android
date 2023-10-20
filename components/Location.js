@@ -88,9 +88,6 @@ const Location = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    spinnerStyle: {
-
-    },
     cardContent: {
         margin: '2%',
         flexDirection: 'column',

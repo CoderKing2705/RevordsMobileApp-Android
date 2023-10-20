@@ -55,15 +55,9 @@ export default function MapViewing({ navigation }) {
                     longitudeDelta: 5.13,
                     latitudeDelta: 0.011
                 });
-            },
-            (error) => console.error("Error getting location", error),
-            {
-                enableHighAccuracy: true,
-                timeout: 2000,
-                maximumAge: 1000
             }
         )
-    })
+    },[])
     return (
         <View style={styles.container}>
 
@@ -84,9 +78,7 @@ export default function MapViewing({ navigation }) {
                     style={styles.mapView}
                     provider={PROVIDER_GOOGLE}
                     region={initialRegion}
-                    // minZoomLevel={15}
                     showsMyLocationButton={true}
-                    pitchEnabled={true}
                 >
                     {userLocation && (
                         <Marker

@@ -20,7 +20,7 @@ const Location = ({ navigation }) => {
         navigation.navigate("MapView")
     }
     NavigateToBusinessDetails = (item) => {
-        navigation.navigate("BusinessDetails", { id: item })
+        navigation.navigate("BusinessDetailView", { id: item })
         console.log(item);
     }
     useEffect(() => {
@@ -32,8 +32,8 @@ const Location = ({ navigation }) => {
             .then(response => {
                 setUserData(response.data);
                 setLoadingData(false)
-                console.log(response.data[0])
-                
+                // console.log(response.data[0])
+
             })
             .catch((error) => {
                 console.error("Error fetching data", error)

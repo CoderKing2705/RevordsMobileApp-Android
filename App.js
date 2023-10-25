@@ -9,8 +9,9 @@ import TabNavigation from "./components/TabNavigation";
 import ProfileEdit from "./components/ProfileEdit";
 import { useEffect } from "react";
 import LandingScreen from "./components/LandingScreen";
-import BusinessDetails from './components/BusinessDetails'
+
 import messaging from '@react-native-firebase/messaging';
+import BusinessDetailsView from "./components/BusinessDetailsView";
 
 export default function App() {
   const Stack = createStackNavigator();
@@ -32,7 +33,7 @@ export default function App() {
         <Stack.Screen name="RegistrationPage" component={RegistrationPage} options={{ headerShown: false }} />
         <Stack.Screen name="TabNavigation" component={TabNavigation} options={{ headerShown: false }} />
         <Stack.Screen name="ProfileEdit" component={ProfileEdit} options={{ headerShown: false }} />
-        <Stack.Screen name="BusinessDetails" component={BusinessDetails} options={{ headerShown: false }} />
+        <Stack.Screen name="BusinessDetailView" component={BusinessDetailsView} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

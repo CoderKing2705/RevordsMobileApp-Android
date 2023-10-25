@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Location from './Location';
 import MapViewing from './MapView';
-import BusinessDetails from './BusinessDetails';
+import BusinessDetailsView from './BusinessDetailsView';
 
 const LocationStack = ({ route, navigation }) => {
     const locationStack = createNativeStackNavigator();
@@ -17,7 +17,7 @@ const LocationStack = ({ route, navigation }) => {
                 <locationStack.Screen name="MapViewing" component={MapViewing} options={{
                     headerShown: false,
                 }} />
-                <locationStack.Screen name="BusinessDetails" component={BusinessDetails} options={{
+                <locationStack.Screen name="BusinessDetailView" component={BusinessDetailsView} options={{
                     headerShown: false
                 }} />
             </locationStack.Navigator>

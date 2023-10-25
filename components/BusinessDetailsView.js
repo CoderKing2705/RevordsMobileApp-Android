@@ -1,69 +1,75 @@
-import { StyleSheet, View, Image, Text, ScrollView } from "react-native";
-import Globals from '../components/Globals';
-import { useEffect, useState } from "react";
+import { StyleSheet } from 'react-native'
+import { View, Text, Image } from 'react-native'
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from "axios";
-import { SafeAreaView } from "react-native";
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import Globals from '../components/Globals';
+import { SafeAreaView } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { StatusBar } from "react-native";
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
-export default function BusinessDetails({ route }) {
+export default function BusinessDetailsView({ route }) {
     const navigation = useNavigation();
-    const id = route.params.id;
-    const businessGroupId = "1";
-    const [businessDetails, setBusinessDetails] = useState([]);
+    const goBackToCardView = () => {
+        navigation.navigate("Location")
+    };
     const businessDetailsAPI = `${Globals.API_URL}/BusinessProfiles`;
+    const businessGroupId = "1";
+    const userEarnedRewardsAPI = `http://ho.hitechprojects.co.in:8101/api/RewardConfigs/GetRewardConfigBusinessGroupwiseMemberwise/${businessGroupId}`;
+    const id = route.params.id;
+    const [businessDetails, setBusinessDetails] = useState([]);
+    const [earnerRewards, setEarnedRevards] = useState([]);
     const imagePath = businessDetails ? businessDetails.imagePath : null;
     const logoPath = businessDetails ? businessDetails.logoPath : null;
     const imageUrl = `http://ho.hitechprojects.co.in:8101/WWWROOT/${imagePath}`;
     const logoUrl = `http://ho.hitechprojects.co.in:8101/WWWROOT/${logoPath}`;
-    const earnedRewardsAPI = `http://ho.hitechprojects.co.in:8101/api/RewardConfigs/GetRewardConfigBusinessGroupwiseMemberwise/${businessGroupId}`;
-    const [earnerRewards, setEarnedRevards] = useState([{}]);
-    const [memberData, setMemberData] = useState([])
-    const goBackToCardView = () => {
-        navigation.navigate("Locations")
-    };
+    const initialRegion = {
+        latitude: businessDetails.latitude,
+        longitude: businessDetails.longitude,
+        latitudeDelta: 2.0992,
+        longitudeDelta: 2.0421
+    }
+    //const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    // const formattedTimes = {};
+
+    // daysOfWeek.forEach(day => {
+    //     const fromTime = new Date(businessDetails.businesswiseWorkingDays[0][`${day.toLowerCase()}FromTime`]);
+    //     const toTime = new Date(businessDetails.businesswiseWorkingDays[0][`${day.toLowerCase()}ToTime`]);
+    //     const formattedFromTime = `${fromTime.getHours().toString().padStart(2, '0')}:${fromTime.getMinutes().toString().padStart(2, '0')}`;
+    //     const formattedToTime = `${toTime.getHours().toString().padStart(2, '0')}:${toTime.getMinutes().toString().padStart(2, '0')}`;
+
+    //     formattedTimes[day] = `${formattedFromTime} - ${formattedToTime}`;
+    // })
     useEffect(() => {
-        //console.log('sdfsfsdffsfdfsfsfsf')
-        AsyncStorage.getItem('token')
-            .then(value => {
-                if (value !== null) {
-                    let a = [];
-                    a = value;
-                    setMemberData(JSON.parse(a)[0].memberId);
-                    // console.log(memberData);
-                }
-            })
-            .catch(error => {
-                console.error('Error retrieving data:', error);
-            });
         axios({
             method: 'GET',
             url: `${businessDetailsAPI}/${id}`
-        })
-            .then(response => {
-                setBusinessDetails(response.data)
-                console.log(response.data)
-                console.log(1111)
-                console.log(businessDetails.businesswiseWorkingDays[0].sunFromTime);
-            })
-            .catch(error => {
-                console.log("Error Fetching data", error)
-            });
+        }).then((response) => {
+            setBusinessDetails(response.data)
+            // console.log(businessDetails.adress)
+            // console.log(businessDetails.businesswiseWorkingDays)
+            // console.log(businessDetails.latitude);
+            // console.log(businessDetails.longitude);
+            console.log(businessDetails.longitude)
+            console.log(businessDetails.latitude)
+        }).catch((error) => {
+            console.log("Error fetching data:/", error)
+        });
+
         axios({
             method: 'GET',
-            url: `${earnedRewardsAPI}/1`
+            url: `${userEarnedRewardsAPI}/2`
+        }).then((response) => {
+            setEarnedRevards(response.data)
+            console.log(response.data)
+        }).catch((error) => {
+            console.log("Error fetching data", error);
         })
-            .then((response) => {
-                setEarnedRevards(response.data)
-                console.log(response.data)
-                console.log(earnerRewards[0].rewardName)
-            })
-            .catch(error => {
-                console.log("Error Fetching data", error)
-            });
+
     }, [])
+
 
     return (
         <View style={styles.container}>
@@ -85,7 +91,7 @@ export default function BusinessDetails({ route }) {
                         <Text style={{ fontWeight: 700, top: 5 }}> {businessDetails.businessName} </Text>
                         <Text style={{ color: '#717679', fontWeight: 700, top: 18 }}> {businessDetails.industry} </Text>
                         <Image source={{ uri: logoUrl }} style={styles.logoBusiness} />
-                        <View >
+                        <View>
                             <Text style={styles.loyaltyRewards}> Loyalty Rewards </Text>
                             <Text style={styles.subheading}> Earn 1 pt for every $10 spent </Text>
                             {earnerRewards.map((rewards, index) => (
@@ -102,17 +108,47 @@ export default function BusinessDetails({ route }) {
                                 <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={require('../assets/rectangle-34.png')} />
                             </View>
                         </View>
+                        <Text style={{ marginTop: '10%', fontWeight: '900' }}> Hours </Text>
+                        {/* <View style={{ color: '#717679', fontWeight: '700' }}>
+                            {Object.entries(formattedTimes).map(([day, timeRange]) => (
+                                <View key={day}>
+                                    <Text>
+                                        {day} : {timeRange}
+                                    </Text>
+                                </View>
+                            ))}
+                        </View> */}
                         <View>
-                            <Text style={{ marginTop: '10%', fontWeight: '900' }}> Hours </Text>
-                            <Text> Monday: {businessDetails.businesswiseWorkingDays[0].monFromTime}  </Text>
+                            <Text style={styles.adressHeading}> Address: </Text>
+                            <Text style={{ color: '#8c9194', fontSize: 16, marginTop: '2%' }}> {businessDetails.adress} </Text>
                         </View>
+                    </View>
+                    <View style={styles.mapViewMain}>
+                        <MapView
+                            provider={PROVIDER_GOOGLE}
+                            initialRegion={initialRegion}>
+                            <Marker
+                                coordinate={{
+                                    latitude: businessDetails.latitude,
+                                    longitude: businessDetails.longitude
+                                }} />
+                        </MapView>
                     </View>
                 </ScrollView>
             </SafeAreaView>
         </View>
     )
 }
+
 const styles = StyleSheet.create({
+    mapViewMain: {
+        width: 20,
+        height: 20
+    },
+    adressHeading: {
+        marginTop: '10%',
+        fontWeight: '900'
+    },
     subheading: {
         fontWeight: '500',
         fontSize: 12,
@@ -171,4 +207,4 @@ const styles = StyleSheet.create({
         top: 10,
         left: 15
     }
-});
+})

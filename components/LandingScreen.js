@@ -33,6 +33,7 @@ const LandingScreen = ({ navigation }) => {
             .catch(error => {
                 console.error('Error retrieving data:', error);
             });
+
         // AsyncStorage.clear()
         //     .then(() => {
         //         console.log('All data cleared successfully!');

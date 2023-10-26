@@ -8,69 +8,86 @@ import Globals from '../components/Globals';
 import { SafeAreaView } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StatusBar } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { useIsFocused } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 export default function BusinessDetailsView({ route }) {
     const navigation = useNavigation();
+    const isFocused = useIsFocused();
+    const [loading, setLoading] = useState(false);
     const goBackToCardView = () => {
-        navigation.navigate("Location")
+        navigation.navigate("Locations")
     };
     const businessDetailsAPI = `${Globals.API_URL}/BusinessProfiles`;
     const businessGroupId = "1";
-    const userEarnedRewardsAPI = `http://ho.hitechprojects.co.in:8101/api/RewardConfigs/GetRewardConfigBusinessGroupwiseMemberwise/${businessGroupId}`;
+    const userEarnedRewardsAPI = Globals.API_URL + `/RewardConfigs/GetRewardConfigBusinessGroupwiseMemberwise/${businessGroupId}`;
     const id = route.params.id;
     const [businessDetails, setBusinessDetails] = useState([]);
     const [earnerRewards, setEarnedRevards] = useState([]);
     const imagePath = businessDetails ? businessDetails.imagePath : null;
     const logoPath = businessDetails ? businessDetails.logoPath : null;
-    const imageUrl = `http://ho.hitechprojects.co.in:8101/WWWROOT/${imagePath}`;
-    const logoUrl = `http://ho.hitechprojects.co.in:8101/WWWROOT/${logoPath}`;
-    const initialRegion = {
-        latitude: businessDetails.latitude,
-        longitude: businessDetails.longitude,
-        latitudeDelta: 2.0992,
-        longitudeDelta: 2.0421
+    const imageUrl = Globals.Root_URL + `${imagePath}`;
+    const logoUrl = Globals.Root_URL + `${logoPath}`;
+    const wdays = Globals.API_URL + '/BusinessProfiles/GetBusinesswiseWorkingDaysForMobile';
+    const [workingDays, setWorkingDays] = useState([{}]);
+    const [error, setError] = useState(null);
+    const [MemberData, setMemberData] = useState([{}]);
+
+    async function setBusinessDetailsAwait(data) {
+        await setBusinessDetails(data);
     }
-    //const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    // const formattedTimes = {};
+    async function setworkingDaysAwait(data) {
+        await setWorkingDays(data);
+    }
 
-    // daysOfWeek.forEach(day => {
-    //     const fromTime = new Date(businessDetails.businesswiseWorkingDays[0][`${day.toLowerCase()}FromTime`]);
-    //     const toTime = new Date(businessDetails.businesswiseWorkingDays[0][`${day.toLowerCase()}ToTime`]);
-    //     const formattedFromTime = `${fromTime.getHours().toString().padStart(2, '0')}:${fromTime.getMinutes().toString().padStart(2, '0')}`;
-    //     const formattedToTime = `${toTime.getHours().toString().padStart(2, '0')}:${toTime.getMinutes().toString().padStart(2, '0')}`;
-
-    //     formattedTimes[day] = `${formattedFromTime} - ${formattedToTime}`;
-    // })
+    async function setMemData(value) {
+        await setMemberData(value);
+    }
+    async function setEarnedRevardsData(value) {
+        await setEarnedRevards(value);
+    }
     useEffect(() => {
+        setLoading(true);
+        AsyncStorage.getItem('token')
+            .then(async (value) => {
+                if (value !== null) {
+                    await setMemData(JSON.parse(value));
+                }
+            })
+            .catch(error => {
+                console.error('Error retrieving dataa:', error);
+                setLoading(false);
+            });
+
         axios({
             method: 'GET',
             url: `${businessDetailsAPI}/${id}`
-        }).then((response) => {
-            setBusinessDetails(response.data)
-            // console.log(businessDetails.adress)
-            // console.log(businessDetails.businesswiseWorkingDays)
-            // console.log(businessDetails.latitude);
-            // console.log(businessDetails.longitude);
-            console.log(businessDetails.longitude)
-            console.log(businessDetails.latitude)
+        }).then(async (response) => {
+            await setBusinessDetailsAwait(response.data)
         }).catch((error) => {
             console.log("Error fetching data:/", error)
+            setLoading(false);
         });
 
         axios({
             method: 'GET',
-            url: `${userEarnedRewardsAPI}/2`
-        }).then((response) => {
-            setEarnedRevards(response.data)
-            console.log(response.data)
+            url: `${userEarnedRewardsAPI}/${MemberData[0].memberId}`
+        }).then(async (response) => {
+            await setEarnedRevardsData(response.data)
         }).catch((error) => {
             console.log("Error fetching data", error);
-        })
+            setLoading(false);
+        });
 
-    }, [])
-
-
+        axios({
+            method: 'GET',
+            url: `${wdays}/${id}`
+        }).then(async (response) => {
+            await setworkingDaysAwait(response.data);
+            setLoading(false);
+        });
+    }, [isFocused])
     return (
         <View style={styles.container}>
             <View style={{ marginTop: '1%', flexDirection: 'row', width: '80%', height: '5%', alignItems: 'center', justifyContent: 'center' }}>
@@ -96,7 +113,7 @@ export default function BusinessDetailsView({ route }) {
                             <Text style={styles.subheading}> Earn 1 pt for every $10 spent </Text>
                             {earnerRewards.map((rewards, index) => (
                                 <Text key={index} style={{ fontWeight: '700', fontSize: 15, marginTop: '2%' }}>
-                                    {earnerRewards[0].rewardName}
+                                    {earnerRewards[index].rewardName}
                                 </Text>
                             ))}
                         </View>
@@ -108,39 +125,38 @@ export default function BusinessDetailsView({ route }) {
                                 <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={require('../assets/rectangle-34.png')} />
                             </View>
                         </View>
-                        <Text style={{ marginTop: '10%', fontWeight: '900' }}> Hours </Text>
-                        {/* <View style={{ color: '#717679', fontWeight: '700' }}>
-                            {Object.entries(formattedTimes).map(([day, timeRange]) => (
-                                <View key={day}>
-                                    <Text>
-                                        {day} : {timeRange}
-                                    </Text>
-                                </View>
+                        <View style={styles.workingDays} >
+                            <Text style={{ marginTop: '10%', fontWeight: '900' }}> Hours </Text>
+                            {workingDays.map((day, index) => (
+                                <Text key={index}>
+                                    {`${day.dayName}: ${day.fromTime} - ${day.toTime}`}
+                                </Text>
                             ))}
-                        </View> */}
+                        </View>
                         <View>
                             <Text style={styles.adressHeading}> Address: </Text>
                             <Text style={{ color: '#8c9194', fontSize: 16, marginTop: '2%' }}> {businessDetails.adress} </Text>
                         </View>
                     </View>
-                    <View style={styles.mapViewMain}>
-                        <MapView
-                            provider={PROVIDER_GOOGLE}
-                            initialRegion={initialRegion}>
-                            <Marker
-                                coordinate={{
-                                    latitude: businessDetails.latitude,
-                                    longitude: businessDetails.longitude
-                                }} />
-                        </MapView>
-                    </View>
                 </ScrollView>
+            </SafeAreaView>
+            <SafeAreaView style={{ flex: 1 }}>
+                <View style={styles.container}>
+                    <Spinner
+                        visible={loading}
+                        textContent={''}
+                        textStyle={styles.spinnerTextStyle}
+                    />
+                </View>
             </SafeAreaView>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
+    workingDays: {
+        marginLeft: '4%'
+    },
     mapViewMain: {
         width: 20,
         height: 20

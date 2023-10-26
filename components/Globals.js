@@ -1,5 +1,6 @@
 export default {
     API_URL: 'http://ho.hitechprojects.co.in:8101/api',
+    Root_URL: 'http://ho.hitechprojects.co.in:8101/WWWRoot/',
     MemberProfile_URL:'/MemberProfiles/',
     BASE_URL: 'http://someurl.com',
     COLOR: {

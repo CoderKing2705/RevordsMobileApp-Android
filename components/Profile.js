@@ -7,10 +7,43 @@ import ProfileEdit from './ProfileEdit';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect } from 'react';
+import { useIsFocused } from "@react-navigation/native";
 
 const Profile = ({ route, navigation }) => {
+    const focus = useIsFocused()
     const Stack = createNativeStackNavigator();
-    const { MemberData } = route.params;
+    // const { MemberData } = route.params;
+    const [name, setName] = useState('');
+    const [emailId, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [MemberData, setMemberData] = useState([{}]);
+
+
+    async function setMemData(value) {
+        await setMemberData(value);
+        console.log('111111', MemberData)
+        setName(value[0].name);
+        setEmail(value[0].emailId);
+        let numP1 = String(value[0].phone).toString().substring(0, 3);
+        let numP2 = String(value[0].phone).toString().substring(3, 6);
+        let numP3 = String(value[0].phone).toString().substring(6,);
+        setPhone('(' + numP1 + ') ' + numP2 + '-' + numP3);
+    }
+    useEffect(() => {
+        AsyncStorage.getItem('token')
+            .then(async (value) => {
+
+                if (value !== null) {
+                    await setMemData(JSON.parse(value));
+                }
+            })
+            .catch(error => {
+                console.error('Error retrieving dataa:', error);
+            });
+
+    }, [focus]);
 
     return (
         <>
@@ -27,8 +60,7 @@ const Profile = ({ route, navigation }) => {
                         marginTop: 16, borderRadius: 23
                     }}>
                         <Image source={require('../assets/ellipse-5-bg.png')} style={styles.img1} />
-                        <Text style={styles.welcomeText}>{MemberData[0].name}</Text>
-                        {/* <Text style={styles.welcomeText}>000</Text> */}
+                        <Text style={styles.welcomeText}>{name}</Text>
 
                         <View style={{ backgroundColor: '#f2f5f6', width: '95%', marginTop: 16, borderRadius: 23 }}>
                             <View style={{
@@ -36,8 +68,7 @@ const Profile = ({ route, navigation }) => {
                                 marginTop: 16, marginLeft: 16
                             }}>
                                 <Image source={require('../assets/auto-group-m9hk.png')} style={styles.iconimg1} />
-                                <Text style={styles.innerDText}>{MemberData[0].phone}</Text>
-                                {/* <Text style={styles.innerDText}>000</Text> */}
+                                <Text style={styles.innerDText}>{phone}</Text>
 
                             </View>
                             <View style={{
@@ -45,8 +76,7 @@ const Profile = ({ route, navigation }) => {
                                 marginLeft: 16, paddingVertical: 16
                             }}>
                                 <Image source={require('../assets/auto-group-edy5.png')} style={styles.iconimg1} />
-                                <Text style={styles.innerDText}>{MemberData[0].emailId}</Text>
-                                {/* <Text style={styles.innerDText}>000</Text> */}
+                                <Text style={styles.innerDText}>{emailId}</Text>
                             </View>
                         </View>
                         <View style={{ backgroundColor: 'white', width: '100%', marginTop: 16, borderRadius: 23 }}>

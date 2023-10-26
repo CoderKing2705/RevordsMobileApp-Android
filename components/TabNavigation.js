@@ -33,13 +33,13 @@ export default function TabNavigation({ route, navigation }) {
             console.error('Error retrieving data:', error);
         });
 
-//     AsyncStorage.clear()
-//   .then(() => {
-//     console.log('All data cleared successfully!');
-//   })
-//   .catch(error => {
-//     console.error('Error clearing data:', error);
-//   });
+    //     AsyncStorage.clear()
+    //   .then(() => {
+    //     console.log('All data cleared successfully!');
+    //   })
+    //   .catch(error => {
+    //     console.error('Error clearing data:', error);
+    //   });
 
     return (
         <>
@@ -63,7 +63,7 @@ export default function TabNavigation({ route, navigation }) {
                         <Ionicons name="compass-outline" color={color} size={size} />
                     ),
                 }} />
-                <Tab.Screen name="Favourite" component={Favourite} options={{
+                <Tab.Screen name="Favourite" component={Favourite} initialParams={{ MemberData }} options={{
                     headerShown: false, tabBarIcon: ({ color, size }) => (
                         <Ionicons name="heart" color={color} size={size} />
                     ),

@@ -1,11 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Image, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Globals from './Globals';
 
 const LandingScreen = ({ navigation }) => {
+    const focus = useIsFocused();
+
     const [loading, setLoading] = useState(true);
     //   setLoading(true);
     // setTimeout(() => {
@@ -17,11 +21,9 @@ const LandingScreen = ({ navigation }) => {
         AsyncStorage.getItem('token')
             .then(value => {
                 if (value !== null) {
-                    console.log(value)
-                    setTimeout(() => {
-                        setLoading(false);
-                        navigation.navigate('TabNavigation', { MemberData: JSON.parse(value) });
-                    }, 2500);
+                    console.log('token exist', (JSON.parse(value))[0].phone)
+                    getMemberData((JSON.parse(value))[0].phone, value);
+
                 } else {
                     console.log('Value does not exist');
                     setTimeout(() => {
@@ -41,7 +43,24 @@ const LandingScreen = ({ navigation }) => {
         //     .catch(error => {
         //         console.error('Error clearing data:', error);
         //     });
-    }, []);
+    }, [focus]);
+
+    const getMemberData = async (phone, value) => {
+        const response = await fetch(
+            Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + phone)
+        const json = await response.json();
+        AsyncStorage.setItem('token', JSON.stringify(json))
+            .then(() => {
+                console.log('Data saved successfully!');
+                setTimeout(() => {
+                    setLoading(false);
+                    navigation.navigate('TabNavigation', { MemberData: JSON.parse(value) });
+                }, 2500);
+            })
+            .catch(error => {
+                console.error('Error saving data:', error);
+            });
+    }
     return (
         <View style={styles.container}>
             <Image source={require('../assets/companylogo.png')} style={styles.companylogo} />

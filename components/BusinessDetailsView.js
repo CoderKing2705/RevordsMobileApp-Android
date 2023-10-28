@@ -11,10 +11,17 @@ import { StatusBar } from "react-native";
 import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Spinner from 'react-native-loading-spinner-overlay';
+import MapView, { Marker, Callout, PROVIDER_GOOGLE, CalloutSubview } from 'react-native-maps';
+import currentIcon from '../assets/casinoIcon.png';
+import Geolocation from '@react-native-community/geolocation';
 
 export default function BusinessDetailsView({ route }) {
     const navigation = useNavigation();
     const isFocused = useIsFocused();
+    lang = 0;
+    lat = 0;
+    const [initialRegion, setInitialRegion] = useState(null);
+    memberID = 0;
     const [loading, setLoading] = useState(false);
     const goBackToCardView = () => {
         navigation.navigate("Locations")
@@ -31,8 +38,23 @@ export default function BusinessDetailsView({ route }) {
     const logoUrl = Globals.Root_URL + `${logoPath}`;
     const wdays = Globals.API_URL + '/BusinessProfiles/GetBusinesswiseWorkingDaysForMobile';
     const [workingDays, setWorkingDays] = useState([{}]);
+    const [selectedMarker, setSelectedMarker] = useState(null);
     const [error, setError] = useState(null);
     const [MemberData, setMemberData] = useState([{}]);
+    async function setMarkers(centerLat, centerLong) {
+        console.log('cenbeffsdaf');
+        console.log(centerLat);
+        setInitialRegion({
+            latitude: centerLat,
+            longitude: centerLong,
+            longitudeDelta: (0.0922 * 2),
+            latitudeDelta: 0.0922
+        });
+    }
+
+    const handleMarkerPress = (marker) => {
+        setSelectedMarker(marker);
+    }
 
     async function setBusinessDetailsAwait(data) {
         await setBusinessDetails(data);
@@ -47,12 +69,27 @@ export default function BusinessDetailsView({ route }) {
     async function setEarnedRevardsData(value) {
         await setEarnedRevards(value);
     }
-    useEffect(() => {
+    async function LoandData() {
         setLoading(true);
+
         AsyncStorage.getItem('token')
             .then(async (value) => {
                 if (value !== null) {
+                    memberID = (JSON.parse(value))[0].memberId;
+                    axios({
+                        method: 'GET',
+                        url: `${userEarnedRewardsAPI}/${memberID}`
+                    }).then(async (response) => {
+                        await setEarnedRevardsData(response.data)
+
+                    }).catch((error) => {
+                        console.log("Error fetching data", error);
+                        setLoading(false);
+                    });
                     await setMemData(JSON.parse(value));
+
+                } else {
+                    console.log('not available')
                 }
             })
             .catch(error => {
@@ -60,86 +97,196 @@ export default function BusinessDetailsView({ route }) {
                 setLoading(false);
             });
 
+    }
+    async function setLangandLat(latitude, longitude) {
+        lang = longitude,
+            lat = latitude
+    }
+
+    useEffect(() => {
+
+        LoandData();
         axios({
             method: 'GET',
             url: `${businessDetailsAPI}/${id}`
         }).then(async (response) => {
-            await setBusinessDetailsAwait(response.data)
+            console.log('2')
+            console.log(response.data);
+            await Geolocation.getCurrentPosition(
+                async position => {
+                    const { latitude, longitude } = position.coords;
+                    console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+                    console.log("b lat.", response.data.latitude)
+                    console.log("b lon.", response.data.longitude)
+
+                    const toRadian = n => (n * Math.PI) / 180
+                    let lat2 = response.data.latitude
+                    let lon2 = response.data.longitude
+                    let lat1 = latitude
+                    let lon1 = longitude
+                    console.log(lat1, lon1 + "===" + lat2, lon2)
+                    let R = 6371  // km
+                    let x1 = lat2 - lat1
+                    let dLat = toRadian(x1)
+                    let x2 = lon2 - lon1
+                    let dLon = toRadian(x2)
+                    let a =
+                        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                        Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+                    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+                    let d = R * c
+                    response.data.distance = parseInt(d * 0.621371);
+
+                    await setBusinessDetailsAwait(response.data)
+                    await setMarkers(parseFloat(response.data.latitude), parseFloat(response.data.longitude));
+                },
+                error => {
+                    console.error('Error getting current location: ', error);
+                },
+                { enableHighAccuracy: false, timeout: 500 }
+            );
+         
         }).catch((error) => {
             console.log("Error fetching data:/", error)
             setLoading(false);
         });
+        console.log(memberID);
+
 
         axios({
             method: 'GET',
-            url: `${userEarnedRewardsAPI}/${MemberData[0].memberId}`
+            url: `${wdays}/${1}`
         }).then(async (response) => {
-            await setEarnedRevardsData(response.data)
-        }).catch((error) => {
-            console.log("Error fetching data", error);
-            setLoading(false);
-        });
-
-        axios({
-            method: 'GET',
-            url: `${wdays}/${id}`
-        }).then(async (response) => {
+            // console.log('4')
             await setworkingDaysAwait(response.data);
             setLoading(false);
         });
     }, [isFocused])
     return (
         <View style={styles.container}>
-            <View style={{ marginTop: '1%', flexDirection: 'row', width: '80%', height: '5%', alignItems: 'center', justifyContent: 'center' }}>
-                <TouchableOpacity onPress={goBackToCardView}>
-                    <Image source={require('../assets/more-button-ved.png')} style={styles.setimg1} />
-                </TouchableOpacity>
-                <Text style={styles.welcomeText}>
-                    {businessDetails.businessName}
-                </Text>
-                <TouchableOpacity>
-                    <Image source={require('../assets/more-button-Cam.png')} style={styles.setimg2} />
-                </TouchableOpacity>
-            </View>
-            <SafeAreaView style={{ paddingTop: StatusBar.currentHeight }}>
-                <ScrollView style={{ flex: 1 }}>
-                    <View style={styles.detailView}>
-                        <Image source={{ uri: imageUrl }} style={styles.imageBusiness} />
-                        <Text style={{ fontWeight: 700, top: 5 }}> {businessDetails.businessName} </Text>
-                        <Text style={{ color: '#717679', fontWeight: 700, top: 18 }}> {businessDetails.industry} </Text>
-                        <Image source={{ uri: logoUrl }} style={styles.logoBusiness} />
-                        <View>
-                            <Text style={styles.loyaltyRewards}> Loyalty Rewards </Text>
-                            <Text style={styles.subheading}> Earn 1 pt for every $10 spent </Text>
-                            {earnerRewards.map((rewards, index) => (
-                                <Text key={index} style={{ fontWeight: '700', fontSize: 15, marginTop: '2%' }}>
-                                    {earnerRewards[index].rewardName}
-                                </Text>
-                            ))}
-                        </View>
-                        <View style={styles.photosView}>
-                            <Text style={{ marginTop: '10%', fontWeight: '900' }}> Photos </Text>
-                            <View style={{ flexDirection: 'row' }}>
-                                <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={require('../assets/rectangle-32.png')} />
-                                <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={require('../assets/rectangle-33.png')} />
-                                <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={require('../assets/rectangle-34.png')} />
+            <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ flexDirection: 'row', width: '97%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
+                    <TouchableOpacity style={{ width: '15%', height: '100%', alignItems: 'center', justifyContent: 'center' }} onPress={goBackToCardView}>
+                        <Image source={require('../assets/more-button-ved.png')} style={styles.setimg1} />
+                    </TouchableOpacity>
+                    <Text style={styles.welcomeText}>{businessDetails.businessName}</Text>
+                    <TouchableOpacity style={{ width: '15%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                        <Image source={require('../assets/notification-oRK.png')} style={styles.setimg2} />
+                    </TouchableOpacity>
+                </View>
+
+                <SafeAreaView style={{ paddingTop: '5%', height: '90%', width: '97%', alignItems: 'center', borderRadius: 50 }}>
+                    <ScrollView style={{ flex: 1, height: '100%', width: '97%', borderRadius: 50 }}>
+                        <View style={styles.detailView}>
+                            <Image source={{ uri: imageUrl }} style={styles.imageBusiness} />
+                            <Text style={{ fontWeight: '800', paddingHorizontal: '3%', fontSize: 18, top: 5 }}>{businessDetails.businessName}</Text>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                <Text style={{ color: '#717679', paddingHorizontal: '3%', fontWeight: '700', fontSize: 14, top: 12 }}>{businessDetails.industry}</Text>
+                                <Text style={{ color: '#73a5bc', paddingHorizontal: '3%', fontWeight: '700', fontSize: 14, top: 12, alignSelf: 'flex-end' }}> {businessDetails.distance} mi </Text>
+                            </View>
+                            <Image source={{ uri: logoUrl }} style={styles.logoBusiness} />
+                            <View style={{ paddingHorizontal: '3%' }}>
+                                <Text style={styles.loyaltyRewards}>Loyalty Rewards</Text>
+                                <Text style={styles.subheading}>Earn 1 pt for every visit</Text>
+                                {earnerRewards.map((rewards, index) => (
+                                    <Text key={index} style={{ fontWeight: '600', fontSize: 16, marginTop: '2%', paddingHorizontal: '2%' }}>
+                                        {earnerRewards[index].rewardName}
+                                    </Text>
+                                ))}
+                            </View>
+                            <View style={{ paddingHorizontal: '3%' }}>
+                                <Text style={{ marginTop: '7%', fontWeight: '700', fontSize: 18 }}>Photos</Text>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={require('../assets/rectangle-32.png')} />
+                                    <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={require('../assets/rectangle-33.png')} />
+                                    <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={require('../assets/rectangle-34.png')} />
+                                </View>
+                            </View>
+                            <View style={{ paddingHorizontal: '3%' }} >
+                                <Text style={{ marginTop: '7%', fontWeight: '700', fontSize: 18 }}>Hours</Text>
+                                {workingDays.map((day, index) => (
+                                    <Text key={index} style={{ marginTop: '1%', fontWeight: '700', color: '#717679', paddingHorizontal: '2%', fontSize: 12 }}>
+                                        {`${day.dayName}: ${day.fromTime} - ${day.toTime}`}
+                                    </Text>
+                                ))}
+                            </View>
+                            <View style={{ paddingHorizontal: '3%' }} >
+                                <Text style={styles.adressHeading}>Address:</Text>
+                                <Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>{businessDetails.adress}</Text>
+                            </View>
+                            <View style={{ paddingHorizontal: '3%', marginTop: '3%' }}>
+                                <View style={styles.mapViewMain}>
+                                    <MapView
+                                        style={styles.mapView}
+                                        provider={PROVIDER_GOOGLE}
+                                        region={initialRegion}
+                                        showsMyLocationButton={true}
+                                        selected={true}
+                                        scrollEnabled={false}
+                                        zoomEnabled={false}
+                                        customMapStyle={[
+                                            {
+                                                "featureType": "transit",
+                                                "elementType": "geometry",
+                                                "stylers": [
+                                                    {
+                                                        "color": "#f8f7f7"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "featureType": "road",
+                                                "elementType": "geometry",
+                                                "stylers": [
+                                                    {
+                                                        "color": "#c8d6e3"  // Blue color
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "featureType": "road",
+                                                "elementType": "labels.text.fill",
+                                                "stylers": [
+                                                    {
+                                                        "color": "#000"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "featureType": "water",
+                                                "elementType": "geometry",
+                                                "stylers": [
+                                                    {
+                                                        "color": "#95c3d6"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "featureType": "water",
+                                                "elementType": "labels.text.stroke",
+                                                "stylers": [
+                                                    {
+                                                        "color": "#000"
+                                                    }
+                                                ]
+                                            }
+                                        ]}
+                                    >
+                                        {initialRegion && (
+                                            <Marker
+                                                coordinate={initialRegion}
+                                                title={businessDetails.businessName}
+                                                image={currentIcon}
+                                            />
+                                        )}
+                                    </MapView>
+                                </View>
                             </View>
                         </View>
-                        <View style={styles.workingDays} >
-                            <Text style={{ marginTop: '10%', fontWeight: '900' }}> Hours </Text>
-                            {workingDays.map((day, index) => (
-                                <Text key={index}>
-                                    {`${day.dayName}: ${day.fromTime} - ${day.toTime}`}
-                                </Text>
-                            ))}
-                        </View>
-                        <View>
-                            <Text style={styles.adressHeading}> Address: </Text>
-                            <Text style={{ color: '#8c9194', fontSize: 16, marginTop: '2%' }}> {businessDetails.adress} </Text>
-                        </View>
-                    </View>
-                </ScrollView>
-            </SafeAreaView>
+                    </ScrollView>
+                </SafeAreaView>
+            </View>
+
             <SafeAreaView style={{ flex: 1 }}>
                 <View style={styles.container}>
                     <Spinner
@@ -155,52 +302,65 @@ export default function BusinessDetailsView({ route }) {
 
 const styles = StyleSheet.create({
     workingDays: {
-        marginLeft: '4%'
+        // marginLeft: '2%'
+        paddingHorizontal: '2%'
     },
     mapViewMain: {
-        width: 20,
-        height: 20
+        width: '100%',
+        height: 250
+    },
+    mapView: {
+        width: '100%',
+        height: '97%',
     },
     adressHeading: {
-        marginTop: '10%',
-        fontWeight: '900'
+        marginTop: '7%',
+        fontWeight: '700',
+        fontSize: 18
     },
     subheading: {
         fontWeight: '500',
         fontSize: 12,
         marginTop: '2%',
         marginLeft: '0.5%',
-        color: '#717679'
+        color: '#717679',
+        paddingHorizontal: '2%'
     },
     loyaltyRewards: {
-        marginTop: '20%',
-        fontWeight: '900'
+        marginTop: '15%',
+        fontWeight: '700',
+        fontSize: 18
     },
     detailView: {
         backgroundColor: 'white',
-        padding: 10,
-        height: 900,
+        // padding: 10,
+        height: '100%',
+        width: '100%',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20
     },
     logoBusiness: {
-        width: 50,
+        width: 100,
         height: 50,
-        top: 30,
-        right: -5
+        top: 20,
+        // right: -5,
+        marginHorizontal: '4%'
     },
     imageBusiness: {
-        width: 350,
-        height: 150,
+        width: '100%',
+        height: 175,
         position: 'relative',
-        borderRadius: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20
     },
     welcomeText: {
         color: 'black',
-        fontSize: 15,
-        fontWeight: '900',
-        textTransform: 'uppercase',
+        fontSize: 18,
+        fontWeight: '800',
+        marginTop: '15%',
         textAlign: 'center',
-        width: '80%',
-        top: 10
+        width: '70%',
+        height: '100%'
     },
     container: {
         height: '100%',
@@ -209,18 +369,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     setimg1: {
-        position: 'relative',
         width: 50,
         height: 50,
-        right: 15,
-        top: 10,
+        marginTop: 15,
+        // position: 'absolute',
+        alignSelf: 'center',
+        // right: -20
     },
     setimg2: {
-        position: 'relative',
         width: 50,
         height: 50,
-        right: 40,
-        top: 10,
-        left: 15
+        marginTop: 15,
+        alignSelf: 'center',
     }
 })

@@ -27,9 +27,9 @@ const VerifyNumber = ({ navigation }) => {
     let formdata = new FormData();
     generateRandomNumber();
     formdata.append("FromForm[DisplayName]", 'DisplayName')
-    formdata.append("FromForm[ToEmail]", this.ToEmail)
+    formdata.append("FromForm[ToEmail]", ToEmail)
     formdata.append("FromForm[Subject]", "OTP")
-    formdata.append("FromForm[Body]", this.randomnumber)
+    formdata.append("FromForm[Body]", randomnumber)
     formdata.append("FromForm[BusinessLogoPath]", "")
     formdata.append("FromForm[AnnoucementImagePath]", "")
     formdata.append("FromForm[RevordsImagePath]", "")
@@ -49,7 +49,7 @@ const VerifyNumber = ({ navigation }) => {
     const max = 9999;
     const randomNumber =
       Math.floor(Math.random() * (max - min + 1)) + min;
-    this.randomnumber = randomNumber.toString();
+    randomnumber = randomNumber.toString();
   };
 
   async function fetchAPI() {
@@ -59,21 +59,23 @@ const VerifyNumber = ({ navigation }) => {
         Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + unMaskPhone)
       const json = await response.json();
       // console.log(json);
-      this.CustomerExists = json != undefined && json.length > 0 ? json : null;
-      this.ToEmail = "parthskyward@gmail.com";
+      CustomerExists = json != undefined && json.length > 0 ? json : null;
+      ToEmail = "parthskyward@gmail.com";
       await MailSendAPI(ToEmail).then(
-        navigation.navigate('GetOtp', { OTP: this.randomnumber, CustomerExists: this.CustomerExists, Phone: unMaskPhone })
+        navigation.navigate('GetOtp', { OTP: randomnumber, CustomerExists: CustomerExists, Phone: unMaskPhone })
       ).catch();
       setLoading(false);
       return json;
     } catch (error) {
+      setLoading(false);
+      console.log(error)
       return error;
     }
   }
 
-  handleOnPress = () => {
+   const handleOnPress = async () => {
     try {
-      fetchAPI();
+      await fetchAPI();
     }
     catch (e) {
       console.log(e);
@@ -102,7 +104,7 @@ const VerifyNumber = ({ navigation }) => {
         placeholder="(000) 000-0000"
       />
 
-      <TouchableOpacity onPress={this.handleOnPress} style={styles.frame2vJu}>
+      <TouchableOpacity onPress={handleOnPress} style={styles.frame2vJu}>
         <Text style={styles.getStartednru}>Request Otp</Text>
         <Image source={require('../assets/arrowcircleright-R8m.png')} style={styles.arrowcirclerightTy3} />
       </TouchableOpacity>

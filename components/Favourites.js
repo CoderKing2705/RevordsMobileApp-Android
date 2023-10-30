@@ -7,6 +7,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import * as Progress from 'react-native-progress';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
+import Geolocation from '@react-native-community/geolocation';
 const Favourite = () => {
     const businessGroupId = "1";
     const wishListUrl = `${Globals.API_URL}/MembersWishLists/GetMemberWishListByMemberID`;
@@ -43,16 +44,48 @@ const Favourite = () => {
         axios({
             method: 'GET',
             url: `${wishListUrl}/${MemberData[0].memberId}`
-        }).then((response) => {
+        }).then(async (response) => {
             setWishList(response.data);
             const createdDate = new Date(response.data[0].createdDate);
             const day = createdDate.getDate();
             const month = createdDate.getMonth();
             const year = createdDate.getFullYear();
             const formatDate = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+            await Geolocation.getCurrentPosition(
+                async position => {
+                    const { latitude, longitude } = position.coords;
+                    console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+                    console.log("b lat.", response.data.latitude)
+                    console.log("b lon.", response.data.longitude)
+
+                    const toRadian = n => (n * Math.PI) / 180
+                    let lat2 = response.data.latitude
+                    let lon2 = response.data.longitude
+                    let lat1 = latitude
+                    let lon1 = longitude
+                    console.log(lat1, lon1 + "===" + lat2, lon2)
+                    let R = 6371  // km
+                    let x1 = lat2 - lat1
+                    let dLat = toRadian(x1)
+                    let x2 = lon2 - lon1
+                    let dLon = toRadian(x2)
+                    let a =
+                        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                        Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+                    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+                    let d = R * c
+                    response.data.distance = parseInt(d * 0.621371);
+
+                    await setBusinessDetailsAwait(response.data)
+                    await setMarkers(parseFloat(response.data.latitude), parseFloat(response.data.longitude));
+                },
+                error => {
+                    console.error('Error getting distance: ', error);
+                },
+                { enableHighAccuracy: false, timeout: 500 }
+            );
             setFormattedDate(formatDate);
             setBadgeColor(response.data[0].badgeColor);
-            // console.log(wishList)
         });
 
         axios({
@@ -81,7 +114,7 @@ const Favourite = () => {
                             <Text style={styles.totalLikes}> {item.totalLikes} likes </Text>
                             <Text style={styles.businessName}>{item.businessName}</Text>
                             <Text style={styles.industry}> {item.industry} </Text>
-                            <Text style={styles.memberDetails}> 320.20 mi | Member Since - {formattedDate}</Text>
+                            <Text style={styles.memberDetails}> {item.distance} mi | Member Since - {formattedDate}</Text>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                 <View style={styles.cardView}>
                                     <Card style={{ width: 150, height: 150, marginRight: 10 }}>
@@ -93,14 +126,14 @@ const Favourite = () => {
                                         <Card key={earnReward} style={{ width: 150, height: 150, marginRight: 10 }}>
                                             <Text style={styles.achievableName}> {earnerRewards[earnReward].rewardName} </Text>
                                             <Text style={styles.achievalbeValue}> {earnerRewards[earnReward].achivableTargetValue} pts </Text>
-                                            {/* <View>
-                                                    <Progress.Bar
-                                                        style={styles.progressBar}
-                                                        progress={index.pendingToAchiveValue / index.achivableTargetValue}
-                                                        width={110}
-                                                        color='#2ac95d' />
-                                                </View> */}
-                                            <Text style={styles.pendingpoints}> {earnReward.pendingToAchiveValue} left </Text>
+                                            <View>
+                                                <Progress.Bar
+                                                    style={styles.progressBar}
+                                                    progress={earnerRewards[earnReward].pendingToAchiveValue / earnerRewards[earnReward].achivableTargetValue}
+                                                    width={110}
+                                                    color='#2ac95d' />
+                                            </View>
+                                            <Text style={styles.pendingpoints}> {earnerRewards[earnReward].pendingToAchiveValue} left </Text>
                                         </Card>
                                     ))}
                                 </View>
@@ -117,18 +150,19 @@ const styles = StyleSheet.create({
     cardView: {
         width: 150,
         height: 150,
-        marginRight: 9
+        marginRight: 9,
+
     },
     pendingpoints: {
         color: '#73a5bc',
         fontWeight: '800',
-        top: 40,
-        left: 57,
-        bottom: 20,
+        top: 45,
+        left: 40,
+        bottom: 12,
         fontSize: 16
     },
     progressBar: {
-        top: 30,
+        top: 35,
         left: 20
     },
     achievalbeValue: {

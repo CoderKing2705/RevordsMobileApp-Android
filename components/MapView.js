@@ -8,11 +8,11 @@ import currentIcon from '../assets/currentlocation.png';
 import GeoLocation from 'react-native-geolocation-service';
 // import { PERMISSIONS } from 'react-native-permissions';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import * as Location from 'expo-location';
+// import * as Location from 'expo-location';
 import Geolocation from '@react-native-community/geolocation';
 import Globals from './Globals';
 import axios from 'axios';
-import { Button } from 'react-native-paper';
+// import { Button } from 'react-native-paper';
 
 export default function MapViewing({ navigation }) {
     const [initialRegion, setInitialRegion] = useState(null);
@@ -187,7 +187,7 @@ export default function MapViewing({ navigation }) {
                             coordinate={initialRegion}
                             title="My Location"
                             image={currentIcon}
-                            style={{width: 5, height: 5}}
+                            style={{ width: 5, height: 5 }}
                         />
                     )}
                     {businessData && businessData.map((business, index) => (

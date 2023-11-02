@@ -11,38 +11,9 @@ const VerifyNumber = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [unMaskPhone, setunMaskPhone] = useState('');
 
-  const startLoading = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 5000);
-  };
-
   spinner = false;
-  ToEmail = "";
   randomnumber = "";
   CustomerExists = false;
-
-  function MailSendAPI(ToEmail) {
-    let formdata = new FormData();
-    generateRandomNumber();
-    formdata.append("FromForm[DisplayName]", 'DisplayName')
-    formdata.append("FromForm[ToEmail]", ToEmail)
-    formdata.append("FromForm[Subject]", "OTP")
-    formdata.append("FromForm[Body]", randomnumber)
-    formdata.append("FromForm[BusinessLogoPath]", "")
-    formdata.append("FromForm[AnnoucementImagePath]", "")
-    formdata.append("FromForm[RevordsImagePath]", "")
-
-    return fetch(Globals.API_URL + '/Mail/Send', {
-      method: 'post',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      }, body: formdata
-    })
-      .then(response => { return response; })
-      .catch(err => { });
-  }
 
   function generateRandomNumber() {
     const min = 1000;
@@ -58,17 +29,13 @@ const VerifyNumber = ({ navigation }) => {
       const response = await fetch(
         Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + unMaskPhone)
       const json = await response.json();
-      // console.log(json);
       CustomerExists = json != undefined && json.length > 0 ? json : null;
-      ToEmail = "parthskyward@gmail.com";
-      await MailSendAPI(ToEmail).then(
-        navigation.navigate('GetOtp', { OTP: randomnumber, CustomerExists: CustomerExists, Phone: unMaskPhone })
-      ).catch();
+      navigation.navigate('GetOtp', { OTP: '1234', CustomerExists: CustomerExists, Phone: unMaskPhone })
       setLoading(false);
       return json;
     } catch (error) {
       setLoading(false);
-      console.log(error)
+      alert(error)
       return error;
     }
   }
@@ -78,7 +45,7 @@ const VerifyNumber = ({ navigation }) => {
       await fetchAPI();
     }
     catch (e) {
-      console.log(e);
+      alert(e);
     }
   }
 

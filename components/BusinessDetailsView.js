@@ -41,6 +41,7 @@ export default function BusinessDetailsView({ route }) {
     const [selectedMarker, setSelectedMarker] = useState(null);
     const [error, setError] = useState(null);
     const [MemberData, setMemberData] = useState([{}]);
+    
     async function setMarkers(centerLat, centerLong) {
         console.log('cenbeffsdaf');
         console.log(centerLat);
@@ -50,10 +51,6 @@ export default function BusinessDetailsView({ route }) {
             longitudeDelta: (0.0922 * 2),
             latitudeDelta: 0.0922
         });
-    }
-
-    const handleMarkerPress = (marker) => {
-        setSelectedMarker(marker);
     }
 
     async function setBusinessDetailsAwait(data) {
@@ -69,7 +66,7 @@ export default function BusinessDetailsView({ route }) {
     async function setEarnedRevardsData(value) {
         await setEarnedRevards(value);
     }
-    async function LoandData() {
+    async function LoadData() {
         setLoading(true);
 
         AsyncStorage.getItem('token')
@@ -98,14 +95,9 @@ export default function BusinessDetailsView({ route }) {
             });
 
     }
-    async function setLangandLat(latitude, longitude) {
-        lang = longitude,
-            lat = latitude
-    }
 
     useEffect(() => {
-
-        LoandData();
+        LoadData();
         axios({
             method: 'GET',
             url: `${businessDetailsAPI}/${id}`
@@ -145,7 +137,7 @@ export default function BusinessDetailsView({ route }) {
                 },
                 { enableHighAccuracy: false, timeout: 500 }
             );
-         
+
         }).catch((error) => {
             console.log("Error fetching data:/", error)
             setLoading(false);
@@ -155,7 +147,7 @@ export default function BusinessDetailsView({ route }) {
 
         axios({
             method: 'GET',
-            url: `${wdays}/${1}`
+            url: `${wdays}/${id}`
         }).then(async (response) => {
             // console.log('4')
             await setworkingDaysAwait(response.data);
@@ -166,7 +158,7 @@ export default function BusinessDetailsView({ route }) {
         <View style={styles.container}>
             <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
                 <View style={{ flexDirection: 'row', width: '97%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
-                    <TouchableOpacity style={{ width: '15%', height: '100%', alignItems: 'center', justifyContent: 'center' }} onPress={goBackToCardView}>
+                    <TouchableOpacity style={{ width: '15%', height: '100%', alignItems: 'center', justifyContent: 'center' }} onPress={() => navigation.navigate('Locations')}>
                         <Image source={require('../assets/more-button-ved.png')} style={styles.setimg1} />
                     </TouchableOpacity>
                     <Text style={styles.welcomeText}>{businessDetails.businessName}</Text>
@@ -276,8 +268,13 @@ export default function BusinessDetailsView({ route }) {
                                             <Marker
                                                 coordinate={initialRegion}
                                                 title={businessDetails.businessName}
-                                                image={currentIcon}
-                                            />
+                                            >
+                                                <Image
+                                                    source={(currentIcon)}
+                                                    style={{ width: 32, height: 32 }}
+                                                    resizeMode="contain"
+                                                />
+                                            </Marker>
                                         )}
                                     </MapView>
                                 </View>
@@ -343,7 +340,6 @@ const styles = StyleSheet.create({
         width: 100,
         height: 50,
         top: 20,
-        // right: -5,
         marginHorizontal: '4%'
     },
     imageBusiness: {

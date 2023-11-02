@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Image, Text, View } from 'react-native';
+import { StyleSheet, Image, Text, View, TouchableOpacity } from 'react-native';
 import Globals from '../components/Globals';
 import { Card } from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -8,32 +8,102 @@ import * as Progress from 'react-native-progress';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import Geolocation from '@react-native-community/geolocation';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Spinner from 'react-native-loading-spinner-overlay';
+import moment, { isMoment } from 'moment/moment';
 const Favourite = () => {
     const businessGroupId = "1";
+    lang = 0;
+    lat = 0;
     const wishListUrl = `${Globals.API_URL}/MembersWishLists/GetMemberWishListByMemberID`;
     const userEarnedRewardsAPI = Globals.API_URL + `/RewardConfigs/GetRewardConfigBusinessGroupwiseMemberwise/${businessGroupId}`;
     const [wishList, setWishList] = useState([]);
     const [formattedDate, setFormattedDate] = useState([]);
     const logoPath = wishList[0] ? wishList[0].logoPath : null;
     const logoUrl = Globals.Root_URL + `${logoPath}`;
-    const [badgeColor, setBadgeColor] = useState([]);
     const [MemberData, setMemberData] = useState([{}]);
     const [loading, setLoading] = useState(false);
     const [earnerRewards, setEarnedRevards] = useState([]);
     const isFocused = useIsFocused();
+    async function setLangandLat(latitude, longitude) {
+        lang = longitude;
+        lat = latitude;
+    }
 
+    memberID = 0;
     async function setEarnedRevardsData(value) {
         setEarnedRevards(value);
+    }
+
+    async function setWishListData(value) {
+        setWishList(value);
     }
 
     async function setMemData(value) {
         await setMemberData(value);
     }
+
     useEffect(() => {
         AsyncStorage.getItem('token')
             .then(async (value) => {
+                setLoading(true);
                 if (value !== null) {
                     await setMemData(JSON.parse(value));
+                    memberID = (JSON.parse(value))[0].memberId;
+                    await axios({
+                        method: 'GET',
+                        url: `${wishListUrl}/${memberID}`
+                    }).then(async (response) => {
+                        console.log('response---', response.data)
+                        await Geolocation.getCurrentPosition(
+                            async position => {
+                                const { latitude, longitude } = position.coords;
+
+                                await setLangandLat(latitude, longitude);
+                                // You can now use the latitude and longitude in your app
+
+                                await response.data.map((data1, index) => {
+
+                                    const toRadian = n => (n * Math.PI) / 180
+                                    let lat2 = data1.latitude
+                                    let lon2 = data1.longitude
+                                    let lat1 = lat
+                                    let lon1 = lang
+
+                                    let R = 6371  // km
+                                    let x1 = lat2 - lat1
+                                    let dLat = toRadian(x1)
+                                    let x2 = lon2 - lon1
+                                    let dLon = toRadian(x2)
+                                    let a =
+                                        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                                        Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+                                    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+                                    let d = R * c
+
+                                    data1.distance = parseInt(d * 0.621371);
+                                })
+                                await setWishListData(response.data);
+                                setLoading(false)
+                            },
+                            error => {
+                                console.error('Error getting current location: ', error);
+                            },
+                            { enableHighAccuracy: false, timeout: 5000 }
+                        );
+                    });
+                    memberID = (JSON.parse(value))[0].memberId;
+                    // await axios({
+                    //     method: 'GET',
+                    //     url: `${userEarnedRewardsAPI}/${memberID}`
+                    // }).then((response) => {
+
+                    //     setEarnedRevardsData(response.data)
+                    //     setLoading(false);
+                    // }).catch((error) => {
+                    //     console.log("Error fetching data", error);
+                    //     setLoading(false);
+                    // });
                 }
             })
             .catch(error => {
@@ -41,107 +111,84 @@ const Favourite = () => {
                 setLoading(false);
             });
 
-        axios({
-            method: 'GET',
-            url: `${wishListUrl}/${MemberData[0].memberId}`
-        }).then(async (response) => {
-            setWishList(response.data);
-            const createdDate = new Date(response.data[0].createdDate);
-            const day = createdDate.getDate();
-            const month = createdDate.getMonth();
-            const year = createdDate.getFullYear();
-            const formatDate = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
-            await Geolocation.getCurrentPosition(
-                async position => {
-                    const { latitude, longitude } = position.coords;
-                    console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
-                    console.log("b lat.", response.data.latitude)
-                    console.log("b lon.", response.data.longitude)
 
-                    const toRadian = n => (n * Math.PI) / 180
-                    let lat2 = response.data.latitude
-                    let lon2 = response.data.longitude
-                    let lat1 = latitude
-                    let lon1 = longitude
-                    console.log(lat1, lon1 + "===" + lat2, lon2)
-                    let R = 6371  // km
-                    let x1 = lat2 - lat1
-                    let dLat = toRadian(x1)
-                    let x2 = lon2 - lon1
-                    let dLon = toRadian(x2)
-                    let a =
-                        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                        Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
-                    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-                    let d = R * c
-                    response.data.distance = parseInt(d * 0.621371);
-
-                    await setBusinessDetailsAwait(response.data)
-                    await setMarkers(parseFloat(response.data.latitude), parseFloat(response.data.longitude));
-                },
-                error => {
-                    console.error('Error getting distance: ', error);
-                },
-                { enableHighAccuracy: false, timeout: 500 }
-            );
-            setFormattedDate(formatDate);
-            setBadgeColor(response.data[0].badgeColor);
-        });
-
-        axios({
-            method: 'GET',
-            url: `${userEarnedRewardsAPI}/${MemberData[0].memberId}`
-        }).then((response) => {
-            setEarnedRevardsData(response.data)
-            console.log("1234")
-            console.log(earnerRewards[0].rewardName);
-        }).catch((error) => {
-            console.log("Error fetching data", error);
-            setLoading(false);
-        });
     }, [isFocused]);
 
     return (
         <View style={styles.container}>
-            <Text style={styles.welcomeText}>Favourite</Text>
-            <Image style={styles.notificationImg} source={require('../assets/notification-skD.png')} />
-            <ScrollView contentContainerStyle={styles.scrollviewContainer}>
-                <View style={styles.wishlistView}>
-                    {wishList.map((item, index) => (
-                        <View key={index} style={styles.listView}>
-                            <Image source={{ uri: logoUrl }} style={styles.logoBusiness} />
-                            <Image source={require('../assets/heart-dNh.png')} style={styles.likeHeart} />
-                            <Text style={styles.totalLikes}> {item.totalLikes} likes </Text>
-                            <Text style={styles.businessName}>{item.businessName}</Text>
-                            <Text style={styles.industry}> {item.industry} </Text>
-                            <Text style={styles.memberDetails}> {item.distance} mi | Member Since - {formattedDate}</Text>
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                <View style={styles.cardView}>
-                                    <Card style={{ width: 150, height: 150, marginRight: 10 }}>
-                                        <Text style={styles.badge}> {item.badgeName} </Text>
-                                        <Image source={require('../assets/vector-ZRj.png')} style={[styles.trophyImg, { tintColor: badgeColor }]} />
-                                        <Text style={styles.memberPoints}> {item.currentPoints} pt </Text>
-                                    </Card>
-                                    {earnerRewards.map((reward, earnReward) => (
-                                        <Card key={earnReward} style={{ width: 150, height: 150, marginRight: 10 }}>
-                                            <Text style={styles.achievableName}> {earnerRewards[earnReward].rewardName} </Text>
-                                            <Text style={styles.achievalbeValue}> {earnerRewards[earnReward].achivableTargetValue} pts </Text>
-                                            <View>
-                                                <Progress.Bar
-                                                    style={styles.progressBar}
-                                                    progress={earnerRewards[earnReward].pendingToAchiveValue / earnerRewards[earnReward].achivableTargetValue}
-                                                    width={110}
-                                                    color='#2ac95d' />
-                                            </View>
-                                            <Text style={styles.pendingpoints}> {earnerRewards[earnReward].pendingToAchiveValue} left </Text>
-                                        </Card>
-                                    ))}
-                                </View>
-                            </ScrollView>
-                        </View>
-                    ))}
+            <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ flexDirection: 'row', width: '97%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={styles.welcomeText}>Favourite</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('ProfileEdit', { MemberData: MemberData })}>
+                        <Image source={require('../assets/notification-skD.png')} style={styles.setimg1} />
+                    </TouchableOpacity>
                 </View>
-            </ScrollView >
+
+                <SafeAreaView style={{ paddingTop: '5%', height: '90%', width: '97%', alignItems: 'center', borderRadius: 50 }}>
+                    <ScrollView style={{ flex: 1, height: '100%', width: '97%', borderRadius: 50 }}>
+                        <View style={styles.wishlistView}>
+                            {wishList && wishList.map((item, index) => (
+                                <View key={index} style={styles.listView}>
+                                    <Image source={{ uri: logoUrl }} style={styles.logoBusiness} />
+                                    <Image source={require('../assets/heart-dNh.png')} style={styles.likeHeart} />
+                                    <Text style={styles.totalLikes}> 1.5K Likes </Text>
+                                    <Text style={styles.businessName}>{item.businessName}</Text>
+                                    <Text style={styles.industry}> {item.industry} </Text>
+                                    <Text style={styles.memberDetails}> {item.distance} mi | Member Since - {moment(item.createdDate).format("MM/DD/YYYY")}</Text>
+
+                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                        <View style={styles.cardView}>
+                                            <Card style={{ width: 150, borderRadius: 20, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }}>
+                                                <Text style={styles.badge}> {item.badgeName} </Text>
+                                                <Image source={require('../assets/vector-ZRj.png')} style={[styles.trophyImg, { tintColor: item.badgeColor }]} />
+                                                <Text style={styles.memberPoints}> {item.currentPoints} pt </Text>
+                                            </Card>
+
+                                            {item.promotionData.map((promotion, earnReward) => (
+                                                <Card key={earnReward} style={{ width: 150, borderRadius: 20, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }}>
+                                                    <Text style={styles.achievableName}> {promotion.promotionalMessage} </Text>
+                                                    <Text style={styles.achievalbeValue}> {promotion.expiryDays} days </Text>
+                                                </Card>
+                                            ))}
+
+                                            {item.autopilotData.map((autopilot, earnReward) => (
+                                                <Card key={earnReward} style={{ width: 150, borderRadius: 20, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }}>
+                                                    <Text style={styles.achievableName}> {autopilot.rewardName} </Text>
+                                                    <Text style={styles.achievalbeValue}> {autopilot.expiryDays} days </Text>
+                                                </Card>
+                                            ))}
+
+                                            {item.rewardData.map((reward, earnReward) => (
+                                                <Card key={earnReward} style={{ width: 150, borderRadius: 20, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }}>
+                                                    <Text style={styles.achievableName}> {reward.rewardName} </Text>
+                                                    <Text style={styles.achievalbeValue}> {reward.achivableTargetValue} pts </Text>
+                                                    <View>
+                                                        <Progress.Bar
+                                                            style={styles.progressBar}
+                                                            progress={1 - ((reward.pendingToAchiveValue) / reward.achivableTargetValue)}
+                                                            width={110}
+                                                            color='#2ac95d' />
+                                                    </View>
+                                                    {(reward.pendingToAchiveValue > 0) && <Text style={styles.pendingpoints}> {reward.pendingToAchiveValue} left </Text>}
+                                                    {(reward.pendingToAchiveValue <= 0) && <Text style={styles.pendingpoints}> 0 left </Text>}
+                                                </Card>
+                                            ))}
+                                        </View>
+                                    </ScrollView>
+                                </View>
+                            ))}
+                        </View>
+                        <SafeAreaView>
+                            <View style={styles.container}>
+                                <Spinner
+                                    visible={loading}
+                                    textContent={''}
+                                    textStyle={styles.spinnerStyle} />
+                            </View>
+                        </SafeAreaView>
+                    </ScrollView >
+                </SafeAreaView>
+            </View>
         </View >
     );
 };
@@ -151,7 +198,6 @@ const styles = StyleSheet.create({
         width: 150,
         height: 150,
         marginRight: 9,
-
     },
     pendingpoints: {
         color: '#73a5bc',
@@ -181,8 +227,10 @@ const styles = StyleSheet.create({
         left: 5
     },
     scrollviewContainer: {
-        flexGrow: 0,
-        right: 45,
+        flex: 1,
+        height: '100%',
+        width: '97%',
+        borderRadius: 50
     },
     badge: {
         color: '#000000',
@@ -226,7 +274,10 @@ const styles = StyleSheet.create({
     totalLikes: {
         alignSelf: 'flex-end',
         bottom: '19%',
-        right: '5%'
+        right: '-4%',
+        fontWeight: '700',
+        fontSize: 14,
+        color: '#717679'
     },
     likeHeart: {
         width: 24,
@@ -247,37 +298,49 @@ const styles = StyleSheet.create({
     },
     listView: {
         padding: '5%',
-        margin: '2%',
         backgroundColor: 'white',
         borderRadius: 15,
-        width: 360,
+        width: '100%',
+        marginBottom: '3%'
     },
     wishlistView: {
-        padding: '10%',
-        margin: '2%',
+        // padding: '10%',
+        // margin: '2%',
+        // backgroundColor: 'white',
+        padding: 10,
+        height: '100%',
+        width: '100%',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20
     },
     notificationImg: {
         width: 49,
         height: 49,
         resizeMode: 'contain',
         flex: 1,
-        left: '85%',
         position: 'absolute',
         top: '1%',
     },
     welcomeText: {
+        color: 'black',
+        fontSize: 24,
+        fontWeight: '600',
         textAlign: 'center',
-        fontSize: 25,
-        fontWeight: '900',
-        color: '#000000',
-        fontFamily: 'Satoshi Variable, "Source Sans Pro"',
-        top: '2%'
+        width: '80%'
     },
     container: {
         height: '100%',
         width: '100%',
         backgroundColor: '#d9e7ed',
         alignItems: 'center'
+    },
+    setimg1: {
+        width: 50,
+        height: 50,
+        marginTop: -20,
+        position: 'absolute',
+        alignSelf: 'flex-end',
+        right: -20
     }
 })
 

@@ -4,30 +4,49 @@ import TourPage1 from './TourPage1';
 import TourPage2 from './TourPage2';
 import TourPage3 from './TourPage3';
 import TourPage4 from './TourPage4';
+import Globals from './Globals';
+import messaging from '@react-native-firebase/messaging';
 
 const AppTourGuide = ({ route, navigation }) => {
     const [step, setStep] = useState(1);
     const { MemberData, Phone } = route.params;
+    let tokenid = "";
+
+    const getDeviceToken = async () => {
+        tokenid = await messaging().getToken();
+    };
 
     const nextStep = () => {
         setStep(step + 1);
     };
 
-    const closeTour = () => {
+    const closeTour = async () => {
         setStep(null);
         if (MemberData) {
             console.log(1)
-            navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
+            await getDeviceToken();
+            fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}`, {
+                method: 'PUT'
+            }).then((res) => {
+                console.log('tokenId set')
+                navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
+            });
         } else {
             console.log(2)
             navigation.navigate('RegistrationPage', { Phone: Phone });
         }
     };
 
-    const GotoRegistration = () => {
+    const GotoRegistration = async () => {
         if (MemberData) {
             console.log(1)
-            navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
+            await getDeviceToken();
+            fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}`, {
+                method: 'PUT'
+            }).then((res) => {
+                console.log('tokenId set')
+                navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
+            });
         } else {
             console.log(2)
             navigation.navigate('RegistrationPage', { Phone: Phone });

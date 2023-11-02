@@ -11,38 +11,24 @@ const LandingScreen = ({ navigation }) => {
     const focus = useIsFocused();
 
     const [loading, setLoading] = useState(true);
-    //   setLoading(true);
-    // setTimeout(() => {
-    //     setLoading(false);
-    // }, 2500);
     useEffect(() => {
         setLoading(true);
 
         AsyncStorage.getItem('token')
-            .then(value => {
+            .then(async value => {
                 if (value !== null) {
                     console.log('token exist', (JSON.parse(value))[0].phone)
-                    getMemberData((JSON.parse(value))[0].phone, value);
+                    await getMemberData((JSON.parse(value))[0].phone, value);
 
                 } else {
                     console.log('Value does not exist');
-                    setTimeout(() => {
-                        setLoading(false);
-                        navigation.navigate('GetStarted');
-                    }, 2500);
+                    setLoading(false);
+                    navigation.navigate('GetStarted');
                 }
             })
             .catch(error => {
                 console.error('Error retrieving data:', error);
             });
-
-        // AsyncStorage.clear()
-        //     .then(() => {
-        //         console.log('All data cleared successfully!');
-        //     })
-        //     .catch(error => {
-        //         console.error('Error clearing data:', error);
-        //     });
     }, [focus]);
 
     const getMemberData = async (phone, value) => {
@@ -65,10 +51,6 @@ const LandingScreen = ({ navigation }) => {
         <View style={styles.container}>
             <Image source={require('../assets/companylogo.png')} style={styles.companylogo} />
             <Image source={require('../assets/vector-Ypq.png')} style={styles.vectorP61} />
-            {/* <TouchableOpacity onPress={() => { navigation.navigate('VerifyNumber') }} style={styles.frame2vJu}>
-                <Text style={styles.getStartednru}>Get Started</Text>
-                <Image source={require('../assets/arrowcircleright-R8m.png')} style={styles.arrowcirclerightTy3} />
-            </TouchableOpacity> */}
             <SafeAreaView style={{ flex: 1 }}>
                 <View style={styles.container}>
                     <Spinner

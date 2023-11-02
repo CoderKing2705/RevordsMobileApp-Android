@@ -8,11 +8,14 @@ import currentIcon from '../assets/currentlocation.png';
 import GeoLocation from 'react-native-geolocation-service';
 // import { PERMISSIONS } from 'react-native-permissions';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-// import * as Location from 'expo-location';
+import * as Location from 'expo-location';
 import Geolocation from '@react-native-community/geolocation';
 import Globals from './Globals';
 import axios from 'axios';
-// import { Button } from 'react-native-paper';
+import { Button } from 'react-native-paper';
+import { isLocationEnabled } from 'react-native-android-location-enabler';
+import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
+
 
 export default function MapViewing({ navigation }) {
     const [initialRegion, setInitialRegion] = useState(null);
@@ -26,11 +29,14 @@ export default function MapViewing({ navigation }) {
     const businessGroupID = "1";
     const baseUrl = Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesByGroupID"
 
-    const navigateToList = () => {
-        navigation.navigate("TabNavigation");
-    }
-    const markerClick = () => {
-        console.log('sdfsdfsf');
+    async function handleCheckPressed() {
+        if (Platform.OS === 'android') {
+            const checkEnabled = await isLocationEnabled();
+            if (!checkEnabled) {
+                await handleEnabledPressed();
+                await getCurrentLocation();
+            }
+        }
     }
     useEffect(() => {
         requestLocationPermission();
@@ -63,8 +69,9 @@ export default function MapViewing({ navigation }) {
     const getCurrentLocation = async () => {
         Geolocation.getCurrentPosition(
             async position => {
+
                 const { latitude, longitude } = position.coords;
-                console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+               
                 await setLangandLat(latitude, longitude);
                 await setMarkers(latitude, longitude);
                 // You can now use the latitude and longitude in your app
@@ -75,8 +82,17 @@ export default function MapViewing({ navigation }) {
             { enableHighAccuracy: false, timeout: 5000 }
         );
     };
-    const justconsole = async () => {
-        console.log('dsfsdfsfdsfds');
+    async function handleEnabledPressed() {
+        if (Platform.OS === 'android') {
+            try {
+                const enableResult = await promptForEnableLocationIfNeeded();
+                
+            } catch (error) {
+                if (error instanceof Error) {
+                    console.error(error.message);
+                }
+            }
+        }
     }
     const requestLocationPermission = async () => {
         try {
@@ -89,8 +105,8 @@ export default function MapViewing({ navigation }) {
             }
 
             if (permissionStatus === RESULTS.GRANTED) {
+                await handleCheckPressed();
                 getCurrentLocation();
-                console.log('Location permission granted');
                 // You can now access the location
             } else if (permissionStatus === RESULTS.DENIED) {
                 const newPermissionStatus = await request(
@@ -100,6 +116,7 @@ export default function MapViewing({ navigation }) {
                 );
 
                 if (newPermissionStatus === RESULTS.GRANTED) {
+                    await handleCheckPressed();
                     getCurrentLocation();
                     console.log('Location permission granted');
                     // You can now access the location
@@ -111,7 +128,6 @@ export default function MapViewing({ navigation }) {
             console.error('Error checking/requesting location permission: ', error);
         }
     };
-    console.log(businessData);
     return (
         <View style={styles.container}>
 
@@ -185,23 +201,30 @@ export default function MapViewing({ navigation }) {
                     {initialRegion && (
                         <Marker
                             coordinate={initialRegion}
-                            title="My Location"
-                            image={currentIcon}
-                            style={{ width: 5, height: 5 }}
-                        />
+                            title="My Location">
+                            <Image
+                                source={(currentIcon)}
+                                style={{ width: 32, height: 32 }}
+                                resizeMode="contain"
+                            />
+                        </Marker>
                     )}
                     {businessData && businessData.map((business, index) => (
                         business.latitude && <Marker
                             key={index}
-                            coordinate={{ latitude: parseFloat(business.latitude), longitude: parseFloat(business.longitude) }}
-                            image={customIcon}>
-                            <Callout onPress={() => navigation.navigate('BusinessDetailView', { id: business.id })} style={styles.locationbuttoncallout}>
-                                <TouchableHighlight >
+                            coordinate={{ latitude: parseFloat(business.latitude), longitude: parseFloat(business.longitude) }}>
+                            <Image
+                                source={(customIcon)}
+                                style={{ width: 32, height: 32 }}
+                                resizeMode="contain"
+                            />
+                            <Callout onPress={() => navigation.navigate('BusinessDetailView', { id: business.id })}
+                                style={styles.locationbuttoncallout}>
+                                <TouchableHighlight style={{ width: 180 }} >
                                     <Text>
                                         {business.businessName}
                                     </Text>
                                 </TouchableHighlight >
-
                             </Callout>
                         </Marker>
                     ))}
@@ -223,6 +246,8 @@ const styles = StyleSheet.create({
         borderradius: 0,
         opacity: 0.8,
         backgroundcolor: "lightgrey",
+        // width: 100,
+        // height: 50
     },
     customView: {
         marginLeft: '2%',

@@ -4,20 +4,6 @@ import { StyleSheet, Image, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const GetStarted = ({ navigation }) => {
-    // useEffect(() => {
-    //     AsyncStorage.getItem('token')
-    //         .then(value => {
-    //             if (value !== null) {
-    //                 console.log(value)
-    //                 navigation.navigate('TabNavigation', {MemberData: JSON.parse(value)});
-    //             } else {
-    //                 console.log('Value does not exist');
-    //             }
-    //         })
-    //         .catch(error => {
-    //             console.error('Error retrieving data:', error);
-    //         });
-    // }, []);
     return (
         <View style={styles.container}>
             <Image source={require('../assets/companylogo.png')} style={styles.companylogo} />

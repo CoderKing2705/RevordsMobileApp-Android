@@ -8,8 +8,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Globals from './Globals';
 import Geolocation from '@react-native-community/geolocation';
+import { useIsFocused } from '@react-navigation/native';
+import { isLocationEnabled } from 'react-native-android-location-enabler';
+import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 
 const Location = ({ navigation }) => {
+    const focus = useIsFocused();
+
     lang = 0;
     lat = 0;
     const [loadingData, setLoadingData] = useState(true);
@@ -20,7 +25,7 @@ const Location = ({ navigation }) => {
         Geolocation.getCurrentPosition(
             async position => {
                 const { latitude, longitude } = position.coords;
-                console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+             
                 await setLangandLat(latitude, longitude);
                 // You can now use the latitude and longitude in your app
             },
@@ -30,64 +35,99 @@ const Location = ({ navigation }) => {
             { enableHighAccuracy: false, timeout: 5000 }
         );
     };
+    async function handleCheckPressed() {
+        if (Platform.OS === 'android') {
+            const checkEnabled = await isLocationEnabled();
+          
+            if (!checkEnabled) {
+                await handleEnabledPressed();
+            }
+            else {
+                await getData();
+            }
+        }
+    }
+
+    async function handleEnabledPressed() {
+        if (Platform.OS === 'android') {
+            try {
+                const enableResult = await promptForEnableLocationIfNeeded();
+                await getData();
+              
+            } catch (error) {
+                if (error instanceof Error) {
+                    console.error(error.message);
+                }
+            }
+        }
+    }
+
     async function setLangandLat(latitude, longitude) {
         lang = longitude,
             lat = latitude
     }
 
-    async function calculateDistance(lattitude1, longittude1, lattitude2, longittude2) {
-
-        return d
-    }
-
-    const NavigateToMapView = () => {
-        navigation.navigate("MapView")
-    }
-
     NavigateToBusinessDetails = (item) => {
         navigation.navigate("BusinessDetailView", { id: item })
-        console.log(item);
+       
     }
 
-    useEffect(() => {
+    const getData = async () => {
         setLoadingData(true);
-        getCurrentLocation();
-        axios({
+
+        await axios({
             method: 'GET',
             url: `${baseUrl}/${userId}`
         }).then(async response => {
-            await response.data.map((data1, index) => {
-                console.log("current lat.", lat)
-                console.log("current lon.", lang)
-                console.log("b lat.", data1.latitude)
-                console.log("b lon.", data1.longitude)
+            await Geolocation.getCurrentPosition(
+                async position => {
+                    const { latitude, longitude } = position.coords;
+                 
+                    await setLangandLat(latitude, longitude);
+                    // You can now use the latitude and longitude in your app
 
-                const toRadian = n => (n * Math.PI) / 180
-                let lat2 = data1.latitude
-                let lon2 = data1.longitude
-                let lat1 = lat
-                let lon1 = lang
-                console.log(lat1, lon1 + "===" + lat2, lon2)
-                let R = 6371  // km
-                let x1 = lat2 - lat1
-                let dLat = toRadian(x1)
-                let x2 = lon2 - lon1
-                let dLon = toRadian(x2)
-                let a =
-                    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                    Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
-                let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-                let d = R * c
-                console.log("distance==?", (d * 0.621371))
-                data1.distance = parseInt(d * 0.621371);
-            })
-            await setUserData(response.data);
-            setLoadingData(false)
+                    await response.data.map((data1, index) => {
+                      
+
+                        const toRadian = n => (n * Math.PI) / 180
+                        let lat2 = data1.latitude
+                        let lon2 = data1.longitude
+                        let lat1 = lat
+                        let lon1 = lang
+                      
+                        let R = 6371  // km
+                        let x1 = lat2 - lat1
+                        let dLat = toRadian(x1)
+                        let x2 = lon2 - lon1
+                        let dLon = toRadian(x2)
+                        let a =
+                            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                            Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+                        let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+                        let d = R * c
+                        data1.distance = parseInt(d * 0.621371);
+                    })
+                    await setUserData(response.data);
+                    setLoadingData(false)
+                },
+                error => {
+                    console.error('Error getting current location: ', error);
+                    setLoadingData(false)
+                },
+                { enableHighAccuracy: false, timeout: 5000 }
+            );
+
+
         }).catch((error) => {
             console.error("Error fetching data", error)
         });
-    }, []);
-    console.log(userData)
+    }
+
+    useEffect(() => {
+        handleCheckPressed();
+        // getCurrentLocation();
+
+    }, [focus]);
     return (
         <>
             <View style={styles.container}>

@@ -7,7 +7,7 @@ import { StyleSheet } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import SelectDropdown from 'react-native-select-dropdown';
 import Globals from '../components/Globals';
-
+import messaging from '@react-native-firebase/messaging';
 
 
 export default function RegistrationPage({ route }) {
@@ -22,28 +22,23 @@ export default function RegistrationPage({ route }) {
         'June', 'July', 'August', 'September', 'October',
         'November', 'December'
     ];
-
+    let tokenid = "";
     const days = Array.from({ length: 31 }, (_, index) => (index + 1).toString());
     const navigation = useNavigation();
-    const start = () => {
+    const getDeviceToken = async () => {
+        tokenid = await messaging().getToken();
+    };
+    const start = async () => {
 
         const monthIndex = months.findIndex(month => month.toLowerCase() === selectedMonths.toLowerCase());
         const birthMonth = monthIndex > 8 ? monthIndex + 1 : '0' + (monthIndex + 1);
         const birthDay = selectDays > 9 ? selectDays : '0' + selectDays;
-
+        await getDeviceToken();
         const MemberData = [];
         let currentDate = (new Date()).toISOString();
         let currentYear = new Date().getFullYear();
-        // fetch(Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/',{
-        //     method:'GET',
-        //     headers: {
-        //         Accept: 'application/json',
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
 
-        //     })
-        // })
+
         fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileByPhone', {
             method: 'POST',
             headers: {
@@ -62,6 +57,7 @@ export default function RegistrationPage({ route }) {
                 "createdDate": currentDate,
                 "lastModifiedBy": 1,
                 "lastModifiedDate": currentDate,
+                "appToken": tokenid,
                 "memberProfile": []
             }),
         }).then((res) => {

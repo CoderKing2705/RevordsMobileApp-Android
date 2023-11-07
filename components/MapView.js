@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, Image, TextInput, PermissionsAndroid } from 'react-native';
+import { StyleSheet, View, Text, Image, TextInput, PermissionsAndroid, SafeAreaView } from 'react-native';
 import MapView, { Marker, Callout, PROVIDER_GOOGLE, CalloutSubview } from 'react-native-maps';
 import { TouchableHighlight, TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
@@ -15,6 +15,7 @@ import axios from 'axios';
 import { Button } from 'react-native-paper';
 import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 
 export default function MapViewing({ navigation }) {
@@ -28,6 +29,7 @@ export default function MapViewing({ navigation }) {
     const [businessData, setBusinessData] = useState([{}]);
     const businessGroupID = "1";
     const baseUrl = Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesByGroupID"
+    const [loading, setLoading] = useState(false);
 
     async function handleCheckPressed() {
         if (Platform.OS === 'android') {
@@ -39,16 +41,20 @@ export default function MapViewing({ navigation }) {
         }
     }
     useEffect(() => {
+        setLoading(true);
         requestLocationPermission();
+        checkApplicationPermission();
         axios({
             method: 'GET',
             url: `${baseUrl}/${businessGroupID}`
         })
             .then(async response => {
                 await setBusinessDataWhole(response.data);
+                setLoading(false);
             })
             .catch((error) => {
-                console.error("Error fetching data", error)
+                console.error("Error fetching data", error);
+                setLoading(false);
             });
     }, []);
     async function setLangandLat(latitude, longitude) {
@@ -71,7 +77,7 @@ export default function MapViewing({ navigation }) {
             async position => {
 
                 const { latitude, longitude } = position.coords;
-               
+
                 await setLangandLat(latitude, longitude);
                 await setMarkers(latitude, longitude);
                 // You can now use the latitude and longitude in your app
@@ -82,11 +88,12 @@ export default function MapViewing({ navigation }) {
             { enableHighAccuracy: false, timeout: 5000 }
         );
     };
+
     async function handleEnabledPressed() {
         if (Platform.OS === 'android') {
             try {
                 const enableResult = await promptForEnableLocationIfNeeded();
-                
+
             } catch (error) {
                 if (error instanceof Error) {
                     console.error(error.message);
@@ -94,6 +101,18 @@ export default function MapViewing({ navigation }) {
             }
         }
     }
+
+    const checkApplicationPermission = async () => {
+        if (Platform.OS === 'android') {
+            try {
+                await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+                );
+            } catch (error) {
+            }
+        }
+    }
+
     const requestLocationPermission = async () => {
         try {
             let permissionStatus;
@@ -131,19 +150,25 @@ export default function MapViewing({ navigation }) {
     return (
         <View style={styles.container}>
 
-            <Text style={styles.textWhere}> Where to go? </Text>
+            <View style={{ flexDirection: 'row', width: '97%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={styles.welcomeText}>Where to go?</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('NotificationTray')}>
+                    <Image source={require('../assets/notification-oRK.png')} style={styles.setimg1} />
+                </TouchableOpacity>
+            </View>
 
-            <Image style={styles.notificationLbl} source={require('../assets/notification-oRK.png')} />
-
-            <View style={styles.searchBoxMain}>
-                <TextInput style={styles.searchInput} placeholder='Search..' />
-                <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
+            <View style={{ flexDirection: 'row', width: '97%', height: 75, marginTop: 15 }}>
+                <View style={{ width: '80%', paddingHorizontal: '4%', height: '70%' }}>
+                    <TextInput style={styles.searchInput} placeholder='Search..' />
+                    <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
+                </View>
                 <View style={styles.mainMapImage}>
                     <TouchableHighlight onPress={() => navigation.navigate('Locations')}>
                         <Image style={styles.mapImage} source={require('../assets/maptrifold-iCR.png')} />
                     </TouchableHighlight>
                 </View>
             </View>
+
             <View style={styles.mapViewMain}>
                 <MapView
                     style={styles.mapView}
@@ -230,17 +255,42 @@ export default function MapViewing({ navigation }) {
                     ))}
                 </MapView>
             </View>
+
+            <SafeAreaView>
+                <View style={styles.container}>
+                    <Spinner
+                        visible={loading}
+                        textContent={''}
+                        textStyle={styles.spinnerStyle} />
+                </View>
+            </SafeAreaView>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
+    setimg1: {
+        width: 50,
+        height: 50,
+        marginTop: -16,
+        position: 'absolute',
+        alignSelf: 'flex-end',
+        right: -25
+    },
+    welcomeText: {
+        color: 'black',
+        fontSize: 22,
+        fontWeight: '800',
+        marginTop: '5%',
+        textAlign: 'center',
+        width: '80%'
+    },
     searchBoxMain: {
-        marginLeft: '2%',
+        marginLeft: '3%',
         flexDirection: 'row',
         alignItems: 'center',
         flexShrink: 0,
-        marginTop: '10%'
+        marginTop: '5%'
     },
     locationbuttoncallout: {
         borderradius: 0,
@@ -264,31 +314,41 @@ const styles = StyleSheet.create({
         marginTop: '10%'
     },
     searchInput: {
-        width: '50%',
-        padding: 13.97,
+        width: '100%',
+        // padding: 13.97,
+        paddingVertical: 15,
+        paddingHorizontal: 10,
         backgroundColor: '#ffffff',
         borderRadius: 8,
-        flex: 1,
-        marginRight: '5%'
+        // flex: 1,
+        // marginRight: '5%'
     },
     mapImage: {
         width: 26,
         height: 24,
     },
     mainMapImage: {
-        padding: 15,
-        paddingHorizontal: 20,
-        paddingBottom: 15,
+        // padding: 15,
+        // paddingHorizontal: 20,
+        // paddingBottom: 15,
         backgroundColor: '#3380a3',
         borderRadius: 8,
         flexShrink: 0,
-        marginRight: '2%'
+        // marginRight: '2%'
+        // right: 0,
+        // position: 'absolute',
+        width: '17%',
+        height: '70%',
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     magnifyingGlass: {
-        height: 26.028,
+        height: 25,
         resizeMode: 'contain',
         backgroundColor: 'transparent',
-        marginLeft: '50%',
+        // marginLeft: '50%',
+        right: 0,
+        top: '20%',
         position: 'absolute'
     },
     notificationLbl: {
@@ -319,7 +379,8 @@ const styles = StyleSheet.create({
     mapViewMain: {
         position: 'relative',
         flex: 0,
-        marginTop: '5%'
+        marginTop: 15,
+        // height: '82%'
     },
     mapView: {
         width: '100%',

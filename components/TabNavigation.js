@@ -8,6 +8,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ProfileStack from './ProfileStack';
 import LocationStack from './LocationStack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NotificationTray from './NotificationTray';
 
 export default function TabNavigation({ route, navigation }) {
     const Tab = createBottomTabNavigator();
@@ -33,17 +34,18 @@ export default function TabNavigation({ route, navigation }) {
             console.error('Error retrieving data:', error);
         });
 
-//     AsyncStorage.clear()
-//   .then(() => {
-//     console.log('All data cleared successfully!');
-//   })
-//   .catch(error => {
-//     console.error('Error clearing data:', error);
-//   });
+    //     AsyncStorage.clear()
+    //   .then(() => {
+    //     console.log('All data cleared successfully!');
+    //   })
+    //   .catch(error => {
+    //     console.error('Error clearing data:', error);
+    //   });
 
     return (
         <>
-            {/* <Stack.Screen name="MapView" component={MapViewing} options={{ headerShown: false }} /> */}
+            {/* <Stack.Screen name="NotificationTray" component={NotificationTray} options={{ headerShown: false }} /> */}
+
             <Tab.Navigator screenOptions={() => ({
                 tabBarActiveTintColor: 'white', // Color of the active tab label
                 tabBarInactiveTintColor: 'gray', // Color of the inactive tab label
@@ -63,7 +65,7 @@ export default function TabNavigation({ route, navigation }) {
                         <Ionicons name="compass-outline" color={color} size={size} />
                     ),
                 }} />
-                <Tab.Screen name="Favourite" component={Favourite} initialParams={MemberData[0].memberId}  options={{
+                <Tab.Screen name="Favourite" component={Favourite} initialParams={MemberData[0].memberId} options={{
                     headerShown: false, tabBarIcon: ({ color, size }) => (
                         <Ionicons name="heart" color={color} size={size} />
                     ),

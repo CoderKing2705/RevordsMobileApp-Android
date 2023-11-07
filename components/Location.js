@@ -134,7 +134,7 @@ const Location = ({ navigation }) => {
                 <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={{ flexDirection: 'row', width: '97%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
                         <Text style={styles.welcomeText}>Where to go?</Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('ProfileEdit', { MemberData: MemberData })}>
+                        <TouchableOpacity onPress={() => navigation.navigate('NotificationTray')}>
                             <Image source={require('../assets/notification-oRK.png')} style={styles.setimg1} />
                         </TouchableOpacity>
                     </View>

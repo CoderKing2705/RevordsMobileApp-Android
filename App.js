@@ -13,6 +13,7 @@ import LandingScreen from "./components/LandingScreen";
 import messaging from '@react-native-firebase/messaging';
 import BusinessDetailsView from "./components/BusinessDetailsView";
 import Location from "./components/Location";
+import NotificationTray from "./components/NotificationTray";
 
 export default function App() {
   const Stack = createStackNavigator();
@@ -21,7 +22,7 @@ export default function App() {
   }, []);
   const getDeviceToken = async () => {
     let token = await messaging().getToken();
-    console.log("Device Token", token)
+    console.log(token)
   };
   return (
     <NavigationContainer>
@@ -35,7 +36,8 @@ export default function App() {
         <Stack.Screen name="TabNavigation" component={TabNavigation} options={{ headerShown: false }} />
         <Stack.Screen name="ProfileEdit" component={ProfileEdit} options={{ headerShown: false }} />
         <Stack.Screen name="BusinessDetailView" component={BusinessDetailsView} options={{ headerShown: false }} />
-        <Stack.Screen name="Locations" component={Location} options={{ headerShown: false }} />
+        {/* <Stack.Screen name="Locations" component={Location} options={{ headerShown: false }} /> */}
+        <Stack.Screen name="NotificationTray" component={NotificationTray} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

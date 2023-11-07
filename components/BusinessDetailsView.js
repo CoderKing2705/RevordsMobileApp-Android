@@ -41,7 +41,7 @@ export default function BusinessDetailsView({ route }) {
     const [selectedMarker, setSelectedMarker] = useState(null);
     const [error, setError] = useState(null);
     const [MemberData, setMemberData] = useState([{}]);
-    
+
     async function setMarkers(centerLat, centerLong) {
         console.log('cenbeffsdaf');
         console.log(centerLat);
@@ -278,6 +278,18 @@ export default function BusinessDetailsView({ route }) {
                                         )}
                                     </MapView>
                                 </View>
+                            </View>
+                            <View style={{ paddingHorizontal: '3%' }} >
+                                <Text style={styles.adressHeading}>Phone:</Text>
+                                {businessDetails.phoneNo &&<Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
+                                    {businessDetails.phoneNo.replace(/(\d{3})(\d{3})(\d{4})/, (_, a, b, c) => `(${a}) ${b}-${c}`)}
+                                </Text>}
+                            </View>
+                            <View style={{ paddingHorizontal: '3%' }} >
+                                <Text style={styles.adressHeading}>Description:</Text>
+                                <Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', marginBottom: '3%', paddingHorizontal: '2%' }}>
+                                    {businessDetails.descriptions}
+                                </Text>
                             </View>
                         </View>
                     </ScrollView>

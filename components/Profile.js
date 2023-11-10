@@ -21,22 +21,24 @@ const Profile = ({ route, navigation }) => {
     const [MemberData, setMemberData] = useState([{}]);
 
     const createTwoButtonAlert = () =>
-    Alert.alert('Log Out', 'Do you want to logout?', [
-      {
-        text: 'Cancel',
-        onPress: () => console.log('Cancel Pressed'),
-        style: 'cancel',
-      },
-      {text: 'Yes', onPress: async () => {
-        try {
-            await AsyncStorage.removeItem('token');
-            console.log('Token removed successfully');
-            navigation.navigate('LandingScreen')
-          } catch (error) {
-            console.error('Error removing token:', error);
-          }
-      }},
-    ]);
+        Alert.alert('Log Out', 'Do you want to logout?', [
+            {
+                text: 'Cancel',
+                onPress: () => console.log('Cancel Pressed'),
+                style: 'cancel',
+            },
+            {
+                text: 'Yes', onPress: async () => {
+                    try {
+                        await AsyncStorage.removeItem('token');
+                        console.log('Token removed successfully');
+                        navigation.navigate('LandingScreen')
+                    } catch (error) {
+                        console.error('Error removing token:', error);
+                    }
+                }
+            },
+        ]);
 
     async function setMemData(value) {
         await setMemberData(value);
@@ -68,7 +70,7 @@ const Profile = ({ route, navigation }) => {
                 <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={{ flexDirection: 'row', width: '95%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
                         <Text style={styles.welcomeText}>User Profile</Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('ProfileEdit', { MemberData: MemberData })}>
+                        <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('ProfileEdit', { MemberData: MemberData })}>
                             <Image source={require('../assets/more-button.png')} style={styles.setimg1} />
                         </TouchableOpacity>
                     </View>
@@ -93,7 +95,15 @@ const Profile = ({ route, navigation }) => {
                                 marginLeft: 16, paddingVertical: 16
                             }}>
                                 <Image source={require('../assets/auto-group-edy5.png')} style={styles.iconimg1} />
-                                <Text style={styles.innerDText}>{emailId}</Text>
+                                {(emailId != null && emailId != '' && emailId != undefined) && <Text style={styles.innerDText}>{emailId}</Text>}
+                                {(emailId == null || emailId == '' || emailId == undefined) && <Text style={{
+                                    color: '#676767',
+                                    fontSize: 16,
+                                    fontWeight: '700',
+                                    marginTop: '2%',
+                                    marginLeft: '5%',
+                                    width: '80%',
+                                }}>No Email</Text>}
                             </View>
                         </View>
                         <View style={{ backgroundColor: 'white', width: '100%', marginTop: 16, borderRadius: 23 }}>
@@ -121,7 +131,7 @@ const Profile = ({ route, navigation }) => {
                                 flexDirection: 'row', width: '95%', alignItems: 'left', justifyContent: 'left',
                                 marginLeft: 16, paddingVertical: 16
                             }}>
-                                <TouchableOpacity onPress={createTwoButtonAlert} style={{
+                                <TouchableOpacity activeOpacity={.7} onPress={createTwoButtonAlert} style={{
                                     flexDirection: 'row', alignItems: 'left', justifyContent: 'left',
 
                                 }}>
@@ -178,7 +188,6 @@ const styles = StyleSheet.create({
         marginTop: '2%',
         marginLeft: '5%',
         width: '80%',
-
     },
     settingImg: {
         width: 50,

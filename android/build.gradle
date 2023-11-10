@@ -21,6 +21,10 @@ buildscript {
         classpath('com.facebook.react:react-native-gradle-plugin')
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
         classpath("com.google.gms:google-services:4.4.0")
+
+        classpath('com.facebook.fresco:fresco:1.+')
+          // For animated GIF support
+        classpath('com.facebook.fresco:animated-gif:2.0.0')
     }
 }
 

@@ -158,11 +158,11 @@ export default function BusinessDetailsView({ route }) {
         <View style={styles.container}>
             <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
                 <View style={{ flexDirection: 'row', width: '97%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
-                    <TouchableOpacity style={{ width: '15%', height: '100%', alignItems: 'center', justifyContent: 'center' }} onPress={() => navigation.navigate('Locations')}>
+                    <TouchableOpacity activeOpacity={.7} style={{ width: '15%', height: '100%', alignItems: 'center', justifyContent: 'center' }} onPress={() => navigation.navigate('Locations')}>
                         <Image source={require('../assets/more-button-ved.png')} style={styles.setimg1} />
                     </TouchableOpacity>
                     <Text style={styles.welcomeText}>{businessDetails.businessName}</Text>
-                    <TouchableOpacity style={{ width: '15%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                    <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('NotificationTray')} style={{ width: '15%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
                         <Image source={require('../assets/notification-oRK.png')} style={styles.setimg2} />
                     </TouchableOpacity>
                 </View>

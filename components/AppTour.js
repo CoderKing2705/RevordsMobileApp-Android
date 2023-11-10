@@ -84,15 +84,15 @@ const AppTourGuide = ({ route, navigation }) => {
                 {tourSteps[step - 1].targetComponent}
             </View>
             {step !== 4 && <View style={styles.tourBtn}>
-                <TouchableOpacity onPress={closeTour} style={styles.skipButton}>
+                <TouchableOpacity activeOpacity={.7} onPress={closeTour} style={styles.skipButton}>
                     <Text style={{ fontSize: 20, color: '#fff', fontWeight: '700' }}>SKIP</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={nextStep} style={styles.nextButton}>
+                <TouchableOpacity activeOpacity={.7} onPress={nextStep} style={styles.nextButton}>
                     <Text style={{ fontSize: 20, color: '#fff', fontWeight: '700' }}>NEXT</Text>
                 </TouchableOpacity>
             </View>}
             {step == 4 && <View style={styles.tourBtnStart}>
-                <TouchableOpacity onPress={GotoRegistration} style={styles.startButton}>
+                <TouchableOpacity activeOpacity={.7} onPress={GotoRegistration} style={styles.startButton}>
                     <Text style={{ fontSize: 20, color: '#fff', fontWeight: '700' }}>LET'S STARTED</Text>
                 </TouchableOpacity>
             </View>}

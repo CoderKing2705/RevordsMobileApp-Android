@@ -1,8 +1,8 @@
-import { StyleSheet, View, Text, Image, TextInput, PermissionsAndroid, SafeAreaView } from 'react-native';
+import { StyleSheet, View, Text, Image, TextInput, PermissionsAndroid, SafeAreaView, BackHandler, Alert } from 'react-native';
 import MapView, { Marker, Callout, PROVIDER_GOOGLE, CalloutSubview } from 'react-native-maps';
 import { TouchableHighlight, TouchableOpacity } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
-import React, { useState, useEffect } from 'react';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect, useCallback } from 'react';
 import customIcon from '../assets/casinoIcon.png';
 import currentIcon from '../assets/currentlocation.png';
 import GeoLocation from 'react-native-geolocation-service';
@@ -19,6 +19,8 @@ import Spinner from 'react-native-loading-spinner-overlay';
 
 
 export default function MapViewing({ navigation }) {
+    const isFocused = useIsFocused();
+
     const [initialRegion, setInitialRegion] = useState(null);
     const [markerForOther, setMarkersForOtherBusiness] = useState({ title: '', coordinate: { latitude: 0.00000, longitude: 0.00000 } });
     const [locationPermission, setLocationPermission] = useState(null);
@@ -40,7 +42,46 @@ export default function MapViewing({ navigation }) {
             }
         }
     }
+
+    const backPressed = () => {
+        // // if (isFocused) {
+        //     Alert.alert(
+        //         "Exit App",
+        //         "Do you want to exit?",
+        //         [
+        //             {
+        //                 text: "No",
+        //                 onPress: () => console.log("Cancel Pressed"),
+        //                 style: "cancel"
+        //             },
+        //             {
+        //                 text: "Yes", onPress: () => {
+        //                     // await BackHandler.removeEventListener('hardwareBackPress', backPressed);
+
+        //                     return true;
+        //                     // navigation.navigate('LandingScreen');
+        //                     // then navigate                            
+        //                 }
+        //             }
+        //         ],
+        //         { cancelable: false }
+        //     );
+        // // }
+        BackHandler.exitApp();
+        navigation.navigate('LandingScreen');
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            BackHandler.addEventListener('hardwareBackPress', backPressed);
+            return () => {
+                BackHandler.removeEventListener('hardwareBackPress', backPressed);
+            };
+        }, []));
+
     useEffect(() => {
+        // BackHandler.addEventListener("hardwareBackPress", backPressed);
+
         setLoading(true);
         requestLocationPermission();
         checkApplicationPermission();
@@ -56,7 +97,12 @@ export default function MapViewing({ navigation }) {
                 console.error("Error fetching data", error);
                 setLoading(false);
             });
-    }, []);
+        // return () => {
+        //     // Anything in here is fired on component unmount.
+        //     BackHandler.removeEventListener('hardwareBackPress', backPressed);
+        // }
+    }, [isFocused]);
+
     async function setLangandLat(latitude, longitude) {
         lang = longitude,
             lat = latitude
@@ -152,7 +198,7 @@ export default function MapViewing({ navigation }) {
 
             <View style={{ flexDirection: 'row', width: '97%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={styles.welcomeText}>Where to go?</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('NotificationTray')}>
+                <TouchableOpacity activeOpacity={.9} onPress={() => navigation.navigate('NotificationTray')}>
                     <Image source={require('../assets/notification-oRK.png')} style={styles.setimg1} />
                 </TouchableOpacity>
             </View>

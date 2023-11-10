@@ -100,11 +100,11 @@ const ProfileEdit = ({ navigation, route }) => {
             <View style={styles.container}>
                 <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                     <View style={{ flexDirection: 'row', width: '95%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
-                        <TouchableOpacity onPress={() => navigation.navigate('Profiles')}>
+                        <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('Profiles')}>
                             <Image source={require('../assets/more-button-ved.png')} style={styles.setimg1} />
                         </TouchableOpacity>
                         <Text style={styles.welcomeText}>Edit Profile</Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('ProfileEdit')}>
+                        <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('ProfileEdit')}>
                             <Image source={require('../assets/notification-swo.png')} style={styles.setimg1} />
                         </TouchableOpacity>
                     </View>
@@ -160,7 +160,7 @@ const ProfileEdit = ({ navigation, route }) => {
                                         />
                                     </View>
 
-                                    <TouchableOpacity onPress={Save} style={styles.frame2vJu}>
+                                    <TouchableOpacity activeOpacity={.7} onPress={Save} style={styles.frame2vJu}>
                                         <Text style={styles.getStartednru}>Save</Text>
                                     </TouchableOpacity>
                                 </View>

@@ -134,7 +134,7 @@ const Location = ({ navigation }) => {
                 <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={{ flexDirection: 'row', width: '97%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
                         <Text style={styles.welcomeText}>Where to go?</Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('NotificationTray')}>
+                        <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('NotificationTray')}>
                             <Image source={require('../assets/notification-oRK.png')} style={styles.setimg1} />
                         </TouchableOpacity>
                     </View>
@@ -144,7 +144,7 @@ const Location = ({ navigation }) => {
                             <TextInput style={styles.searchInput} placeholder='Search..' />
                             <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                             <View style={styles.mainMapImage}>
-                                <TouchableOpacity onPress={() => navigation.navigate("MapViewing")}>
+                                <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate("MapViewing")}>
                                     <Image style={styles.mapImage} source={require('../assets/maptrifold-iCR.png')} />
                                 </TouchableOpacity>
                             </View>

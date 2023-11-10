@@ -2,7 +2,7 @@ import { TextInput, ToastAndroid, TouchableOpacity } from 'react-native';
 import { View, Text, StyleSheet, Image, Modal } from 'react-native';
 import { Avatar, Card, Drawer, Title } from 'react-native-paper';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -13,6 +13,7 @@ import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment/moment';
+
 
 const NotificationTray = ({ navigation }) => {
     const focus = useIsFocused();
@@ -26,6 +27,7 @@ const NotificationTray = ({ navigation }) => {
     const [promotionClaimData, setPromotionClaimData] = useState([]);
     const [autoPilotClaimData, setAutoPilotClaimData] = useState([]);
     const [loading, setLoading] = useState(false);
+    const videoPlayer = useRef(null);
 
     async function setMemData(value) {
         await setMemberData(value);
@@ -116,6 +118,16 @@ const NotificationTray = ({ navigation }) => {
         // setLoading(false)
     }
 
+    const ToastForClaimed = () => {
+        ToastAndroid.showWithGravityAndOffset(
+            `You've already Claimed!`,
+            ToastAndroid.SHORT,
+            ToastAndroid.BOTTOM,
+            25,
+            50,
+        );
+    }
+
     const getData = async () => {
         AsyncStorage.getItem('token')
             .then(async (value) => {
@@ -147,13 +159,20 @@ const NotificationTray = ({ navigation }) => {
                 <View style={[{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' },
                 isPromoModalVisible ? { backgroundColor: 'rgba(0,0,0,0.5)', opacity: 0.4 } : '', isAutoPilotModalVisible ? { backgroundColor: 'rgba(0,0,0,0.5)', opacity: 0.4 } : '']}>
                     <View style={{ flexDirection: 'row', width: '97%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
-                        <TouchableOpacity onPress={() => navigation.navigate('Location')}>
+                        <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('Location')}>
                             <Image source={require('../assets/more-button-ved.png')} style={styles.setimg1} />
                         </TouchableOpacity>
                         <Text style={styles.welcomeText}>Notifications</Text>
                     </View>
+
                     <View style={[{ width: '97%', height: '90%', marginTop: '5%' },
                     isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '']}>
+                        {userData == '' &&
+                            <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                                <Image style={{ width: '70%', height: '40%', borderRadius: 15, opacity: 0.8, marginBottom: '40%' }} source={require('../assets/NodataImg.png')} />
+                            </View>
+
+                        }
                         <View style={[styles.store, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '']}>
                             <FlatList
                                 data={userData}
@@ -199,7 +218,7 @@ const NotificationTray = ({ navigation }) => {
                                 {/* <Text style={styles.welcomeText}>User Profile</Text> */}
                                 <Image source={{ uri: `${Globals.Root_URL}${promotionClaimData.sentFromGroupImage}` }} style={styles.logoBusinessInModal} />
 
-                                <TouchableOpacity onPress={closePromoModal} style={styles.cancelImgContainer}>
+                                <TouchableOpacity activeOpacity={.7} onPress={closePromoModal} style={styles.cancelImgContainer}>
                                     <Image source={require('../assets/cancelImg.png')} style={styles.cancelImg} />
                                 </TouchableOpacity>
                             </View>
@@ -215,11 +234,11 @@ const NotificationTray = ({ navigation }) => {
 
                             {(promotionClaimData.filePath != '' && promotionClaimData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + promotionClaimData.filePath }} ></Image>}
                             <Text style={styles.modaltext}>Redeemable at -<Text style={{ fontWeight: '700' }}> {promotionClaimData.redeemableAt}</Text></Text>
-                            {(promotionClaimData.isClaimed == false && promotionClaimData.expiryDays >= 0) && <TouchableOpacity onPress={() => closePromoRedeemModal('promo', promotionClaimData.id)} style={styles.frame2vJu1ModalClaim}>
+                            {(promotionClaimData.isClaimed == false && promotionClaimData.expiryDays >= 0) && <TouchableOpacity activeOpacity={.7} onPress={() => closePromoRedeemModal('promo', promotionClaimData.id)} style={styles.frame2vJu1ModalClaim}>
                                 <Text style={styles.getStartednru1}>Claim</Text>
                             </TouchableOpacity>}
                             {(promotionClaimData.isClaimed == true || promotionClaimData.expiryDays < 0) &&
-                                <TouchableOpacity style={styles.frame2vJu1ModalBack}>
+                                <TouchableOpacity activeOpacity={.7} style={styles.frame2vJu1ModalBack} onPress={ToastForClaimed}>
                                     <Text style={styles.getStartednru1}>Claimed</Text>
                                 </TouchableOpacity>
                             }
@@ -235,7 +254,7 @@ const NotificationTray = ({ navigation }) => {
                             textStyle={styles.spinnerStyle} />
                     </View>
                 </SafeAreaView>
-            </View>
+            </View >
         </>
     );
 };

@@ -10,6 +10,7 @@ const VerifyNumber = ({ navigation }) => {
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [unMaskPhone, setunMaskPhone] = useState('');
+  const [isValid, setIsValid] = useState(true);
 
   spinner = false;
   randomnumber = "";
@@ -40,9 +41,15 @@ const VerifyNumber = ({ navigation }) => {
     }
   }
 
-   const handleOnPress = async () => {
+  const handleOnPress = async () => {
+    console.log(unMaskPhone)
     try {
-      await fetchAPI();
+      if (unMaskPhone.length == 10) {
+        await fetchAPI();
+      }
+      else {
+        setIsValid(false);
+      }
     }
     catch (e) {
       alert(e);
@@ -70,8 +77,16 @@ const VerifyNumber = ({ navigation }) => {
         mask={['(', /\d/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
         placeholder="(000) 000-0000"
       />
+      {!isValid && <Text style={{ color: 'red', marginTop: '2%', marginLeft: '4%', }}>Invalid Phone Number</Text>}
 
-      <TouchableOpacity onPress={handleOnPress} style={styles.frame2vJu}>
+      {/* <View style={{ width: '100%', alignItems: 'center' }} onPress={() => {handleOnPress}}>
+        <TouchableOpacity  style={styles.frame2vJu}>
+          <Text style={styles.getStartednru}>Request Otp</Text>
+          <Image source={require('../assets/arrowcircleright-R8m.png')} style={styles.arrowcirclerightTy3} />
+        </TouchableOpacity>
+      </View> */}
+
+      <TouchableOpacity activeOpacity={.7} onPress={handleOnPress} style={styles.frame2vJu}>
         <Text style={styles.getStartednru}>Request Otp</Text>
         <Image source={require('../assets/arrowcircleright-R8m.png')} style={styles.arrowcirclerightTy3} />
       </TouchableOpacity>
@@ -143,33 +158,33 @@ const styles = StyleSheet.create({
     fontSize: 24
   },
   frame2vJu: {
+    marginTop: '5%',
     backgroundColor: '#140d05',
     borderRadius: 8,
     alignItems: 'center',
     paddingVertical: 15,
-    paddingHorizontal: 25,
-    width: 200,
+    paddingHorizontal: 15,
+    width: '60%',
     flexDirection: 'row',
-    marginTop: '5%'
   },
   getStartednru: {
-    lineHeight: 22.5,
     textTransform: 'uppercase',
     fontFamily: 'SatoshiVariable, SourceSansPro',
     flexShrink: 0,
     fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: 16,
     color: '#ffffff',
-    margin: '0 29 1 0',
+    textAlign: 'center',
     flex: 10,
     zIndex: 10,
+    width: '100%'
   },
   arrowcirclerightTy3: {
     height: 20,
     width: 20,
     resizeMode: 'contain',
     flexShrink: 0,
-    marginLeft: 10
+    marginRight: 20,
   },
 })
 

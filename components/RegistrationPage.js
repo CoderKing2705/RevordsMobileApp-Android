@@ -16,6 +16,8 @@ export default function RegistrationPage({ route }) {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const { Phone } = route.params;
+    const [isValid, setIsValid] = useState(true);
+
     //console.log(Phone)
     const months = [
         'January', 'February', 'March', 'April', 'May',
@@ -25,11 +27,12 @@ export default function RegistrationPage({ route }) {
     let tokenid = "";
     const days = Array.from({ length: 31 }, (_, index) => (index + 1).toString());
     const navigation = useNavigation();
+
     const getDeviceToken = async () => {
         tokenid = await messaging().getToken();
     };
-    const start = async () => {
 
+    const postData = async () => {
         const monthIndex = months.findIndex(month => month.toLowerCase() === selectedMonths.toLowerCase());
         const birthMonth = monthIndex > 8 ? monthIndex + 1 : '0' + (monthIndex + 1);
         const birthDay = selectDays > 9 ? selectDays : '0' + selectDays;
@@ -37,7 +40,6 @@ export default function RegistrationPage({ route }) {
         const MemberData = [];
         let currentDate = (new Date()).toISOString();
         let currentYear = new Date().getFullYear();
-
 
         fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileByPhone', {
             method: 'POST',
@@ -48,9 +50,9 @@ export default function RegistrationPage({ route }) {
             body: JSON.stringify({
                 "uniqueID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                 "id": 0,
-                "memberName": name,
-                "birthDate": `${currentYear}-${birthMonth}-${selectDays}`,
-                "emailID": email,
+                "memberName": name == '' ? 'User' + Phone.substring(5,) : name,
+                "birthDate": `${currentYear}-${birthMonth}-${birthDay}`,
+                "emailID": email == '' ? null : email,
                 "phoneNo": Phone,
                 "isActive": true,
                 "createdBy": 1,
@@ -65,6 +67,19 @@ export default function RegistrationPage({ route }) {
             getMemberData();
         });
     }
+
+    const start = async () => {
+        if (email != null && email != '' && email != undefined) {
+            const isValidEmail = validateEmail(email);
+            setIsValid(isValidEmail);
+            if (isValidEmail) {
+                postData();
+            }
+        }
+        else {
+            postData();
+        }
+    }
     const getMemberData = async () => {
         const response = await fetch(
             Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + Phone)
@@ -73,6 +88,12 @@ export default function RegistrationPage({ route }) {
         navigation.navigate('TabNavigation', { MemberData: json, Phone: Phone });
 
     }
+
+    const validateEmail = (email) => {
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailPattern.test(email);
+    }
+
     return (
         <View style={styles.screen93X}>
             <Text style={styles.createYourAccount}> Create your Account! </Text>
@@ -80,6 +101,7 @@ export default function RegistrationPage({ route }) {
             <View style={styles.lineOne}></View>
             <TextInput style={styles.emailInput} onChangeText={(t) => setEmail(t)} placeholder='Enter your Email' />
             <View style={styles.lineTwo}></View>
+            {!isValid && <Text style={{ color: 'red', marginTop: '2%', marginLeft: '4%', }}>Invalid Email Address</Text>}
 
             <View style={styles.grpDrpDown}>
                 <SelectDropdown style={styles.drpDownMonth} data={months} onSelect={(selectedItem, index) => setSelectedMonth(selectedItem)}
@@ -93,7 +115,7 @@ export default function RegistrationPage({ route }) {
             </View>
 
             <View style={styles.registrationViewBtn}>
-                <TouchableOpacity style={styles.btnRegister} onPress={start}>
+                <TouchableOpacity activeOpacity={.7} style={styles.btnRegister} onPress={start}>
                     <Text style={styles.txtRegister}>
                         REGISTER
                     </Text>

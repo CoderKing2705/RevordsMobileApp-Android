@@ -87,12 +87,12 @@ const GetOtp = ({ route, navigation }) => {
                 {!isVerified && <Text style={{ 'paddingTop': 10, 'color': 'red' }}>Please Enter Correct OTP</Text>}
                 {otp.join('').length == 0 && <Text style={{ 'paddingTop': 10, 'color': '#203139' }}>Please Enter the OTP</Text>}
             </View>
-            <TouchableOpacity onPress={verifyOtp} style={styles.frame2vJu}>
+            <TouchableOpacity activeOpacity={.7} onPress={verifyOtp} style={styles.frame2vJu}>
                 <Text style={styles.getStartednru}>Verify</Text>
             </TouchableOpacity>
 
             <Text style={styles.verifyCodeText1}>Don't receive the code?</Text>
-            <TouchableOpacity onPress={resendOtp} style={styles.resendView}>
+            <TouchableOpacity activeOpacity={.7} onPress={resendOtp} style={styles.resendView}>
                 <Text style={styles.verifyCodeText2}>Resend</Text>
             </TouchableOpacity>
         </View>

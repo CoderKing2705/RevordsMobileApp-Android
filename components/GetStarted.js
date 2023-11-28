@@ -1,5 +1,3 @@
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { StyleSheet, Image, Text, View, BackHandler } from 'react-native';
@@ -47,9 +45,9 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     frame2vJu: {
-        top: 403,
+        top: '97%',               
         backgroundColor: '#140d05',
-        borderRadius: 8,
+        borderRadius: 12,
         alignItems: 'center',
         paddingVertical: 15,
         paddingHorizontal: 15,

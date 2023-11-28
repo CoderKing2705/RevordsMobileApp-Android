@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
         width: 225,
         height: 225,
         borderRadius: 500,
-        marginTop: '-10%',
+        marginTop: '-15%',
     },
     txt1: {
         fontSize: 24,
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     txt2: {
         fontSize: 24,
         fontWeight: '900',
-        marginTop: '5%',
+        marginTop: '3%',
         color: '#140D05'
     },
     txt3: {
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     txt4: {
         fontSize: 15,
         fontWeight: '500',
-        marginTop: '5%',
+        marginTop: '3%',
         color: '#8C9194',
         textAlign: 'center',
         paddingHorizontal: 40

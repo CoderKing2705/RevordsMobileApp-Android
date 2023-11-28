@@ -1,7 +1,6 @@
-import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
-import { memo, useState } from 'react';
-import { View, Text, Image } from 'react-native';
+import { useState } from 'react';
+import { View, Text } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
@@ -84,7 +83,6 @@ export default function RegistrationPage({ route }) {
         const response = await fetch(
             Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + Phone)
         const json = await response.json();
-        // MemberData = json;
         navigation.navigate('TabNavigation', { MemberData: json, Phone: Phone });
 
     }
@@ -107,11 +105,9 @@ export default function RegistrationPage({ route }) {
                 <SelectDropdown style={styles.drpDownMonth} data={months} onSelect={(selectedItem, index) => setSelectedMonth(selectedItem)}
                     defaultButtonText='Birth Month' buttonTextAfterSelection={(selectedItem, index) => selectedItem}
                     rowTextForSelection={(item, index) => item} />
-                {/* <Image source={require('../assets/caretdown-eU1.png')} style={styles.imageDownArrow} /> */}
                 <SelectDropdown style={styles.drpDownDays} data={days} onSelect={(selectedItem, index) => setSelectedDays(selectedItem)}
                     defaultButtonText='Birth Day' buttonTextAfterSelection={(selectedItem, index) => selectedItem}
                     rowTextForSelection={(item, index) => item} />
-                {/* <Image source={require('../assets/caretdown-8b3.png')} style={styles.imageDrpDownArrowDays} /> */}
             </View>
 
             <View style={styles.registrationViewBtn}>
@@ -149,8 +145,6 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 48,
         position: 'absolute',
-        // left: 96,
-        // top: 734,
         bottom: '5%',
         borderRadius: 8,
     },
@@ -163,7 +157,6 @@ const styles = StyleSheet.create({
         flexShrink: 0,
     },
     imageDownArrow: {
-        // margin: '0rem 26.37rem 2.87rem 0rem', 
         width: 19.251,
         height: 10.501,
         resizeMode: 'contain',
@@ -171,13 +164,7 @@ const styles = StyleSheet.create({
         flexShrink: 0,
     },
     grpDrpDown: {
-        // width: '50%', // Converted from 35.4625rem
-        height: 23, // Converted from 2.3rem
-        // position: 'absolute',
-        // left: 16, // Converted from 1.6rem
-        // top: 251, // Converted from 25.1rem
-        // display: 'flex',
-        // alignItems: 'flex-end',
+        height: 23,
         justifyContent: 'space-between',
         flexDirection: 'row',
         marginTop: '10%',
@@ -203,23 +190,17 @@ const styles = StyleSheet.create({
     emailInput: {
         width: '100%',
         height: 23,
-        // position: 'absolute',
-        // left: 16,
-        // top: 123,
         fontSize: 18,
         fontWeight: '500',
         lineHeight: 23,
         color: '#203139',
         fontFamily: 'Satoshi Variable, "Source Sans Pro"',
         marginTop: '8%',
-        // marginRight: '10%',
         marginLeft: '4%',
     },
     nameInput: {
         width: '100%',
         height: '23',
-        // position: 'absolute',
-        // top: 123,
         marginTop: '30%',
         fontSize: 18,
         fontWeight: '500',
@@ -230,8 +211,6 @@ const styles = StyleSheet.create({
     lineOne: {
         width: '95%',
         height: 1.5,
-        // left: 16,
-        // top: 157,
         marginTop: '2%',
         alignSelf: 'center',
         backgroundColor: '#ffffff',
@@ -239,8 +218,6 @@ const styles = StyleSheet.create({
     lineTwo: {
         width: '95%',
         height: 1.5,
-        // left: 16,
-        // top: 157,
         backgroundColor: '#ffffff',
         marginTop: '2%',
         alignSelf: 'center',

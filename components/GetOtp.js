@@ -5,7 +5,7 @@ import { useRef, useState } from 'react';
 const GetOtp = ({ route, navigation }) => {
     const [otp, setOtp] = useState(['', '', '', '']);
     const refs = [useRef(), useRef(), useRef(), useRef()];
-    // const verificationCode = 1234;
+
     const [isVerified, setIsVerified] = useState(true);
     const { OTP, CustomerExists, Phone } = route.params;
     console.log(OTP);
@@ -42,14 +42,8 @@ const GetOtp = ({ route, navigation }) => {
         try {
             if (otp.join('').length !== 0) {
                 if (otp.join('') == OTP) {
-                    setIsVerified(true);
-                    // if (CustomerExists) {
-                    // navigation.navigate('TabNavigation', { MemberData: CustomerExists });
-                    // } else {
-
+                    setIsVerified(true);                    
                     navigation.navigate('AppTour', { MemberData: CustomerExists, Phone: Phone });
-
-                    // }
                 } else {
                     setIsVerified(false);
                 }
@@ -85,7 +79,7 @@ const GetOtp = ({ route, navigation }) => {
             </View>
             <View style={{ 'height': 25 }}>
                 {!isVerified && <Text style={{ 'paddingTop': 10, 'color': 'red' }}>Please Enter Correct OTP</Text>}
-                {otp.join('').length == 0 && <Text style={{ 'paddingTop': 10, 'color': '#203139' }}>Please Enter the OTP</Text>}
+                {otp.join('').length == 0 && <Text style={{ 'paddingTop': 6, 'color': '#203139' }}>Please Enter the OTP</Text>}
             </View>
             <TouchableOpacity activeOpacity={.7} onPress={verifyOtp} style={styles.frame2vJu}>
                 <Text style={styles.getStartednru}>Verify</Text>

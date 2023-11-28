@@ -127,6 +127,24 @@ const NotificationTray = ({ navigation }) => {
             50,
         );
     }
+    const ToastForExpired = () => {
+        ToastAndroid.showWithGravityAndOffset(
+            `Promotion is Expired!`,
+            ToastAndroid.SHORT,
+            ToastAndroid.BOTTOM,
+            25,
+            50,
+        );
+    }
+    const ToastForRedeemed = () => {
+        ToastAndroid.showWithGravityAndOffset(
+            `You have Redeemed!`,
+            ToastAndroid.SHORT,
+            ToastAndroid.BOTTOM,
+            25,
+            50,
+        );
+    }
 
     const getData = async () => {
         AsyncStorage.getItem('token')
@@ -159,7 +177,7 @@ const NotificationTray = ({ navigation }) => {
                 <View style={[{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' },
                 isPromoModalVisible ? { backgroundColor: 'rgba(0,0,0,0.5)', opacity: 0.4 } : '', isAutoPilotModalVisible ? { backgroundColor: 'rgba(0,0,0,0.5)', opacity: 0.4 } : '']}>
                     <View style={{ flexDirection: 'row', width: '97%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
-                        <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('Location')}>
+                        <TouchableOpacity activeOpacity={.7} onPress={() => navigation.goBack()}>
                             <Image source={require('../assets/more-button-ved.png')} style={styles.setimg1} />
                         </TouchableOpacity>
                         <Text style={styles.welcomeText}>Notifications</Text>
@@ -167,14 +185,13 @@ const NotificationTray = ({ navigation }) => {
 
                     <View style={[{ width: '97%', height: '90%', marginTop: '5%' },
                     isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '']}>
-                        {userData == '' &&
+                        {(userData == '' && !loading) &&
                             <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
                                 <Image style={{ width: '70%', height: '40%', borderRadius: 15, opacity: 0.8, marginBottom: '40%' }} source={require('../assets/NodataImg.png')} />
                             </View>
-
                         }
                         <View style={[styles.store, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '']}>
-                            <FlatList
+                            <FlatList showsVerticalScrollIndicator={false}
                                 data={userData}
                                 keyExtractor={(item, index) => index.toString()}
                                 renderItem={({ item }) => {
@@ -188,11 +205,12 @@ const NotificationTray = ({ navigation }) => {
                                                     <View style={{ width: '80%', height: '100%' }}>
                                                         <Title style={{ fontSize: 16, fontWeight: '800', color: '#3380a3' }}>{item.promotionalMessage}</Title>
                                                         <View style={{ flexDirection: 'row' }}>
-                                                            {item.sentAgo > 0 && <Text style={{ color: '#717679', fontSize: 12, fontWeight: '400' }}>{item.sentAgo} Days ago</Text>}
+                                                            {item.sentAgo > 1 && <Text style={{ color: '#717679', fontSize: 12, fontWeight: '400' }}>{item.sentAgo} Days ago</Text>}
+                                                            {item.sentAgo == 1 && <Text style={{ color: '#717679', fontSize: 12, fontWeight: '400' }}>{item.sentAgo} Day ago</Text>}
                                                             {item.sentAgo == 0 && <Text style={{ color: '#717679', fontSize: 12, fontWeight: '400' }}>Today</Text>}
-                                                            {item.expiryDays > 0 && <Text style={{ position: 'absolute', right: 0, fontSize: 12, fontWeight: '500', color: '#921c1c' }}>Expires in {item.expiryDays} Days</Text>}
-                                                            {item.expiryDays < 0 && <Text style={{ position: 'absolute', right: 0, color: '#cccccc', fontSize: 12, fontWeight: '400' }}>Expired</Text>}
-                                                            {item.expiryDays == 0 && <Text style={{ position: 'absolute', right: 0, fontSize: 12, fontWeight: '400' }}>Expiring Today</Text>}
+                                                            {item.expiryDays > 1 && <Text style={{ position: 'absolute', right: 0, fontSize: 12, fontWeight: '500', color: '#921c1c' }}>Expires in {item.expiryDays} Days</Text>}
+                                                            {item.expiryDays == 1 && <Text style={{ position: 'absolute', right: 0, fontSize: 12, fontWeight: '500', color: '#921c1c' }}>Expiring Today</Text>}
+                                                            {item.expiryDays <= 0 && <Text style={{ position: 'absolute', right: 0, color: '#b0afaf', fontSize: 12, fontWeight: '400' }}>Expired</Text>}
                                                         </View>
                                                     </View>
                                                 </Card.Content>
@@ -215,31 +233,39 @@ const NotificationTray = ({ navigation }) => {
                     <View style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                         <View style={styles.modal}>
                             <View style={{ flexDirection: 'row', width: '100%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
-                                {/* <Text style={styles.welcomeText}>User Profile</Text> */}
                                 <Image source={{ uri: `${Globals.Root_URL}${promotionClaimData.sentFromGroupImage}` }} style={styles.logoBusinessInModal} />
 
                                 <TouchableOpacity activeOpacity={.7} onPress={closePromoModal} style={styles.cancelImgContainer}>
                                     <Image source={require('../assets/cancelImg.png')} style={styles.cancelImg} />
                                 </TouchableOpacity>
                             </View>
-                            {/* <Text style={styles.modalbusinessName}>{promotionClaimData.sentFrom}</Text> */}
+
                             <Text style={styles.modalPromoMsg}>{promotionClaimData.promotionalMessage}</Text>
                             <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer Start Date </Text>- {moment(promotionClaimData.offerStartDate).format("MM/DD/YYYY")}</Text>
                             <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer End Date </Text>- {moment(promotionClaimData.offerEndDate).format("MM/DD/YYYY")}</Text>
-                            {(promotionClaimData.expiryDays > 0) && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in - </Text>{promotionClaimData.expiryDays} days</Text>}
-                            {(promotionClaimData.expiryDays < 0) && <Text style={styles.modaltext}><Text style={{ fontWeight: '600', color: '#cccccc', }}>Expired</Text></Text>}
-                            {(promotionClaimData.expiryDays == 0) && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today</Text></Text>}
-
-                            {/* {promotionClaimData.isSpinWheel && <Text style={styles.modaltext}>Spinwheel available at store</Text>} */}
+                            {(promotionClaimData.expiryDays > 1) && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in - </Text>{promotionClaimData.expiryDays} days</Text>}
+                            {(promotionClaimData.expiryDays == 1) && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today</Text></Text>}
+                            {(promotionClaimData.expiryDays <= 0) && <Text style={styles.modaltext}><Text style={{ fontWeight: '600', color: '#b0afaf' }}>Expired</Text></Text>}
 
                             {(promotionClaimData.filePath != '' && promotionClaimData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + promotionClaimData.filePath }} ></Image>}
                             <Text style={styles.modaltext}>Redeemable at -<Text style={{ fontWeight: '700' }}> {promotionClaimData.redeemableAt}</Text></Text>
-                            {(promotionClaimData.isClaimed == false && promotionClaimData.expiryDays >= 0) && <TouchableOpacity activeOpacity={.7} onPress={() => closePromoRedeemModal('promo', promotionClaimData.id)} style={styles.frame2vJu1ModalClaim}>
-                                <Text style={styles.getStartednru1}>Claim</Text>
-                            </TouchableOpacity>}
-                            {(promotionClaimData.isClaimed == true || promotionClaimData.expiryDays < 0) &&
-                                <TouchableOpacity activeOpacity={.7} style={styles.frame2vJu1ModalBack} onPress={ToastForClaimed}>
+                            {(promotionClaimData.isClaimed == false && promotionClaimData.expiryDays >= 1 && promotionClaimData.isRedeemed == false)
+                                && <TouchableOpacity activeOpacity={.9} onPress={() => closePromoRedeemModal('promo', promotionClaimData.id)} style={styles.frame2vJu1ModalClaim}>
+                                    <Text style={styles.getStartednru1}>Claim</Text>
+                                </TouchableOpacity>}
+                            {(promotionClaimData.isClaimed == true && promotionClaimData.isRedeemed == false) &&
+                                <TouchableOpacity activeOpacity={.9} style={styles.frame2vJu1ModalBack} onPress={ToastForClaimed}>
                                     <Text style={styles.getStartednru1}>Claimed</Text>
+                                </TouchableOpacity>
+                            }
+                            {(promotionClaimData.isClaimed == false && promotionClaimData.expiryDays <= 0 && promotionClaimData.isRedeemed == false)
+                                && <TouchableOpacity activeOpacity={.9} style={styles.frame2vJu1ModalBack} onPress={ToastForExpired}>
+                                    <Text style={styles.getStartednru1}>Expired</Text>
+                                </TouchableOpacity>
+                            }
+                            {(promotionClaimData.isRedeemed == true) &&
+                                <TouchableOpacity activeOpacity={.9} style={styles.frame2vJu1ModalBack} onPress={ToastForRedeemed}>
+                                    <Text style={styles.getStartednru1}>Redeemed</Text>
                                 </TouchableOpacity>
                             }
                         </View>
@@ -267,9 +293,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: '60%',
         height: 35,
-        // position: 'absolute',
-        // top: '97%',
-        // bottom: 10,
         marginVertical: 15,
         alignSelf: 'center'
     },
@@ -292,14 +315,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: '60%',
         height: 35,
-        // position: 'absolute',
-        // top: '97%',
-        // bottom: 10,
         marginVertical: 15,
         alignSelf: 'center'
     },
     avatarImg: {
-        // width: '2%'
         height: 150,
         width: 150,
         marginVertical: 7,
@@ -330,9 +349,6 @@ const styles = StyleSheet.create({
         height: 25,
         marginTop: 5,
         marginEnd: 5
-        // position: 'absolute',
-        // alignSelf: 'flex-end',
-        // right: 0,
     },
     cancelImgContainer: {
         alignSelf: 'flex-end',
@@ -351,10 +367,7 @@ const styles = StyleSheet.create({
     modal: {
         alignSelf: 'center',
         backgroundColor: '#fff',
-        // padding: 100,
-        // height: '75%',
         width: '85%',
-        // marginTop: '30%',
         position: 'relative',
         borderRadius: 15,
         padding: 5
@@ -367,55 +380,37 @@ const styles = StyleSheet.create({
     giftIcon: {
         width: 40,
         height: 40,
-        // alignSelf: 'center',
         top: '17%',
     },
     cardContent: {
-        // marginHorizontal: '2%',
         flexDirection: 'row',
         backgroundColor: '#fff',
-        // borderBottomColor: '#000',
-        // borderBottomWidth: 1,
         borderRadius: 10,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.5,
         shadowRadius: 3,
         elevation: 5,
-        // width: '98%',
         height: 'auto'
-        // alignItems: 'center',
-        // bottom: '25%',
-        // left: '27%',
-        // padding: '2%'
     },
     cardCover: {
-        // padding: '2%'
         height: '70%',
         width: '100%'
     },
     card: {
-        // marginTop: 5,
-        // marginBottom: 5,
-        // height: 300,
         width: '98%',
         flexDirection: 'row',
         alignSelf: 'center',
         borderRadius: 10
     },
     store: {
-        // marginLeft: 8,
-        // marginRight: 8,
         width: '95%',
         height: '95%',
-        // position: 'relative',
         flexShrink: 0,
         marginTop: '2%',
         alignSelf: 'center',
         marginBottom: '20%',
-        // backgroundColor: '#cdcce6',
         borderRadius: 15
-        // flexDirection: 'column'
     },
     mapImage: {
         width: 26,
@@ -485,22 +480,12 @@ const styles = StyleSheet.create({
         flex: 0,
         flexDirection: 'row'
     },
-    // container: {
-    //     width: '100%',
-    //     height: '100%',
-    //     overflow: 'hidden',
-    //     position: 'relative',
-    //     backgroundColor: '#d9e7ed',
-    //     flexShrink: 0,
-    // }
-
     container: {
         height: '100%',
         width: '100%',
         backgroundColor: '#d9e7ed',
         alignItems: 'center',
     },
-
     setimg1: {
         width: 50,
         height: 50,

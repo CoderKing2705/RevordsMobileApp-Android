@@ -2,18 +2,18 @@ import { StyleSheet } from 'react-native'
 import { View, Text, Image } from 'react-native'
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import axios from 'axios';
 import Globals from '../components/Globals';
 import { SafeAreaView } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { StatusBar } from "react-native";
 import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Spinner from 'react-native-loading-spinner-overlay';
-import MapView, { Marker, Callout, PROVIDER_GOOGLE, CalloutSubview } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import currentIcon from '../assets/casinoIcon.png';
 import Geolocation from '@react-native-community/geolocation';
+import * as Progress from 'react-native-progress';
 
 export default function BusinessDetailsView({ route }) {
     const navigation = useNavigation();
@@ -23,10 +23,8 @@ export default function BusinessDetailsView({ route }) {
     const [initialRegion, setInitialRegion] = useState(null);
     memberID = 0;
     const [loading, setLoading] = useState(false);
-    const goBackToCardView = () => {
-        navigation.navigate("Locations")
-    };
-    const businessDetailsAPI = `${Globals.API_URL}/BusinessProfiles`;
+
+    const businessDetailsAPI = `${Globals.API_URL}/BusinessProfiles/GetBusinessLocationWiseMemberDetails`;
     const businessGroupId = "1";
     const userEarnedRewardsAPI = Globals.API_URL + `/RewardConfigs/GetRewardConfigBusinessGroupwiseMemberwise/${businessGroupId}`;
     const id = route.params.id;
@@ -43,8 +41,6 @@ export default function BusinessDetailsView({ route }) {
     const [MemberData, setMemberData] = useState([{}]);
 
     async function setMarkers(centerLat, centerLong) {
-        console.log('cenbeffsdaf');
-        console.log(centerLat);
         setInitialRegion({
             latitude: centerLat,
             longitude: centerLong,
@@ -66,6 +62,42 @@ export default function BusinessDetailsView({ route }) {
     async function setEarnedRevardsData(value) {
         await setEarnedRevards(value);
     }
+
+    const getLocation = (response) => {
+        Geolocation.getCurrentPosition(
+            async position => {
+                const { latitude, longitude } = position.coords;
+
+                const toRadian = n => (n * Math.PI) / 180
+                let lat2 = response.data[0].latitude
+                let lon2 = response.data[0].longitude
+                let lat1 = latitude
+                let lon1 = longitude
+                console.log(lat1, lon1 + "===" + lat2, lon2)
+                let R = 6371  // km
+                let x1 = lat2 - lat1
+                let dLat = toRadian(x1)
+                let x2 = lon2 - lon1
+                let dLon = toRadian(x2)
+                let a =
+                    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+                let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+                let d = R * c
+                response.data[0].distance = parseInt(d * 0.621371);
+
+                await setBusinessDetailsAwait(response.data[0])
+                await setMarkers(parseFloat(response.data[0].latitude), parseFloat(response.data[0].longitude));
+                console.log('memberID', memberID)
+                setLoading(false);
+            },
+            error => {
+                console.error('Error getting current location: ', error);
+            },
+            { enableHighAccuracy: false, timeout: 500 }
+        );
+    }
+
     async function LoadData() {
         setLoading(true);
 
@@ -73,16 +105,18 @@ export default function BusinessDetailsView({ route }) {
             .then(async (value) => {
                 if (value !== null) {
                     memberID = (JSON.parse(value))[0].memberId;
-                    axios({
+                    await axios({
                         method: 'GET',
-                        url: `${userEarnedRewardsAPI}/${memberID}`
+                        url: `${businessDetailsAPI}/${id}/${(JSON.parse(value))[0].memberId}`
                     }).then(async (response) => {
-                        await setEarnedRevardsData(response.data)
+                        console.log(response.data);
+                        await getLocation(response);
 
                     }).catch((error) => {
-                        console.log("Error fetching data", error);
+                        console.log("Error fetching data:/", error)
                         setLoading(false);
                     });
+
                     await setMemData(JSON.parse(value));
 
                 } else {
@@ -98,67 +132,20 @@ export default function BusinessDetailsView({ route }) {
 
     useEffect(() => {
         LoadData();
-        axios({
-            method: 'GET',
-            url: `${businessDetailsAPI}/${id}`
-        }).then(async (response) => {
-            console.log('2')
-            console.log(response.data);
-            await Geolocation.getCurrentPosition(
-                async position => {
-                    const { latitude, longitude } = position.coords;
-                    console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
-                    console.log("b lat.", response.data.latitude)
-                    console.log("b lon.", response.data.longitude)
 
-                    const toRadian = n => (n * Math.PI) / 180
-                    let lat2 = response.data.latitude
-                    let lon2 = response.data.longitude
-                    let lat1 = latitude
-                    let lon1 = longitude
-                    console.log(lat1, lon1 + "===" + lat2, lon2)
-                    let R = 6371  // km
-                    let x1 = lat2 - lat1
-                    let dLat = toRadian(x1)
-                    let x2 = lon2 - lon1
-                    let dLon = toRadian(x2)
-                    let a =
-                        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                        Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
-                    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-                    let d = R * c
-                    response.data.distance = parseInt(d * 0.621371);
-
-                    await setBusinessDetailsAwait(response.data)
-                    await setMarkers(parseFloat(response.data.latitude), parseFloat(response.data.longitude));
-                },
-                error => {
-                    console.error('Error getting current location: ', error);
-                },
-                { enableHighAccuracy: false, timeout: 500 }
-            );
-
-        }).catch((error) => {
-            console.log("Error fetching data:/", error)
-            setLoading(false);
-        });
-        console.log(memberID);
-
-
-        axios({
-            method: 'GET',
-            url: `${wdays}/${id}`
-        }).then(async (response) => {
-            // console.log('4')
-            await setworkingDaysAwait(response.data);
-            setLoading(false);
-        });
+        // axios({
+        //     method: 'GET',
+        //     url: `${wdays}/${id}`
+        // }).then(async (response) => {
+        //     await setworkingDaysAwait(response.data);
+        //     setLoading(false);
+        // });
     }, [isFocused])
     return (
         <View style={styles.container}>
             <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
                 <View style={{ flexDirection: 'row', width: '97%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
-                    <TouchableOpacity activeOpacity={.7} style={{ width: '15%', height: '100%', alignItems: 'center', justifyContent: 'center' }} onPress={() => navigation.navigate('Locations')}>
+                    <TouchableOpacity activeOpacity={.7} style={{ width: '15%', height: '100%', alignItems: 'center', justifyContent: 'center' }} onPress={() => navigation.goBack()}>
                         <Image source={require('../assets/more-button-ved.png')} style={styles.setimg1} />
                     </TouchableOpacity>
                     <Text style={styles.welcomeText}>{businessDetails.businessName}</Text>
@@ -168,7 +155,7 @@ export default function BusinessDetailsView({ route }) {
                 </View>
 
                 <SafeAreaView style={{ paddingTop: '5%', height: '90%', width: '97%', alignItems: 'center', borderRadius: 50 }}>
-                    <ScrollView style={{ flex: 1, height: '100%', width: '97%', borderRadius: 50 }}>
+                    <ScrollView style={{ flex: 1, height: '100%', width: '97%', borderRadius: 50 }} showsVerticalScrollIndicator={false}>
                         <View style={styles.detailView}>
                             <Image source={{ uri: imageUrl }} style={styles.imageBusiness} />
                             <Text style={{ fontWeight: '800', paddingHorizontal: '3%', fontSize: 18, top: 5 }}>{businessDetails.businessName}</Text>
@@ -176,16 +163,102 @@ export default function BusinessDetailsView({ route }) {
                                 <Text style={{ color: '#717679', paddingHorizontal: '3%', fontWeight: '700', fontSize: 14, top: 12 }}>{businessDetails.industry}</Text>
                                 <Text style={{ color: '#73a5bc', paddingHorizontal: '3%', fontWeight: '700', fontSize: 14, top: 12, alignSelf: 'flex-end' }}> {businessDetails.distance} mi </Text>
                             </View>
-                            <Image source={{ uri: logoUrl }} style={styles.logoBusiness} />
-                            <View style={{ paddingHorizontal: '3%' }}>
-                                <Text style={styles.loyaltyRewards}>Loyalty Rewards</Text>
-                                <Text style={styles.subheading}>Earn 1 pt for every visit</Text>
-                                {earnerRewards.map((rewards, index) => (
-                                    <Text key={index} style={{ fontWeight: '600', fontSize: 16, marginTop: '2%', paddingHorizontal: '2%' }}>
-                                        {earnerRewards[index].rewardName}
-                                    </Text>
-                                ))}
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Image source={{ uri: logoUrl }} style={styles.logoBusiness} />
+                                {businessDetails.memberString == 'Member' && <Text style={{ fontWeight: '600', paddingHorizontal: '3%', fontSize: 14, top: 15, color: '#339852' }}>{businessDetails.memberString}</Text>}
                             </View>
+                            {(businessDetails.promotionData || businessDetails.autopilotData) && (businessDetails.promotionData.length > 0 || businessDetails.autopilotData.length > 0) &&
+                                <View style={{ paddingHorizontal: '3%' }}>
+                                    <Text style={styles.Promotion}>Promotions</Text>
+                                    {businessDetails.promotionData && businessDetails.promotionData.map((promo, index) => (
+                                        <Fragment key={index}>
+                                            <View style={{ flexDirection: 'row', width: '100%', marginTop: 7 }}>
+                                                <View style={{ width: '65%' }}>
+                                                    <Text style={{ fontWeight: '500', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
+                                                        {promo.promotionalMessage}
+                                                    </Text>
+                                                </View>
+                                                <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
+                                                    {promo.expiryDays > 1 && <Text style={{
+                                                        fontWeight: '500', fontSize: 12, marginTop: '2%', paddingHorizontal: '2%', borderWidth: 1,
+                                                        borderColor: '#767676', paddingHorizontal: 5, paddingVertical: 3, color: '#767676', borderRadius: 5
+                                                    }}>
+                                                        {promo.expiryDays} days left
+                                                    </Text>}
+                                                    {promo.expiryDays == 1 && <Text style={{
+                                                        fontWeight: '500', fontSize: 12, marginTop: '2%', paddingHorizontal: '2%', borderWidth: 1,
+                                                        borderColor: '#767676', paddingHorizontal: 5, paddingVertical: 3, color: '#767676', borderRadius: 5
+                                                    }}>
+                                                        Expiring Today
+                                                    </Text>}
+                                                </View>
+                                            </View>
+                                        </Fragment>
+                                    ))}
+                                </View>
+                            }
+                            {/* {businessDetails.autopilotData.length > 0 &&
+                                <View style={{ paddingHorizontal: '3%' }}> */}
+                            {businessDetails.autopilotData && businessDetails.autopilotData.map((auto, index) => (
+                                <View style={{ paddingHorizontal: '3%' }} key={index}>
+                                    <Fragment>
+                                        <View style={{ flexDirection: 'row', width: '100%', marginTop: 7 }}>
+                                            <View style={{ width: '65%' }}>
+                                                <Text style={{ fontWeight: '500', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
+                                                    {auto.rewardName}
+                                                </Text>
+                                            </View>
+
+                                            {auto.campaignName != 'Acquirement' &&
+                                                <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
+                                                    {auto.expiryDays > 1 && <Text style={{
+                                                        fontWeight: '500', fontSize: 12, marginTop: '2%', paddingHorizontal: '2%', borderWidth: 1,
+                                                        borderColor: '#767676', paddingHorizontal: 5, paddingVertical: 3, color: '#767676', borderRadius: 5
+                                                    }}>
+                                                        {auto.expiryDays} days left
+                                                    </Text>}
+                                                    {auto.expiryDays == 1 && <Text style={{
+                                                        fontWeight: '500', fontSize: 12, marginTop: '2%', paddingHorizontal: '2%', borderWidth: 1,
+                                                        borderColor: '#767676', paddingHorizontal: 5, paddingVertical: 3, color: '#767676', borderRadius: 5
+                                                    }}>
+                                                        Expiring Today
+                                                    </Text>}
+                                                </View>
+                                            }
+                                            {auto.campaignName == 'Acquirement' &&
+                                                <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
+                                                    <TouchableOpacity activeOpacity={.7} onPress={() => console.log(1111)} style={styles.frame2vJu}>
+                                                        <Text style={styles.getStartednru}>Save</Text>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            }
+                                        </View>
+                                    </Fragment>
+                                </View>
+                            ))}
+                            {/* </View>
+                            } */}
+                            {businessDetails.rewardData && businessDetails.rewardData.length > 0 && <View style={{ paddingHorizontal: '3%' }}>
+                                <Text style={styles.loyaltyRewards}>Loyalty Rewards</Text>
+                                <Text style={styles.subheading}>Earn {businessDetails.rewardData[0].claimPointBusinessGroup} pt for every {businessDetails.rewardData[0].reclaimHours} hours</Text>
+                                {businessDetails.rewardData && businessDetails.rewardData.map((rewards, index) => (
+                                    <Fragment key={index}>
+                                        <Text style={{ fontWeight: '600', fontSize: 16, marginTop: '5%', paddingHorizontal: '2%' }}>
+                                            {rewards.rewardName}
+                                        </Text>
+                                        {rewards.currentPoints != null && <Progress.Bar
+                                            style={styles.progressBar}
+                                            progress={1 - ((rewards.pendingToAchiveValue) / rewards.achivableTargetValue)}
+                                            width={250}
+                                            color='#2ac95d' />}
+                                        {rewards.currentPoints != null && <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: '2%', marginTop: '1%' }}>
+                                            <Text style={{ color: '#717679' }}> {rewards.currentPoints} / {rewards.achivableTargetValue} pts</Text>
+                                            {rewards.pendingToAchiveValue > 0 && <Text style={{ color: '#717679' }}>{rewards.pendingToAchiveValue} pts left</Text>}
+                                            {rewards.pendingToAchiveValue <= 0 && <Text style={{ color: '#717679' }}>Redeem</Text>}
+                                        </View>}
+                                    </Fragment>
+                                ))}
+                            </View>}
                             <View style={{ paddingHorizontal: '3%' }}>
                                 <Text style={{ marginTop: '7%', fontWeight: '700', fontSize: 18 }}>Photos</Text>
                                 <View style={{ flexDirection: 'row' }}>
@@ -196,7 +269,7 @@ export default function BusinessDetailsView({ route }) {
                             </View>
                             <View style={{ paddingHorizontal: '3%' }} >
                                 <Text style={{ marginTop: '7%', fontWeight: '700', fontSize: 18 }}>Hours</Text>
-                                {workingDays.map((day, index) => (
+                                {businessDetails.businesswiseWorkingDays && businessDetails.businesswiseWorkingDays.map((day, index) => (
                                     <Text key={index} style={{ marginTop: '1%', fontWeight: '700', color: '#717679', paddingHorizontal: '2%', fontSize: 12 }}>
                                         {`${day.dayName}: ${day.fromTime} - ${day.toTime}`}
                                     </Text>
@@ -231,7 +304,7 @@ export default function BusinessDetailsView({ route }) {
                                                 "elementType": "geometry",
                                                 "stylers": [
                                                     {
-                                                        "color": "#c8d6e3"  // Blue color
+                                                        "color": "#c8d6e3"
                                                     }
                                                 ]
                                             },
@@ -281,7 +354,7 @@ export default function BusinessDetailsView({ route }) {
                             </View>
                             <View style={{ paddingHorizontal: '3%' }} >
                                 <Text style={styles.adressHeading}>Phone:</Text>
-                                {businessDetails.phoneNo &&<Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
+                                {businessDetails.phoneNo && <Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
                                     {businessDetails.phoneNo.replace(/(\d{3})(\d{3})(\d{4})/, (_, a, b, c) => `(${a}) ${b}-${c}`)}
                                 </Text>}
                             </View>
@@ -310,8 +383,34 @@ export default function BusinessDetailsView({ route }) {
 }
 
 const styles = StyleSheet.create({
+    frame2vJu: {
+        backgroundColor: '#3381a3',
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'center',
+        paddingVertical: 8,
+        marginTop: 7,
+        width: '98%',
+        height: 40
+    },
+    getStartednru: {
+        // lineHeight: 22.5,
+        textTransform: 'uppercase',
+        fontFamily: 'SatoshiVariable, SourceSansPro',
+        flexShrink: 0,
+        fontWeight: 'bold',
+        fontSize: 18,
+        color: '#ffffff',
+        flex: 10,
+        zIndex: 10,
+        textAlign: 'center',
+    },
+    progressBar: {
+        marginTop: '1%',
+        left: 10
+    },
     workingDays: {
-        // marginLeft: '2%'
         paddingHorizontal: '2%'
     },
     mapViewMain: {
@@ -336,13 +435,17 @@ const styles = StyleSheet.create({
         paddingHorizontal: '2%'
     },
     loyaltyRewards: {
-        marginTop: '15%',
+        marginTop: '7%',
+        fontWeight: '700',
+        fontSize: 18
+    },
+    Promotion: {
+        marginTop: '12%',
         fontWeight: '700',
         fontSize: 18
     },
     detailView: {
         backgroundColor: 'white',
-        // padding: 10,
         height: '100%',
         width: '100%',
         borderTopLeftRadius: 20,
@@ -380,9 +483,7 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         marginTop: 15,
-        // position: 'absolute',
         alignSelf: 'center',
-        // right: -20
     },
     setimg2: {
         width: 50,

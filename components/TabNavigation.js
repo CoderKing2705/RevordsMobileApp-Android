@@ -1,14 +1,10 @@
-import { Text, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Location from './Location';
 import Favourite from './Favourites';
 import { Ionicons } from '@expo/vector-icons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ProfileStack from './ProfileStack';
 import LocationStack from './LocationStack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import NotificationTray from './NotificationTray';
 
 export default function TabNavigation({ route, navigation }) {
     const Tab = createBottomTabNavigator();
@@ -34,33 +30,24 @@ export default function TabNavigation({ route, navigation }) {
             console.error('Error retrieving data:', error);
         });
 
-    //     AsyncStorage.clear()
-    //   .then(() => {
-    //     console.log('All data cleared successfully!');
-    //   })
-    //   .catch(error => {
-    //     console.error('Error clearing data:', error);
-    //   });
-
     return (
         <>
-            {/* <Stack.Screen name="NotificationTray" component={NotificationTray} options={{ headerShown: false }} /> */}
-
-            <Tab.Navigator screenOptions={() => ({
-                tabBarActiveTintColor: 'white', // Color of the active tab label
-                tabBarInactiveTintColor: 'gray', // Color of the inactive tab label
+            <Tab.Navigator screenOptions={() => ({                
+                tabBarActiveTintColor: 'white',
+                tabBarInactiveTintColor: 'gray',
                 labelStyle: {
-                    fontSize: 20, // Font size of the tab label
-                    fontWeight: 'bold', // Font weight of the tab label
+                    fontSize: 20,
+                    fontWeight: 'bold',
                 },
                 tabBarStyle: { backgroundColor: 'black', height: 70, paddingBottom: 10 },
                 style: {
-                    backgroundColor: 'white', // Background color of the tab bar
-                    borderTopWidth: 1, // Border top width of the tab bar
-                    borderTopColor: 'lightgray', // Border top color of the tab bar
+                    backgroundColor: 'white',
+                    borderTopWidth: 1,
+                    borderTopColor: 'lightgray',
                 },
             })}>
                 <Tab.Screen name="Location" component={LocationStack} options={{
+                    unmountOnBlur: true,
                     headerShown: false, tabBarIcon: ({ color, size }) => (
                         <Ionicons name="compass-outline" color={color} size={size} />
                     ),
@@ -71,6 +58,7 @@ export default function TabNavigation({ route, navigation }) {
                     ),
                 }} />
                 <Tab.Screen name="Profile" component={ProfileStack} initialParams={{ MemberData }} options={{
+                    unmountOnBlur: true,
                     headerShown: false, tabBarIcon: ({ color, size }) => (
                         <Ionicons name="person-circle-outline" color={color} size={size} />
                     ),

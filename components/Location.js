@@ -25,7 +25,7 @@ const Location = ({ navigation }) => {
         Geolocation.getCurrentPosition(
             async position => {
                 const { latitude, longitude } = position.coords;
-             
+
                 await setLangandLat(latitude, longitude);
                 // You can now use the latitude and longitude in your app
             },
@@ -38,7 +38,7 @@ const Location = ({ navigation }) => {
     async function handleCheckPressed() {
         if (Platform.OS === 'android') {
             const checkEnabled = await isLocationEnabled();
-          
+
             if (!checkEnabled) {
                 await handleEnabledPressed();
             }
@@ -53,7 +53,7 @@ const Location = ({ navigation }) => {
             try {
                 const enableResult = await promptForEnableLocationIfNeeded();
                 await getData();
-              
+
             } catch (error) {
                 if (error instanceof Error) {
                     console.error(error.message);
@@ -69,7 +69,7 @@ const Location = ({ navigation }) => {
 
     NavigateToBusinessDetails = (item) => {
         navigation.navigate("BusinessDetailView", { id: item })
-       
+
     }
 
     const getData = async () => {
@@ -82,19 +82,19 @@ const Location = ({ navigation }) => {
             await Geolocation.getCurrentPosition(
                 async position => {
                     const { latitude, longitude } = position.coords;
-                 
+
                     await setLangandLat(latitude, longitude);
                     // You can now use the latitude and longitude in your app
 
                     await response.data.map((data1, index) => {
-                      
+
 
                         const toRadian = n => (n * Math.PI) / 180
                         let lat2 = data1.latitude
                         let lon2 = data1.longitude
                         let lat1 = lat
                         let lon1 = lang
-                      
+
                         let R = 6371  // km
                         let x1 = lat2 - lat1
                         let dLat = toRadian(x1)
@@ -125,32 +125,67 @@ const Location = ({ navigation }) => {
 
     useEffect(() => {
         handleCheckPressed();
-        // getCurrentLocation();
-
     }, [focus]);
+
+    // const [query, setQuery] = useState('');
+    // const [menuVisible, setMenuVisible] = useState(false);
+    // const [suggestions, setSuggestions] = useState([
+    //     'Apple', 'Banana', 'Cherry', 'Date', 'Grapes', 'Lemon', 'Orange', 'Peach', 'Pear', 'Plum'
+    // ]);
+
+    // const handleInputChange = (text) => {
+    //     // Update the query and filter the suggestions based on the input
+    //     setQuery(text);
+    //     const filteredSuggestions = suggestions.filter(item =>
+    //         item.toLowerCase().includes(text.toLowerCase())
+    //     );
+    //     setSuggestions(filteredSuggestions);
+    // };
+
+    // const handleItemPress = (item) => {
+    //     // Set the selected suggestion as the input value
+    //     setQuery(item);
+    //     // Clear the suggestions
+    //     setSuggestions([]);
+    // };
+
     return (
         <>
             <View style={styles.container}>
                 <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                    <View style={{ flexDirection: 'row', width: '97%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
+                    <View style={{ flexDirection: 'row', width: '97%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
                         <Text style={styles.welcomeText}>Where to go?</Text>
                         <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('NotificationTray')}>
                             <Image source={require('../assets/notification-oRK.png')} style={styles.setimg1} />
                         </TouchableOpacity>
                     </View>
 
-                    <View style={{ width: '97%', height: '90%', marginTop: '5%' }}>
+                    <View style={{ width: '97%', height: '90%', marginTop: 10 }}>
                         <View style={styles.searchBoxMain}>
-                            <TextInput style={styles.searchInput} placeholder='Search..' />
+                            <TextInput style={styles.searchInput} placeholder='Search..'
+                            // value={query}
+                            //     onChangeText={handleInputChange} onFocus={() => setMenuVisible(true)} 
+                            />
+                            {/* {menuVisible && <FlatList
+                                style={styles.autocompleteList}
+                                data={suggestions}
+                                keyExtractor={(item) => item}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity onPress={() => handleItemPress(item)}>
+                                        <Text style={styles.suggestionItem}>{item}</Text>
+                                    </TouchableOpacity>
+                                )}
+                            />} */}
                             <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                             <View style={styles.mainMapImage}>
                                 <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate("MapViewing")}>
-                                    <Image style={styles.mapImage} source={require('../assets/maptrifold-iCR.png')} />
+                                    <Image style={styles.mapImage} source={require('../assets/mapImg.png')} />
                                 </TouchableOpacity>
                             </View>
                         </View>
                         <View style={styles.store}>
                             <FlatList
+                                showsVerticalScrollIndicator={false}
                                 data={userData}
                                 keyExtractor={(item, index) => index.toString()}
                                 renderItem={({ item }) => {
@@ -163,7 +198,8 @@ const Location = ({ navigation }) => {
                                                 }
                                             />
                                             <Card.Content style={styles.cardContent}>
-                                                <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {item.businessName}</Title>
+                                                {(item.businessName).toString().length < 25 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {item.businessName}</Title>}
+                                                {(item.businessName).toString().length >= 25 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {(item.businessName).toString().substring(0, 25)}...</Title>}
                                                 <Text style={{ color: '#717679', fontWeight: '500' }}> {item.industry} </Text>
                                                 <Text style={styles.milesText}> {item.distance} mi </Text>
                                             </Card.Content>
@@ -189,21 +225,34 @@ const Location = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+    // autocompleteList: {
+    //     marginTop: 10,
+    //     top: '100%',
+    //     width: '100%',
+    //     position: 'absolute',
+    //     zIndex: 15,
+    //     backgroundColor: 'white'
+    // },
+    // suggestionItem: {
+    //     padding: 10,
+    //     fontSize: 18,
+    //     borderBottomWidth: 1,
+    //     borderBottomColor: 'lightgray',
+    // },
     cardContent: {
         marginHorizontal: '2%',
         flexDirection: 'column',
         alignItems: 'flex-start',
         bottom: '25%',
         left: '27%',
-        // padding: '2%'
     },
     avatarImg: {
-        // width: '2%'
-        height: 50,
-        width: 100
+        height: '100%',
+        // height: 50,
+        width: 100,
+        left: -7,
     },
     cardCover: {
-        // padding: '2%'
         height: '70%',
         width: '100%'
     },
@@ -213,15 +262,11 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     store: {
-        // marginLeft: 8,
-        // marginRight: 8,
         width: '97%',
-        // position: 'relative',
         flexShrink: 0,
         marginTop: '2%',
         alignSelf: 'center',
         marginBottom: '20%'
-        // flexDirection: 'column'
     },
     mapImage: {
         width: 26,
@@ -230,20 +275,22 @@ const styles = StyleSheet.create({
     },
     mainMapImage: {
         padding: 15,
-        paddingHorizontal: 23,
-        paddingBottom: 15,
-        paddingLeft: 24,
-        height: '100%',
+        // paddingHorizontal: 23,
+        // paddingBottom: 15,
+        // paddingLeft: 24,
+        // height: '100%',
         backgroundColor: '#3380a3',
         borderRadius: 8,
         flexShrink: 0,
-        marginRight: '2%'
+        marginRight: '2%',
+        width: '16%',
+        alignItems: 'center'
     },
     magnifyingGlass: {
         height: 26.028,
         resizeMode: 'contain',
         backgroundColor: 'transparent',
-        marginLeft: '45%',
+        marginLeft: '50%',
         position: 'absolute'
     },
     searchInput: {
@@ -259,7 +306,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         display: 'flex',
-        flexShrink: 0
+        flexShrink: 0,
+        height: 75
     },
     notificationLbl: {
         width: 48,
@@ -291,29 +339,19 @@ const styles = StyleSheet.create({
         flex: 0,
         flexDirection: 'row'
     },
-    // container: {
-    //     width: '100%',
-    //     height: '100%',
-    //     overflow: 'hidden',
-    //     position: 'relative',
-    //     backgroundColor: '#d9e7ed',
-    //     flexShrink: 0,
-    // }
-
     container: {
         height: '100%',
         width: '100%',
         backgroundColor: '#d9e7ed',
         alignItems: 'center',
     },
-
     setimg1: {
         width: 50,
         height: 50,
         marginTop: -16,
         position: 'absolute',
         alignSelf: 'flex-end',
-        right: -20
+        right: -27
     },
     milesText: {
         color: '#73a5bc',

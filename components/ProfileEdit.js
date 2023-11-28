@@ -1,4 +1,4 @@
-import { StyleSheet, Image, Text, View, ScrollView, ToastAndroid } from 'react-native';
+import { StyleSheet, Image, Text, View, ScrollView, ToastAndroid, PermissionsAndroid, Alert } from 'react-native';
 // import { TextInput } from 'react-native-gesture-handler';
 import MaskInput from 'react-native-mask-input';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
@@ -9,10 +9,9 @@ import Globals from '../components/Globals';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Spinner from 'react-native-loading-spinner-overlay';
+import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
 
 const ProfileEdit = ({ navigation, route }) => {
-    // const { MemberData } = route.params;
-
     const [MemberData, setMemberData] = useState([{}]);
     const [name, setName] = useState('');
     const [emailId, setEmail] = useState('');
@@ -36,6 +35,7 @@ const ProfileEdit = ({ navigation, route }) => {
         setFormatPhone('(' + numP1 + ') ' + numP2 + '-' + numP3);
         setPhone(String(value[0].phone));
     }
+
     useEffect(() => {
         AsyncStorage.getItem('token')
             .then(async (value) => {
@@ -51,9 +51,38 @@ const ProfileEdit = ({ navigation, route }) => {
     }, []);
 
     const Save = () => {
-        const isValidEmail = validateEmail(emailId);
-        setIsValid(isValidEmail);
-        if (isValidEmail) {
+        if (emailId !== null && emailId !== undefined && emailId !== '') {
+            const isValidEmail = validateEmail(emailId);
+            setIsValid(isValidEmail);
+            if (isValidEmail) {
+                setLoading(true);
+                const apiUrl = Globals.API_URL + '/MemberProfiles/PutMemberInMobileApp';
+                let currentDate = (new Date()).toISOString();
+
+                const requestBody = {
+                    id: MemberData[0].memberId,
+                    memberName: name,
+                    emailID: emailId,
+                    lastModifiedBy: MemberData[0].memberId,
+                    lastModifiedDate: currentDate,
+                };
+
+                axios.put(apiUrl, requestBody)
+                    .then(async (response) => {
+                        await getMemberData();
+                        setLoading(false);
+                        ToastAndroid.showWithGravityAndOffset(
+                            'Updated Successfully!',
+                            ToastAndroid.LONG,
+                            ToastAndroid.BOTTOM,
+                            25,
+                            50,
+                        );
+                        navigation.navigate('Profiles');
+                    })
+                    .catch(error => console.error(error));
+            }
+        } else {
             setLoading(true);
             const apiUrl = Globals.API_URL + '/MemberProfiles/PutMemberInMobileApp';
             let currentDate = (new Date()).toISOString();
@@ -61,7 +90,7 @@ const ProfileEdit = ({ navigation, route }) => {
             const requestBody = {
                 id: MemberData[0].memberId,
                 memberName: name,
-                emailID: emailId,
+                emailID: null,
                 lastModifiedBy: MemberData[0].memberId,
                 lastModifiedDate: currentDate,
             };
@@ -104,12 +133,12 @@ const ProfileEdit = ({ navigation, route }) => {
                             <Image source={require('../assets/more-button-ved.png')} style={styles.setimg1} />
                         </TouchableOpacity>
                         <Text style={styles.welcomeText}>Edit Profile</Text>
-                        <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('ProfileEdit')}>
+                        <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('NotificationTray')}>
                             <Image source={require('../assets/notification-swo.png')} style={styles.setimg1} />
                         </TouchableOpacity>
                     </View>
 
-                    <ScrollView style={{
+                    <ScrollView showsVerticalScrollIndicator={false} style={{
                         flex: 1, width: '95%', marginTop: 30, height: '90%', borderRadius: 23, backgroundColor: 'white',
                     }}>
                         <View style={{ width: '100%', height: '95%', alignItems: 'center', justifyContent: 'center', borderRadius: 23 }}>
@@ -120,7 +149,9 @@ const ProfileEdit = ({ navigation, route }) => {
                                 <View>
                                     <Image source={require('../assets/ellipse-5-bg.png')} style={styles.img1} />
                                     <View style={styles.pencilView}>
-                                        <Image source={require('../assets/pencilsimple.png')} style={styles.pencilImg} />
+                                        <TouchableOpacity>
+                                            <Image source={require('../assets/pencilsimple.png')} style={styles.pencilImg} />
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
 
@@ -233,12 +264,6 @@ const styles = StyleSheet.create({
     settingImg: {
         width: 50,
         height: 50,
-        // position: 'absolute',
-        // right: '3%',
-        // top: '13%',
-        // borderRadius: 10,
-        // zIndex: 1,
-        // flex: 1
     },
     editContainer: {
         width: 16,
@@ -248,8 +273,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         position: 'absolute',
-        // left: '0%',
-        // top: '7%',
     },
     pencilView: {
         height: 35,
@@ -267,7 +290,6 @@ const styles = StyleSheet.create({
         width: 20
     },
     frame2vJu: {
-        // top: 403,
         backgroundColor: '#140d05',
         borderRadius: 8,
         alignItems: 'center',
@@ -276,7 +298,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 25,
         width: '40%',
         height: 50
-        // flexDirection: 'row',
     },
     getStartednru: {
         lineHeight: 22.5,

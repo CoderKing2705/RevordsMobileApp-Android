@@ -92,15 +92,12 @@ const Favourite = ({ navigation }) => {
                 25,
                 50,
             );
-            // setWishList([]);
             await getRefreshData();
             setIsPromoModalVisible(false);
-            // setLoading(false)
         }).catch(error => {
             console.error('Error retrieving dataa:', error);
             setLoading(false);
         });
-        // setLoading(false)
     }
     const closeAutoPilotRedeemModal = async (type, ID) => {
         setLoading(true)
@@ -115,30 +112,17 @@ const Favourite = ({ navigation }) => {
                 25,
                 50,
             );
-            // setWishList([]);
             await getRefreshData();
 
             setIsAutoPilotModalVisible(false);
-            // setLoading(false)
         }).catch(error => {
             console.error('Error retrieving dataa:', error);
             setLoading(false);
         });
-        // setLoading(false)
     }
 
     async function setMemData(value) {
         await setMemberData(value);
-    }
-
-    const ToastForClaimed = () => {
-        ToastAndroid.showWithGravityAndOffset(
-            `You've already Claimed!`,
-            ToastAndroid.SHORT,
-            ToastAndroid.BOTTOM,
-            25,
-            50,
-        );
     }
 
     const getRefreshData = () => {
@@ -199,6 +183,17 @@ const Favourite = ({ navigation }) => {
                 setLoading(false);
             });
     }
+
+    const ToastForClaimed = () => {
+        ToastAndroid.showWithGravityAndOffset(
+            `You've already Claimed!`,
+            ToastAndroid.SHORT,
+            ToastAndroid.BOTTOM,
+            25,
+            50,
+        );
+    }
+
     useEffect(() => {
         getRefreshData();
     }, [isFocused]);
@@ -214,12 +209,12 @@ const Favourite = ({ navigation }) => {
                 </View>
 
                 <SafeAreaView style={styles.scrollContainer}>
-                    {wishList.length == 0 &&
+                    {(wishList.length == 0 && !loading) &&
                         <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
                             <Image style={{ width: '70%', height: '40%', opacity: 0.8, borderRadius: 15 }} source={require('../assets/NodataImg.png')} />
                         </View>
                     }
-                    <ScrollView style={{ flex: 1, height: '100%', width: '97%', borderRadius: 50 }}>
+                    <ScrollView style={{ flex: 1, height: '100%', width: '97%', borderRadius: 50 }} showsVerticalScrollIndicator={false}>
                         <View style={styles.wishlistView}>
                             {wishList && wishList.map((item, index) => (
                                 <View key={index} style={[styles.listView, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '']}>
@@ -242,14 +237,16 @@ const Favourite = ({ navigation }) => {
                                                 {(item.badgeName).toString().toLowerCase() == 'bronze' && <Image source={require('../assets/Bronze.png')} style={[styles.trophyImg]} />}
                                                 {(item.badgeName).toString().toLowerCase() == 'silver' && <Image source={require('../assets/Silver.png')} style={[styles.trophyImg]} />}
                                                 {(item.badgeName).toString().toLowerCase() == 'gold' && <Image source={require('../assets/Gold.png')} style={[styles.trophyImg]} />}
-                                                {(item.badgeName).toString().toLowerCase() == 'platinum' && <Image source={require('../assets/platinum.png')} style={[styles.trophyImg]} />}                                                
+                                                {(item.badgeName).toString().toLowerCase() == 'platinum' && <Image source={require('../assets/platinum.png')} style={[styles.trophyImg]} />}
                                                 <Text style={styles.memberPoints}> {item.currentPoints} pt </Text>
                                             </Card>
 
                                             {item.promotionData.map((promotion, earnReward) => (
-                                                <Card key={earnReward} style={[{ width: 150, borderRadius: 20, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '']}>
-                                                    <Text style={styles.achievableName}> {promotion.promotionalMessage} </Text>
-                                                    <Text style={styles.achievalbeValue}> {promotion.expiryDays} days </Text>
+                                                <Card key={earnReward} style={[{ width: 150, borderRadius: 20, paddingHorizontal: 2, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '']}>
+                                                    <Text style={styles.achievableName}>{promotion.promotionalMessage}</Text>
+                                                    {promotion.expiryDays > 1 && <Text style={styles.achievalbeValue}>Expires in - {promotion.expiryDays} days</Text>}
+                                                    {promotion.expiryDays == 1 && <Text style={styles.achievalbeValue}>Expiring Today</Text>}
+                                                    {/* {promotion.expiryDays == 0 &&<Text style={styles.achievalbeValue}>Expiring Today</Text>} */}
                                                     <TouchableOpacity activeOpacity={.7} onPress={() => openPromoModal(promotion, item)} style={[promotion.isClaimed == false ? styles.frame2vJuClaim : styles.frame2vJuClaimed]}>
                                                         {promotion.isClaimed == false && <Text style={styles.getStartednru}>Claim</Text>}
                                                         {promotion.isClaimed == true && <Text style={styles.getStartednru}>Claimed</Text>}
@@ -258,9 +255,11 @@ const Favourite = ({ navigation }) => {
                                             ))}
 
                                             {item.autopilotData.map((autopilot, earnReward) => (
-                                                <Card key={earnReward} style={[{ width: 150, borderRadius: 20, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '']}>
-                                                    <Text style={styles.achievableName}> {autopilot.rewardName} </Text>
-                                                    <Text style={styles.achievalbeValue}> {autopilot.expiryDays} days </Text>
+                                                <Card key={earnReward} style={[{ width: 150, borderRadius: 20, paddingHorizontal: 2, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '']}>
+                                                    <Text style={styles.achievableName}>{autopilot.rewardName}</Text>
+                                                    {autopilot.expiryDays > 1 && <Text style={styles.achievalbeValue}>Expires in - {autopilot.expiryDays} days</Text>}
+                                                    {autopilot.expiryDays == 1 && <Text style={styles.achievalbeValue}>Expiring Today</Text>}
+                                                    {/* {autopilot.expiryDays == 0 &&<Text style={styles.achievalbeValue}>Expiring Today</Text>} */}
                                                     <TouchableOpacity activeOpacity={.7} onPress={() => openAPModal(autopilot, item)} style={[autopilot.isClaimed == false ? styles.frame2vJuClaim : styles.frame2vJuClaimed]}>
                                                         {autopilot.isClaimed == false && <Text style={styles.getStartednru}>Claim</Text>}
                                                         {autopilot.isClaimed == true && <Text style={styles.getStartednru}>Claimed</Text>}
@@ -269,9 +268,9 @@ const Favourite = ({ navigation }) => {
                                             ))}
 
                                             {item.rewardData.map((reward, earnReward) => (
-                                                <Card key={earnReward} style={[{ width: 150, borderRadius: 20, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '']}>
-                                                    <Text style={styles.achievableName}> {reward.rewardName} </Text>
-                                                    <Text style={styles.achievalbeValue}> {reward.achivableTargetValue} pts </Text>
+                                                <Card key={earnReward} style={[{ width: 150, borderRadius: 20, height: 150, paddingHorizontal: 2, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '']}>
+                                                    <Text style={styles.achievableName}>{reward.rewardName}</Text>
+                                                    <Text style={styles.achievalbeValue}>{reward.achivableTargetValue} pts</Text>
                                                     <View>
                                                         <Progress.Bar
                                                             style={styles.progressBar}
@@ -279,8 +278,8 @@ const Favourite = ({ navigation }) => {
                                                             width={110}
                                                             color='#2ac95d' />
                                                     </View>
-                                                    {(reward.pendingToAchiveValue > 0) && <Text style={styles.pendingpoints}> {reward.pendingToAchiveValue} left </Text>}
-                                                    {(reward.pendingToAchiveValue <= 0) && <Text style={styles.pendingpoints}> 0 left </Text>}
+                                                    {(reward.pendingToAchiveValue > 0) && <Text style={styles.pendingpoints}>{reward.pendingToAchiveValue} left</Text>}
+                                                    {(reward.pendingToAchiveValue <= 0) && <Text style={styles.pendingpoints}>0 left</Text>}
                                                 </Card>
                                             ))}
                                         </View>
@@ -312,7 +311,6 @@ const Favourite = ({ navigation }) => {
                 <View style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={styles.modal}>
                         <View style={{ flexDirection: 'row', width: '100%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
-                            {/* <Text style={styles.welcomeText}>User Profile</Text> */}
                             <Image source={{ uri: logoUrl }} style={styles.logoBusinessInModal} />
 
                             <TouchableOpacity activeOpacity={.7} onPress={closePromoModal} style={styles.cancelImgContainer}>
@@ -323,7 +321,10 @@ const Favourite = ({ navigation }) => {
                         <Text style={styles.modalPromoMsg}>{promotionClaimData.promotionalMessage}</Text>
                         <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer Start Date </Text>- {moment(promotionClaimData.offerStartDate).format("MM/DD/YYYY")}</Text>
                         <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer End Date </Text>- {moment(promotionClaimData.offerEndDate).format("MM/DD/YYYY")}</Text>
-                        <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in </Text>-{promotionClaimData.expiryDays} days</Text>
+                        {promotionClaimData.expiryDays > 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in </Text>- {promotionClaimData.expiryDays} days</Text>}
+                        {promotionClaimData.expiryDays == 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today </Text></Text>}
+                        {/* {promotionClaimData.expiryDays == 0 &&<Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today</Text></Text>} */}
+
                         {promotionClaimData.isSpinWheel && <Text style={styles.modaltext}>Spinwheel available at store</Text>}
 
                         {(promotionClaimData.filePath != '' && promotionClaimData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + promotionClaimData.filePath }} ></Image>}
@@ -336,10 +337,6 @@ const Favourite = ({ navigation }) => {
                                 <Text style={styles.getStartednru1}>Claimed</Text>
                             </TouchableOpacity>
                         }
-                        {/* <Button
-                                    title="Click To Close Modal"
-                                    onPress={closePromoRedeemModal}
-                                /> */}
                     </View>
                 </View>
             </Modal>
@@ -361,7 +358,9 @@ const Favourite = ({ navigation }) => {
                         </View>
                         <Text style={styles.modalbusinessName}>{businessClaimData.businessName}</Text>
                         <Text style={styles.modalPromoMsg}>{autoPilotClaimData.rewardName}</Text>
-                        <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in </Text>- {autoPilotClaimData.expiryDays} days</Text>
+                        {autoPilotClaimData.expiryDays > 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in </Text>- {autoPilotClaimData.expiryDays} days</Text>}
+                        {autoPilotClaimData.expiryDays == 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today</Text></Text>}
+                        {/* {autoPilotClaimData.expiryDays == 0 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today</Text></Text>} */}
 
                         {(autoPilotClaimData.filePath != '' && autoPilotClaimData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + autoPilotClaimData.filePath }} ></Image>}
                         <Text style={styles.modaltext}>Redeemable at -<Text style={{ fontWeight: '700' }}> Any Locations</Text></Text>
@@ -395,9 +394,6 @@ const styles = StyleSheet.create({
         height: 25,
         marginTop: 5,
         marginEnd: 5
-        // position: 'absolute',
-        // alignSelf: 'flex-end',
-        // right: 0,
     },
     scrollContainer: {
         paddingTop: '5%',
@@ -409,13 +405,11 @@ const styles = StyleSheet.create({
     modalcontainer: {
         flex: 1,
         backgroundColor: '#fff',
-        // marginTop: '-20%',
         width: '100%',
         height: '100%',
         backgroundColor: '#000'
     },
     avatarImg: {
-        // width: '2%'
         height: 150,
         width: 150,
         marginVertical: 7,
@@ -432,10 +426,7 @@ const styles = StyleSheet.create({
     modal: {
         alignSelf: 'center',
         backgroundColor: '#fff',
-        // padding: 100,
-        // height: '75%',
         width: '85%',
-        // marginTop: '30%',
         position: 'relative',
         borderRadius: 15,
         padding: 5
@@ -463,17 +454,6 @@ const styles = StyleSheet.create({
         marginTop: 5
     },
     ViewBtn: {
-        // backgroundColor: '#7d5513',
-        // borderRadius: 8,
-        // alignItems: 'center',
-        // justifyContent: 'center',
-        // width: '60%',
-        // height: 10,
-        // position: 'absolute',
-        // top: 105,
-        // alignSelf: 'center',
-        // marginTop: 15,
-        // padding: 15
         paddingStart: 15,
         bottom: '10%',
     },
@@ -496,9 +476,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: '60%',
         height: 35,
-        // position: 'absolute',
-        // top: '97%',
-        // bottom: 10,
         marginVertical: 15,
         alignSelf: 'center'
     },
@@ -509,9 +486,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: '60%',
         height: 35,
-        // position: 'absolute',
-        // top: '97%',
-        // bottom: 10,
         marginVertical: 15,
         alignSelf: 'center'
     },
@@ -528,16 +502,6 @@ const styles = StyleSheet.create({
         textAlignVertical: 'center'
     },
     ViewBtnImg: {
-        // lineHeight: 22.5,
-        // fontFamily: 'SatoshiVariable, SourceSansPro',
-        // flexShrink: 0,
-        // fontWeight: 'bold',
-        // fontSize: 14,
-        // color: '#ffffff',
-        // flex: 10,
-        // zIndex: 10,
-        // textAlign: 'center',
-        // textAlignVertical: 'center',
         height: 15,
         width: 15
     },
@@ -556,29 +520,34 @@ const styles = StyleSheet.create({
     pendingpoints: {
         color: '#73a5bc',
         fontWeight: '800',
-        top: 45,
-        left: 40,
+        top: 60,
+        // left: 40,
+        alignSelf: 'center',
         bottom: 12,
-        fontSize: 16
+        fontSize: 13
     },
     progressBar: {
-        top: 35,
+        top: 55,
         left: 20
     },
     achievalbeValue: {
         color: '#717679',
         fontWeight: '700',
-        fontSize: 15,
-        top: '25%'
+        fontSize: 12,
+        top: 80,
+        alignSelf: 'center',
+        padding: '2%',
+        position: 'absolute'
     },
     achievableName: {
         fontWeight: '700',
         color: '#000000',
         fontSize: 15,
         width: 150,
-        top: '20%',
-        padding: '2%',
-        left: 5
+        // top: '20%',
+        paddingHorizontal: 5,
+        paddingVertical: 7
+        // left: 5
     },
     scrollviewContainer: {
         flex: 1,
@@ -665,9 +634,6 @@ const styles = StyleSheet.create({
         marginBottom: '3%'
     },
     wishlistView: {
-        // padding: '10%',
-        // margin: '2%',
-        // backgroundColor: 'white',
         padding: 10,
         height: '100%',
         width: '100%',
@@ -713,7 +679,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderTopColor: 'black',
         borderTopWidth: StyleSheet.hairlineWidth,
-        paddingVertical: 5
+        paddingVertical: 5,
     },
     modalPromoMsg: {
         fontWeight: '600',

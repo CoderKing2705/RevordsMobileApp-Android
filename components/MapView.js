@@ -6,7 +6,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import customIcon from '../assets/casinoIcon.png';
 import currentIcon from '../assets/currentlocation.png';
 import GeoLocation from 'react-native-geolocation-service';
-// import { PERMISSIONS } from 'react-native-permissions';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import * as Location from 'expo-location';
 import Geolocation from '@react-native-community/geolocation';
@@ -44,29 +43,6 @@ export default function MapViewing({ navigation }) {
     }
 
     const backPressed = () => {
-        // // if (isFocused) {
-        //     Alert.alert(
-        //         "Exit App",
-        //         "Do you want to exit?",
-        //         [
-        //             {
-        //                 text: "No",
-        //                 onPress: () => console.log("Cancel Pressed"),
-        //                 style: "cancel"
-        //             },
-        //             {
-        //                 text: "Yes", onPress: () => {
-        //                     // await BackHandler.removeEventListener('hardwareBackPress', backPressed);
-
-        //                     return true;
-        //                     // navigation.navigate('LandingScreen');
-        //                     // then navigate                            
-        //                 }
-        //             }
-        //         ],
-        //         { cancelable: false }
-        //     );
-        // // }
         BackHandler.exitApp();
         navigation.navigate('LandingScreen');
     };
@@ -80,8 +56,6 @@ export default function MapViewing({ navigation }) {
         }, []));
 
     useEffect(() => {
-        // BackHandler.addEventListener("hardwareBackPress", backPressed);
-
         setLoading(true);
         requestLocationPermission();
         checkApplicationPermission();
@@ -97,10 +71,6 @@ export default function MapViewing({ navigation }) {
                 console.error("Error fetching data", error);
                 setLoading(false);
             });
-        // return () => {
-        //     // Anything in here is fired on component unmount.
-        //     BackHandler.removeEventListener('hardwareBackPress', backPressed);
-        // }
     }, [isFocused]);
 
     async function setLangandLat(latitude, longitude) {
@@ -171,7 +141,7 @@ export default function MapViewing({ navigation }) {
 
             if (permissionStatus === RESULTS.GRANTED) {
                 await handleCheckPressed();
-                getCurrentLocation();
+                await getCurrentLocation();
                 // You can now access the location
             } else if (permissionStatus === RESULTS.DENIED) {
                 const newPermissionStatus = await request(
@@ -182,11 +152,11 @@ export default function MapViewing({ navigation }) {
 
                 if (newPermissionStatus === RESULTS.GRANTED) {
                     await handleCheckPressed();
-                    getCurrentLocation();
+                    await getCurrentLocation();
                     console.log('Location permission granted');
                     // You can now access the location
                 } else {
-                    console.log('Location permission denied');
+                    console.log('Location permission denied');                
                 }
             }
         } catch (error) {
@@ -196,21 +166,21 @@ export default function MapViewing({ navigation }) {
     return (
         <View style={styles.container}>
 
-            <View style={{ flexDirection: 'row', width: '97%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ flexDirection: 'row', width: '100%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={styles.welcomeText}>Where to go?</Text>
                 <TouchableOpacity activeOpacity={.9} onPress={() => navigation.navigate('NotificationTray')}>
                     <Image source={require('../assets/notification-oRK.png')} style={styles.setimg1} />
                 </TouchableOpacity>
             </View>
 
-            <View style={{ flexDirection: 'row', width: '97%', height: 75, marginTop: 15 }}>
-                <View style={{ width: '80%', paddingHorizontal: '4%', height: '70%' }}>
+            <View style={{ flexDirection: 'row', width: '100%', height: 75, marginTop: 20 }}>
+                <View style={{ width: '82%', paddingHorizontal: '2%', height: '70%' }}>
                     <TextInput style={styles.searchInput} placeholder='Search..' />
                     <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                 </View>
                 <View style={styles.mainMapImage}>
-                    <TouchableHighlight onPress={() => navigation.navigate('Locations')}>
-                        <Image style={styles.mapImage} source={require('../assets/maptrifold-iCR.png')} />
+                    <TouchableHighlight activeOpacity={.9} onPress={() => navigation.navigate('Locations')}>
+                        <Image style={styles.mapImage} source={require('../assets/listImg.png')} />
                     </TouchableHighlight>
                 </View>
             </View>
@@ -292,7 +262,7 @@ export default function MapViewing({ navigation }) {
                             <Callout onPress={() => navigation.navigate('BusinessDetailView', { id: business.id })}
                                 style={styles.locationbuttoncallout}>
                                 <TouchableHighlight style={{ width: 180 }} >
-                                    <Text>
+                                    <Text style={{textAlign: 'center'}}>
                                         {business.businessName}
                                     </Text>
                                 </TouchableHighlight >
@@ -342,8 +312,6 @@ const styles = StyleSheet.create({
         borderradius: 0,
         opacity: 0.8,
         backgroundcolor: "lightgrey",
-        // width: 100,
-        // height: 50
     },
     customView: {
         marginLeft: '2%',
@@ -361,29 +329,21 @@ const styles = StyleSheet.create({
     },
     searchInput: {
         width: '100%',
-        // padding: 13.97,
         paddingVertical: 15,
         paddingHorizontal: 10,
         backgroundColor: '#ffffff',
         borderRadius: 8,
-        // flex: 1,
-        // marginRight: '5%'
     },
     mapImage: {
         width: 26,
         height: 24,
+        backgroundColor: '#3380a3',
     },
     mainMapImage: {
-        // padding: 15,
-        // paddingHorizontal: 20,
-        // paddingBottom: 15,
         backgroundColor: '#3380a3',
         borderRadius: 8,
         flexShrink: 0,
-        // marginRight: '2%'
-        // right: 0,
-        // position: 'absolute',
-        width: '17%',
+        width: '15%',
         height: '70%',
         alignItems: 'center',
         justifyContent: 'center'
@@ -392,7 +352,6 @@ const styles = StyleSheet.create({
         height: 25,
         resizeMode: 'contain',
         backgroundColor: 'transparent',
-        // marginLeft: '50%',
         right: 0,
         top: '20%',
         position: 'absolute'
@@ -425,8 +384,7 @@ const styles = StyleSheet.create({
     mapViewMain: {
         position: 'relative',
         flex: 0,
-        marginTop: 15,
-        // height: '82%'
+        // marginTop: 15,
     },
     mapView: {
         width: '100%',

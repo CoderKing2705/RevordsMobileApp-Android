@@ -10,15 +10,16 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { useIsFocused } from "@react-navigation/native";
+import Globals from './Globals';
 
 const Profile = ({ route, navigation }) => {
     const focus = useIsFocused();
     const Stack = createNativeStackNavigator();
-    // const { MemberData } = route.params;
     const [name, setName] = useState('');
     const [emailId, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [MemberData, setMemberData] = useState([{}]);
+    // const TokenNull = '';
 
     const createTwoButtonAlert = () =>
         Alert.alert('Log Out', 'Do you want to logout?', [
@@ -30,9 +31,14 @@ const Profile = ({ route, navigation }) => {
             {
                 text: 'Yes', onPress: async () => {
                     try {
-                        await AsyncStorage.removeItem('token');
-                        console.log('Token removed successfully');
-                        navigation.navigate('LandingScreen')
+                        fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/NULL`, {
+                            method: 'PUT'
+                        }).then(async (res) => {                          
+                            await AsyncStorage.removeItem('token');
+                            console.log('Token removed successfully');  
+                            navigation.navigate('LandingScreen')
+                        });
+                        // navigation.navigate('LandingScreen')
                     } catch (error) {
                         console.error('Error removing token:', error);
                     }
@@ -192,12 +198,6 @@ const styles = StyleSheet.create({
     settingImg: {
         width: 50,
         height: 50,
-        // position: 'absolute',
-        // right: '3%',
-        // top: '13%',
-        // borderRadius: 10,
-        // zIndex: 1,
-        // flex: 1
     },
     editContainer: {
         width: 16,
@@ -207,8 +207,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         position: 'absolute',
-        // left: '0%',
-        // top: '7%',
     }
 })
 

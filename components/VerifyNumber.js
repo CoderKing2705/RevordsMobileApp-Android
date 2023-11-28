@@ -68,6 +68,7 @@ const VerifyNumber = ({ navigation }) => {
         value={phone}
         style={styles.textInput}
         keyboardType="numeric"
+        maxLength={14}
         onChangeText={(masked, unmasked) => {
           if (unmasked.length <= 10) {
             setPhone(masked); // you can use the unmasked value as well       
@@ -78,13 +79,6 @@ const VerifyNumber = ({ navigation }) => {
         placeholder="(000) 000-0000"
       />
       {!isValid && <Text style={{ color: 'red', marginTop: '2%', marginLeft: '4%', }}>Invalid Phone Number</Text>}
-
-      {/* <View style={{ width: '100%', alignItems: 'center' }} onPress={() => {handleOnPress}}>
-        <TouchableOpacity  style={styles.frame2vJu}>
-          <Text style={styles.getStartednru}>Request Otp</Text>
-          <Image source={require('../assets/arrowcircleright-R8m.png')} style={styles.arrowcirclerightTy3} />
-        </TouchableOpacity>
-      </View> */}
 
       <TouchableOpacity activeOpacity={.7} onPress={handleOnPress} style={styles.frame2vJu}>
         <Text style={styles.getStartednru}>Request Otp</Text>
@@ -149,13 +143,12 @@ const styles = StyleSheet.create({
   },
   textInput: {
     height: 45,
-    width: '50%',
+    width: '55%',
     borderColor: 'gray',
     borderBottomWidth: 1,
-    paddingLeft: 10,
+    paddingLeft: 2,
     borderRadius: 8,
-    // textAlign: 'center',
-    fontSize: 24
+    fontSize: 24,
   },
   frame2vJu: {
     marginTop: '5%',

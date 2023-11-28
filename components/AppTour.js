@@ -56,26 +56,21 @@ const AppTourGuide = ({ route, navigation }) => {
 
     const tourSteps = [
         {
-            // text: "Welcome to our App!",
             targetComponent: <TourPage1 />,
         },
         {
-            // text: "This is a key feature.",
             targetComponent: <TourPage2 />,
         },
         {
-            // text: "Here's how to do something important.",
             targetComponent: <TourPage3 />,
         },
         {
-            // text: "Here's how to do something important.",
             targetComponent: <TourPage4 />,
         }
-        // Add more steps as needed
     ];
 
     if (step === null) {
-        return null; // Tour is closed
+        return null;
     }
 
     return (
@@ -141,23 +136,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: '#3380a3',
     },
-    // targetComponent1: {
-    //     width: 100,
-    //     height: 100,
-    //     backgroundColor: 'red',
-    //     marginBottom: 20,
-    // },
-    // targetComponent2: {
-    //     width: 100,
-    //     height: 100,
-    //     backgroundColor: 'green',
-    //     marginBottom: 20,
-    // },
-    // targetComponent3: {
-    //     width: 100,
-    //     height: 100,
-    //     backgroundColor: 'blue',
-    // },
     tourPages: {
         width: '100%',
         height: '90%'

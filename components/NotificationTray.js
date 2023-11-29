@@ -240,7 +240,7 @@ const NotificationTray = ({ navigation }) => {
                                 </TouchableOpacity>
                             </View>
 
-                            <Text style={styles.modalPromoMsg}>{promotionClaimData.promotionalMessage}</Text>
+                            <Text style={styles.modalPromoMsg}>DEAL : {promotionClaimData.promotionalMessage}</Text>
                             <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer Start Date </Text>- {moment(promotionClaimData.offerStartDate).format("MM/DD/YYYY")}</Text>
                             <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer End Date </Text>- {moment(promotionClaimData.offerEndDate).format("MM/DD/YYYY")}</Text>
                             {(promotionClaimData.expiryDays > 1) && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in - </Text>{promotionClaimData.expiryDays} days</Text>}
@@ -340,9 +340,11 @@ const styles = StyleSheet.create({
     modalPromoMsg: {
         fontWeight: '600',
         fontSize: 15,
-        color: '#f77c8c',
+        color: '#ad466b',
         paddingHorizontal: 10,
-        marginTop: 20
+        marginTop: 20,
+        textAlign: 'center',
+        marginBottom: 10
     },
     cancelImg: {
         width: 25,

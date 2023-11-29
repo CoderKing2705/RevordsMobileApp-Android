@@ -147,7 +147,7 @@ const ProfileEdit = ({ navigation, route }) => {
                                 marginTop: 16, borderRadius: 23, paddingVertical: 25,
                             }}>
                                 <View>
-                                    <Image source={require('../assets/ellipse-5-bg.png')} style={styles.img1} />
+                                    <Image source={require('../assets/defaultUserImg2.png')} style={styles.img1} />
                                     <View style={styles.pencilView}>
                                         <TouchableOpacity>
                                             <Image source={require('../assets/pencilsimple.png')} style={styles.pencilImg} />
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
         marginTop: -16,
         position: 'absolute',
         alignSelf: 'flex-end',
-        right: -20
+        right: -25
     },
     iconimg1: {
         width: 35,

@@ -91,11 +91,10 @@ export default function MapViewing({ navigation }) {
     const getCurrentLocation = async () => {
         Geolocation.getCurrentPosition(
             async position => {
-
                 const { latitude, longitude } = position.coords;
-
-                await setLangandLat(latitude, longitude);
-                await setMarkers(latitude, longitude);
+                console.log('position.coords',latitude)
+                await setLangandLat(position.coords.latitude, position.coords.longitude);
+                await setMarkers(position.coords.latitude, position.coords.longitude);
                 // You can now use the latitude and longitude in your app
             },
             error => {
@@ -109,7 +108,9 @@ export default function MapViewing({ navigation }) {
         if (Platform.OS === 'android') {
             try {
                 const enableResult = await promptForEnableLocationIfNeeded();
-
+                // if (enableResult) {
+                    // await getCurrentLocation();
+                // }
             } catch (error) {
                 if (error instanceof Error) {
                     console.error(error.message);
@@ -156,7 +157,7 @@ export default function MapViewing({ navigation }) {
                     console.log('Location permission granted');
                     // You can now access the location
                 } else {
-                    console.log('Location permission denied');                
+                    console.log('Location permission denied');
                 }
             }
         } catch (error) {
@@ -262,7 +263,7 @@ export default function MapViewing({ navigation }) {
                             <Callout onPress={() => navigation.navigate('BusinessDetailView', { id: business.id })}
                                 style={styles.locationbuttoncallout}>
                                 <TouchableHighlight style={{ width: 180 }} >
-                                    <Text style={{textAlign: 'center'}}>
+                                    <Text style={{ textAlign: 'center' }}>
                                         {business.businessName}
                                     </Text>
                                 </TouchableHighlight >

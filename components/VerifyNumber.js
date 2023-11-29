@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, Image, Text, View, Pressable, Button, SafeAreaView } from 'react-native';
+import { StyleSheet, Image, Text, View, Pressable, Button, SafeAreaView, KeyboardAvoidingView } from 'react-native';
 import MaskInput from 'react-native-mask-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Globals from '../components/Globals';
 import Spinner from 'react-native-loading-spinner-overlay';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 
 const VerifyNumber = ({ navigation }) => {
@@ -57,46 +58,48 @@ const VerifyNumber = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.welcomeText}>Welcome To</Text>
-      <Image source={require('../assets/companylogo.png')} style={styles.companylogo} />
-      <View style={styles.deviceView}>
-        <Image source={require('../assets/devicemobile-9n9.png')} style={styles.mobilelogo} />
-      </View>
-      <Text style={styles.verifyText}>Verify Your Number</Text>
-      <MaskInput
-        value={phone}
-        style={styles.textInput}
-        keyboardType="numeric"
-        maxLength={14}
-        onChangeText={(masked, unmasked) => {
-          if (unmasked.length <= 10) {
-            setPhone(masked); // you can use the unmasked value as well       
-            setunMaskPhone(unmasked);
-          }
-        }}
-        mask={['(', /\d/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
-        placeholder="(000) 000-0000"
-      />
-      {!isValid && <Text style={{ color: 'red', marginTop: '2%', marginLeft: '4%', }}>Invalid Phone Number</Text>}
-
-      <TouchableOpacity activeOpacity={.7} onPress={handleOnPress} style={styles.frame2vJu}>
-        <Text style={styles.getStartednru}>Request Otp</Text>
-        <Image source={require('../assets/arrowcircleright-R8m.png')} style={styles.arrowcirclerightTy3} />
-      </TouchableOpacity>
-      <SafeAreaView style={{ flex: 1 }}>
-        <View style={styles.container}>
-          <Spinner
-            //visibility of Overlay Loading Spinner
-            visible={loading}
-            //Text with the Spinner
-            textContent={''}
-            //Text style of the Spinner Text
-            textStyle={styles.spinnerTextStyle}
-          />
+    <KeyboardAwareScrollView style={{ backgroundColor: '#d9e7ed'}}>
+      <View style={styles.container}>
+        <Text style={styles.welcomeText}>Welcome To</Text>
+        <Image source={require('../assets/companylogo.png')} style={styles.companylogo} />
+        <View style={styles.deviceView}>
+          <Image source={require('../assets/devicemobile-9n9.png')} style={styles.mobilelogo} />
         </View>
-      </SafeAreaView>
-    </View>
+        <Text style={styles.verifyText}>Verify Your Number</Text>
+        <MaskInput
+          value={phone}
+          style={styles.textInput}
+          keyboardType="numeric"
+          maxLength={14}
+          onChangeText={(masked, unmasked) => {
+            if (unmasked.length <= 10) {
+              setPhone(masked); // you can use the unmasked value as well       
+              setunMaskPhone(unmasked);
+            }
+          }}
+          mask={['(', /\d/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+          placeholder="(000) 000-0000"
+        />
+        {!isValid && <Text style={{ color: 'red', marginTop: 4 }}>Invalid Phone Number</Text>}
+
+        <TouchableOpacity activeOpacity={.7} onPress={handleOnPress} style={styles.frame2vJu}>
+          <Text style={styles.getStartednru}>Request Otp</Text>
+          <Image source={require('../assets/arrowcircleright-R8m.png')} style={styles.arrowcirclerightTy3} />
+        </TouchableOpacity>
+        <SafeAreaView style={{ flex: 1 }}>
+          <View style={styles.container}>
+            <Spinner
+              //visibility of Overlay Loading Spinner
+              visible={loading}
+              //Text with the Spinner
+              textContent={''}
+              //Text style of the Spinner Text
+              textStyle={styles.spinnerTextStyle}
+            />
+          </View>
+        </SafeAreaView>
+      </View>
+    </KeyboardAwareScrollView>
   );
 };
 
@@ -152,6 +155,7 @@ const styles = StyleSheet.create({
   },
   frame2vJu: {
     marginTop: '5%',
+    marginBottom: 35,
     backgroundColor: '#140d05',
     borderRadius: 8,
     alignItems: 'center',

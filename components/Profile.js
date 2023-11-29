@@ -20,6 +20,7 @@ const Profile = ({ route, navigation }) => {
     const [phone, setPhone] = useState('');
     const [MemberData, setMemberData] = useState([{}]);
     // const TokenNull = '';
+    const appVersion = require('../package.json').version;
 
     const createTwoButtonAlert = () =>
         Alert.alert('Log Out', 'Do you want to logout?', [
@@ -84,7 +85,7 @@ const Profile = ({ route, navigation }) => {
                         width: '95%', height: '90%', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white',
                         marginTop: 16, borderRadius: 23
                     }}>
-                        <Image source={require('../assets/ellipse-5-bg.png')} style={styles.img1} />
+                        <Image source={require('../assets/defaultUserImg2.png')} style={styles.img1} />
                         <Text style={styles.welcomeText}>{name}</Text>
 
                         <View style={{ backgroundColor: '#f2f5f6', width: '95%', marginTop: 16, borderRadius: 23 }}>
@@ -146,6 +147,7 @@ const Profile = ({ route, navigation }) => {
                                 </TouchableOpacity>
                             </View>
                         </View>
+                        <Text style={{fontWeight: '600', color: '#c2c3c5'}}>Version: {appVersion}</Text>
                     </View>
                 </View>
             </View>
@@ -172,7 +174,7 @@ const styles = StyleSheet.create({
         marginTop: -16,
         position: 'absolute',
         alignSelf: 'flex-end',
-        right: -20
+        right: -30
     },
     iconimg1: {
         width: 35,

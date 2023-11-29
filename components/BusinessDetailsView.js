@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, ToastAndroid } from 'react-native'
 import { View, Text, Image } from 'react-native'
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -21,7 +21,7 @@ export default function BusinessDetailsView({ route }) {
     lang = 0;
     lat = 0;
     const [initialRegion, setInitialRegion] = useState(null);
-    memberID = 0;
+    let memberID = 0;
     const [loading, setLoading] = useState(false);
 
     const businessDetailsAPI = `${Globals.API_URL}/BusinessProfiles/GetBusinessLocationWiseMemberDetails`;
@@ -111,7 +111,6 @@ export default function BusinessDetailsView({ route }) {
                     }).then(async (response) => {
                         console.log(response.data);
                         await getLocation(response);
-
                     }).catch((error) => {
                         console.log("Error fetching data:/", error)
                         setLoading(false);
@@ -128,6 +127,65 @@ export default function BusinessDetailsView({ route }) {
                 setLoading(false);
             });
 
+    }
+
+    const saveProfile = () => {
+        AsyncStorage.getItem('token')
+            .then(async (value) => {
+                if (value !== null) {
+                    memberID = (JSON.parse(value))[0].memberId;
+                    console.log(memberID)
+                    console.log(businessDetails.businessGroupId)
+                    let currentDate = (new Date()).toISOString();
+                    await fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileInMobileBySave', {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            "uniqueId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                            "id": 0,
+                            "memberId": (JSON.parse(value))[0].memberId,
+                            "notes": null,
+                            "badgeId": 1,
+                            "tagId": null,
+                            "businessGroupId": businessDetails.businessGroupId,
+                            "lastVisitDate": currentDate,
+                            "lifeTimePoints": 0,
+                            "lifeTimeVisits": 0,
+                            "smsoptIn": true,
+                            "emailOptIn": true,
+                            "notificationOptIn": true,
+                            "isHighroller": false,
+                            "currentPoints": 0,
+                            "sourceId": 14,
+                            "stateId": 3,
+                            "isActive": true,
+                            "createdBy": (JSON.parse(value))[0].memberId,
+                            "createdDate": currentDate,
+                            "lastModifiedBy": (JSON.parse(value))[0].memberId,
+                            "lastModifiedDate": currentDate,
+                            "businessLocationID": businessDetails.businessId
+                        }),
+                    }).then(async (res) => {
+                        ToastAndroid.showWithGravityAndOffset(
+                            'Claimed Successfully!',
+                            ToastAndroid.LONG,
+                            ToastAndroid.BOTTOM,
+                            25,
+                            50,
+                        );
+                        await LoadData();
+                    });
+                } else {
+                    console.log('not available')
+                }
+            })
+            .catch(error => {
+                console.error('Error retrieving dataa:', error);
+                setLoading(false);
+            });
     }
 
     useEffect(() => {
@@ -159,13 +217,14 @@ export default function BusinessDetailsView({ route }) {
                         <View style={styles.detailView}>
                             <Image source={{ uri: imageUrl }} style={styles.imageBusiness} />
                             <Text style={{ fontWeight: '800', paddingHorizontal: '3%', fontSize: 18, top: 5 }}>{businessDetails.businessName}</Text>
+
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <Text style={{ color: '#717679', paddingHorizontal: '3%', fontWeight: '700', fontSize: 14, top: 12 }}>{businessDetails.industry}</Text>
                                 <Text style={{ color: '#73a5bc', paddingHorizontal: '3%', fontWeight: '700', fontSize: 14, top: 12, alignSelf: 'flex-end' }}> {businessDetails.distance} mi </Text>
                             </View>
+                            {businessDetails.memberString == 'Member' && <Text style={{ fontWeight: '800', paddingHorizontal: '3%', fontSize: 14, top: 15, color: '#7d5513' }}>{businessDetails.memberString}</Text>}
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <Image source={{ uri: logoUrl }} style={styles.logoBusiness} />
-                                {businessDetails.memberString == 'Member' && <Text style={{ fontWeight: '600', paddingHorizontal: '3%', fontSize: 14, top: 15, color: '#339852' }}>{businessDetails.memberString}</Text>}
                             </View>
                             {(businessDetails.promotionData || businessDetails.autopilotData) && (businessDetails.promotionData.length > 0 || businessDetails.autopilotData.length > 0) &&
                                 <View style={{ paddingHorizontal: '3%' }}>
@@ -174,9 +233,12 @@ export default function BusinessDetailsView({ route }) {
                                         <Fragment key={index}>
                                             <View style={{ flexDirection: 'row', width: '100%', marginTop: 7 }}>
                                                 <View style={{ width: '65%' }}>
-                                                    <Text style={{ fontWeight: '500', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
+                                                    {(promo.promotionalMessage).toString().length < 25 && <Text style={{ fontWeight: '500', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
                                                         {promo.promotionalMessage}
-                                                    </Text>
+                                                    </Text>}
+                                                    {(promo.promotionalMessage).toString().length >= 25 && <Text onLongPress={() => promo.promotionalMessage} style={{ fontWeight: '500', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
+                                                        {(promo.promotionalMessage).toString().substring(0, 25)}...
+                                                    </Text>}
                                                 </View>
                                                 <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
                                                     {promo.expiryDays > 1 && <Text style={{
@@ -225,10 +287,17 @@ export default function BusinessDetailsView({ route }) {
                                                     </Text>}
                                                 </View>
                                             }
-                                            {auto.campaignName == 'Acquirement' &&
+                                            {(auto.campaignName == 'Acquirement' && businessDetails.memberString != 'Member') &&
                                                 <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
-                                                    <TouchableOpacity activeOpacity={.7} onPress={() => console.log(1111)} style={styles.frame2vJu}>
+                                                    <TouchableOpacity activeOpacity={.7} onPress={saveProfile} style={styles.frame2vJu}>
                                                         <Text style={styles.getStartednru}>Save</Text>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            }
+                                            {(auto.campaignName == 'Acquirement' && businessDetails.memberString == 'Member') &&
+                                                <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
+                                                    <TouchableOpacity activeOpacity={.7} style={styles.frame2vJu1}>
+                                                        <Text style={styles.getStartednru}>Saved</Text>
                                                     </TouchableOpacity>
                                                 </View>
                                             }
@@ -385,6 +454,17 @@ export default function BusinessDetailsView({ route }) {
 const styles = StyleSheet.create({
     frame2vJu: {
         backgroundColor: '#3381a3',
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'center',
+        paddingVertical: 8,
+        marginTop: 7,
+        width: '98%',
+        height: 40
+    },
+    frame2vJu1: {
+        backgroundColor: '#a3b4be',
         borderRadius: 8,
         alignItems: 'center',
         justifyContent: 'center',

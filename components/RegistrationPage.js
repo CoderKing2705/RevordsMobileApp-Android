@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { StyleSheet } from 'react-native';
@@ -7,22 +7,58 @@ import { TextInput } from 'react-native-gesture-handler';
 import SelectDropdown from 'react-native-select-dropdown';
 import Globals from '../components/Globals';
 import messaging from '@react-native-firebase/messaging';
-
-
+import moment from 'moment';
+import RNPickerSelect from 'react-native-picker-select';
 export default function RegistrationPage({ route }) {
-    const [selectedMonths, setSelectedMonth] = useState('January');
-    const [selectDays, setSelectedDays] = useState('1');
+    // const [selectedMonths, setSelectedMonth] = useState('January');
+    // const [selectDays, setSelectedDays] = useState('1');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const { Phone } = route.params;
     const [isValid, setIsValid] = useState(true);
 
-    //console.log(Phone)
+
+    const [selectedMonth, setSelectedMonth] = useState('');
+    const [selectedDay, setSelectedDay] = useState('');
+    const [daysInMonth, setDaysInMonth] = useState([]);
+
     const months = [
-        'January', 'February', 'March', 'April', 'May',
-        'June', 'July', 'August', 'September', 'October',
-        'November', 'December'
+        { label: 'January', value: '01' },
+        { label: 'February', value: '02' },
+        { label: 'March', value: '03' },
+        { label: 'April', value: '04' },
+        { label: 'May', value: '05' },
+        { label: 'June', value: '06' },
+        { label: 'July', value: '07' },
+        { label: 'August', value: '08' },
+        { label: 'September', value: '09' },
+        { label: 'October', value: '10' },
+        { label: 'November', value: '11' },
+        { label: 'December', value: '12' },
     ];
+
+    useEffect(() => {
+        if (selectedMonth) {
+            const daysArray = [];
+            const daysInSelectedMonth = moment(`2022-${selectedMonth}`, 'YYYY-MM').daysInMonth();
+
+            for (let i = 1; i <= daysInSelectedMonth; i++) {
+                const formattedDay = i < 10 ? `0${i}` : `${i}`;
+                daysArray.push({ label: formattedDay, value: formattedDay });
+            }
+
+            setDaysInMonth(daysArray);
+            setSelectedDay('');
+        }
+    }, [selectedMonth]);
+
+
+    //console.log(Phone)
+    // const months = [
+    //     'January', 'February', 'March', 'April', 'May',
+    //     'June', 'July', 'August', 'September', 'October',
+    //     'November', 'December'
+    // ];
     let tokenid = "";
     const days = Array.from({ length: 31 }, (_, index) => (index + 1).toString());
     const navigation = useNavigation();
@@ -32,9 +68,9 @@ export default function RegistrationPage({ route }) {
     };
 
     const postData = async () => {
-        const monthIndex = months.findIndex(month => month.toLowerCase() === selectedMonths.toLowerCase());
-        const birthMonth = monthIndex > 8 ? monthIndex + 1 : '0' + (monthIndex + 1);
-        const birthDay = selectDays > 9 ? selectDays : '0' + selectDays;
+        // const monthIndex = months.findIndex(month => month.toLowerCase() === selectedMonths.toLowerCase());
+        // const birthMonth = monthIndex > 8 ? monthIndex + 1 : '0' + (monthIndex + 1);
+        // const birthDay = selectDays > 9 ? selectDays : '0' + selectDays;
         await getDeviceToken();
         const MemberData = [];
         let currentDate = (new Date()).toISOString();
@@ -50,7 +86,7 @@ export default function RegistrationPage({ route }) {
                 "uniqueID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                 "id": 0,
                 "memberName": name == '' ? 'User' + Phone.substring(5,) : name,
-                "birthDate": `${currentYear}-${birthMonth}-${birthDay}`,
+                "birthDate": (selectedMonth == '' || selectedDay == '') ? null : `${currentYear}-${selectedMonth}-${selectedDay}`,
                 "emailID": email == '' ? null : email,
                 "phoneNo": Phone,
                 "isActive": true,
@@ -68,6 +104,7 @@ export default function RegistrationPage({ route }) {
     }
 
     const start = async () => {
+        console.log(selectedDay, '=', selectedMonth)
         if (email != null && email != '' && email != undefined) {
             const isValidEmail = validateEmail(email);
             setIsValid(isValidEmail);
@@ -101,15 +138,34 @@ export default function RegistrationPage({ route }) {
             <View style={styles.lineTwo}></View>
             {!isValid && <Text style={{ color: 'red', marginTop: '2%', marginLeft: '4%', }}>Invalid Email Address</Text>}
 
-            <View style={styles.grpDrpDown}>
+            {/* <View style={styles.grpDrpDown}>
                 <SelectDropdown style={styles.drpDownMonth} data={months} onSelect={(selectedItem, index) => setSelectedMonth(selectedItem)}
                     defaultButtonText='Birth Month' buttonTextAfterSelection={(selectedItem, index) => selectedItem}
                     rowTextForSelection={(item, index) => item} />
                 <SelectDropdown style={styles.drpDownDays} data={days} onSelect={(selectedItem, index) => setSelectedDays(selectedItem)}
                     defaultButtonText='Birth Day' buttonTextAfterSelection={(selectedItem, index) => selectedItem}
                     rowTextForSelection={(item, index) => item} />
+            </View> */}
+            <View style={styles.pickerContainer}>
+                <RNPickerSelect
+                    placeholder={{ label: 'Select Birth Month', value: null }}
+                    items={months}
+                    onValueChange={(value) => setSelectedMonth(value)}
+                    style={pickerSelectStyles}
+                    value={selectedMonth}
+                />
             </View>
-
+            <View style={styles.lineThree}></View>
+            <View style={styles.pickerContainer}>
+                <RNPickerSelect
+                    placeholder={{ label: 'Select Birth Day', value: null }}
+                    items={daysInMonth}
+                    onValueChange={(value) => setSelectedDay(value)}
+                    style={pickerSelectStyles}
+                    value={selectedDay}
+                />
+            </View>
+            <View style={styles.lineThree}></View>
             <View style={styles.registrationViewBtn}>
                 <TouchableOpacity activeOpacity={.7} style={styles.btnRegister} onPress={start}>
                     <Text style={styles.txtRegister}>
@@ -121,6 +177,9 @@ export default function RegistrationPage({ route }) {
     );
 }
 const styles = StyleSheet.create({
+    pickerContainer: {
+
+    },
     txtRegister: {
         color: 'white',
         fontWeight: '700',
@@ -222,6 +281,13 @@ const styles = StyleSheet.create({
         marginTop: '2%',
         alignSelf: 'center',
     },
+    lineThree: {
+        width: '95%',
+        height: 1.5,
+        backgroundColor: '#ffffff',
+        // marginTop: '2%',
+        alignSelf: 'center',
+    },
     screen93X: {
         width: '100%',
         height: '100%',
@@ -242,3 +308,38 @@ const styles = StyleSheet.create({
         marginTop: '2%'
     }
 })
+
+const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+        fontSize: 16,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        borderWidth: 1,
+        borderColor: 'gray',
+        borderRadius: 4,
+        color: 'black',
+        paddingRight: 30,
+    },
+    inputAndroid: {
+        fontSize: 16,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        borderWidth: 0.5,
+        borderColor: 'purple',
+        borderRadius: 8,
+        color: 'black',
+        paddingRight: 30,
+        // backgroundColor: 'white',
+        marginTop: 5,
+        width: '100%',
+        alignSelf: 'center',             
+    },
+    inputIOSContainer: {
+        borderBottomColor: 'purple', // Border color when open
+        borderBottomWidth: 2, // Border width when open
+    },
+    inputAndroidContainer: {
+        borderBottomColor: 'purple', // Border color when open
+        borderBottomWidth: 2, // Border width when open
+    },
+});

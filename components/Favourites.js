@@ -228,7 +228,7 @@ const Favourite = ({ navigation }) => {
                                         </TouchableOpacity>
                                     </View>
                                     <Text style={styles.industry}> {item.industry} </Text>
-                                    <Text style={styles.memberDetails}> {item.distance} mi | Member Since - {moment(item.createdDate).format("MM/DD/YYYY")}</Text>
+                                    <Text style={styles.memberDetails}> <Text style={{color: '#73a5bc'}}>{item.distance} mi </Text> | Member Since - {moment(item.createdDate).format("MM/DD/YYYY")}</Text>
 
                                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                         <View style={styles.cardView}>
@@ -318,7 +318,7 @@ const Favourite = ({ navigation }) => {
                             </TouchableOpacity>
                         </View>
                         <Text style={styles.modalbusinessName}>{businessClaimData.businessName}</Text>
-                        <Text style={styles.modalPromoMsg}>{promotionClaimData.promotionalMessage}</Text>
+                        <Text style={styles.modalPromoMsg}>DEAL : {promotionClaimData.promotionalMessage}</Text>
                         <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer Start Date </Text>- {moment(promotionClaimData.offerStartDate).format("MM/DD/YYYY")}</Text>
                         <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer End Date </Text>- {moment(promotionClaimData.offerEndDate).format("MM/DD/YYYY")}</Text>
                         {promotionClaimData.expiryDays > 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in </Text>- {promotionClaimData.expiryDays} days</Text>}
@@ -684,9 +684,11 @@ const styles = StyleSheet.create({
     modalPromoMsg: {
         fontWeight: '600',
         fontSize: 15,
-        color: '#f77c8c',
+        color: '#ad466b',
         paddingHorizontal: 10,
-        marginTop: 20
+        marginTop: 20,
+        textAlign: 'center',
+        marginBottom: 10
     }
 })
 

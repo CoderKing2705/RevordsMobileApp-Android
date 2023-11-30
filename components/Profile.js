@@ -18,6 +18,7 @@ const Profile = ({ route, navigation }) => {
     const [name, setName] = useState('');
     const [emailId, setEmail] = useState('');
     const [phone, setPhone] = useState('');
+    const [memberProfilePic, setMemberProfilePic] = useState('');
     const [MemberData, setMemberData] = useState([{}]);
     // const TokenNull = '';
     const appVersion = require('../package.json').version;
@@ -52,6 +53,7 @@ const Profile = ({ route, navigation }) => {
         console.log('111111', MemberData)
         setName(value[0].name);
         setEmail(value[0].emailId);
+        setMemberProfilePic(value[0].memberImageFile);
         let numP1 = String(value[0].phone).toString().substring(0, 3);
         let numP2 = String(value[0].phone).toString().substring(3, 6);
         let numP3 = String(value[0].phone).toString().substring(6,);
@@ -85,7 +87,8 @@ const Profile = ({ route, navigation }) => {
                         width: '95%', height: '90%', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white',
                         marginTop: 16, borderRadius: 23
                     }}>
-                        <Image source={require('../assets/defaultUserImg2.png')} style={styles.img1} />
+                        {memberProfilePic == null && <Image source={require('../assets/defaultUserImg2.png')} style={styles.img1} />}
+                        {memberProfilePic != null && <Image source={{ uri: Globals.Root_URL + memberProfilePic }} style={styles.img1} />}
                         <Text style={styles.welcomeText}>{name}</Text>
 
                         <View style={{ backgroundColor: '#f2f5f6', width: '95%', marginTop: 16, borderRadius: 23 }}>

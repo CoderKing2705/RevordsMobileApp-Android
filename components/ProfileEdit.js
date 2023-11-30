@@ -1,4 +1,4 @@
-import { StyleSheet, Image, Text, View, ScrollView, ToastAndroid, PermissionsAndroid, Alert } from 'react-native';
+import { StyleSheet, Image, Text, View, ScrollView, ToastAndroid, PermissionsAndroid, Alert, PanResponder, Modal, TouchableWithoutFeedback, Pressable } from 'react-native';
 // import { TextInput } from 'react-native-gesture-handler';
 import MaskInput from 'react-native-mask-input';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
@@ -9,9 +9,13 @@ import Globals from '../components/Globals';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
+// import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import RNFS from 'react-native-fs';
+import { useIsFocused } from '@react-navigation/native';
 
 const ProfileEdit = ({ navigation, route }) => {
+    const focus = useIsFocused();
     const [MemberData, setMemberData] = useState([{}]);
     const [name, setName] = useState('');
     const [emailId, setEmail] = useState('');
@@ -19,6 +23,11 @@ const ProfileEdit = ({ navigation, route }) => {
     const [formatPhone, setFormatPhone] = useState('');
     const [loading, setLoading] = useState(false);
     const [isValid, setIsValid] = useState(true);
+
+    const [memberProfilePic, setMemberProfilePic] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [imageRes, setImageRes] = useState(null);
+    const [optionModalVisible, setOptionModalVisible] = useState(false);
 
     const validateEmail = (email) => {
         const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -29,6 +38,7 @@ const ProfileEdit = ({ navigation, route }) => {
         await setMemberData(value);
         setName(value[0].name);
         setEmail(value[0].emailId);
+        setMemberProfilePic(value[0].memberImageFile);
         let numP1 = String(value[0].phone).toString().substring(0, 3);
         let numP2 = String(value[0].phone).toString().substring(3, 6);
         let numP3 = String(value[0].phone).toString().substring(6,);
@@ -47,8 +57,7 @@ const ProfileEdit = ({ navigation, route }) => {
             .catch(error => {
                 console.error('Error retrieving dataa:', error);
             });
-
-    }, []);
+    }, [focus]);
 
     const Save = () => {
         if (emailId !== null && emailId !== undefined && emailId !== '') {
@@ -69,6 +78,9 @@ const ProfileEdit = ({ navigation, route }) => {
 
                 axios.put(apiUrl, requestBody)
                     .then(async (response) => {
+                        if (selectedImage) {
+                            await uploadImage(imageRes);
+                        }
                         await getMemberData();
                         setLoading(false);
                         ToastAndroid.showWithGravityAndOffset(
@@ -97,6 +109,9 @@ const ProfileEdit = ({ navigation, route }) => {
 
             axios.put(apiUrl, requestBody)
                 .then(async (response) => {
+                    if (selectedImage) {
+                        await uploadImage(imageRes);
+                    }
                     await getMemberData();
                     setLoading(false);
                     ToastAndroid.showWithGravityAndOffset(
@@ -124,6 +139,151 @@ const ProfileEdit = ({ navigation, route }) => {
                 console.error('Error saving data:', error);
             });
     }
+
+    const requestCameraPermission = async () => {
+        try {
+            if (Platform.OS === 'android') {
+                const result = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.CAMERA
+                );
+
+                if (result === PermissionsAndroid.RESULTS.GRANTED) {
+                    console.log('Camera permission granted after request');
+                    const options = {
+                        mediaType: 'photo',
+                        includeBase64: false,
+                        maxHeight: 2000,
+                        maxWidth: 2000,
+                    };
+
+                    launchImageLibrary(options, (response) => {
+                        if (response.didCancel) {
+                            console.log('User cancelled image picker');
+                        } else if (response.error) {
+                            console.log('Image picker error: ', response.error);
+                        } else {
+                            let imageUri = response.uri || response.assets?.[0]?.uri;
+                            setMemberProfilePic(null);
+                            setSelectedImage(imageUri);
+                            setImageRes(response);
+                            console.log(imageUri)
+                            console.log('response', response)
+                            console.log(MemberData[0].memberId)
+                        }
+                    });
+                } else {
+                    console.log('Camera permission denied after request');
+                }
+            } else {
+                const result = await request(PERMISSIONS.IOS.CAMERA);
+
+                if (result === RESULTS.GRANTED) {
+                    console.log('Camera permission granted after request');
+                } else {
+                    console.log('Camera permission denied after request');
+                }
+            }
+        } catch (error) {
+            console.error('Error requesting camera permission:', error);
+        }
+    };
+
+    const openImagePicker = async (option) => {
+        try {
+            if (Platform.OS === 'android') {
+                const result = await PermissionsAndroid.check(
+                    PermissionsAndroid.PERMISSIONS.CAMERA
+                );
+
+                if (result) {
+                    console.log('Camera permission is granted');
+
+                    setOptionModalVisible(false);
+                    const options = {
+                        mediaType: 'photo',
+                        includeBase64: false,
+                        maxHeight: 2000,
+                        maxWidth: 2000,
+                    };
+                    const launchCallback = (response) => {
+                        if (response.didCancel) {
+                            console.log('User cancelled image picker');
+                        } else if (response.error) {
+                            console.log('ImagePicker Error: ', response.error);
+                        } else {
+                            let imageUri = response.uri || response.assets?.[0]?.uri;
+                            setMemberProfilePic(null);
+                            setSelectedImage(imageUri);
+                            setImageRes(response);
+                            console.log(imageUri)
+                            console.log('response', response)
+                            console.log(MemberData[0].memberId)
+                        }
+                    };
+
+                    if (option === 'library') {
+                        console.log('library')
+                        launchImageLibrary(options, launchCallback);
+                    } else if (option === 'camera') {
+                        launchCamera(options, launchCallback);
+                    }
+                    // launchImageLibrary(options, (response) => {
+                    //     if (response.didCancel) {
+                    //         console.log('User cancelled image picker');
+                    //     } else if (response.error) {
+                    //         console.log('Image picker error: ', response.error);
+                    //     } else {
+                    //         let imageUri = response.uri || response.assets?.[0]?.uri;
+                    //         setMemberProfilePic(null);
+                    //         setSelectedImage(imageUri);
+                    //         setImageRes(response);
+                    //         console.log(imageUri)
+                    //         console.log('response', response)
+                    //         console.log(MemberData[0].memberId)
+                    //     }
+                    // });
+                } else {
+                    console.log('Camera permission is not granted');
+                    requestCameraPermission();
+                }
+            } else {
+                const result = await check(PERMISSIONS.IOS.CAMERA);
+
+                if (result === RESULTS.GRANTED) {
+                    console.log('Camera permission is granted');
+                } else {
+                    console.log('Camera permission is not granted');
+                    requestCameraPermission();
+                }
+            }
+        } catch (error) {
+            console.error('Error checking camera permission:', error);
+        }
+    };
+
+    const uploadImage = async (response) => {
+        const formData = new FormData();
+        formData.append('file', {
+            uri: response.uri || response.assets?.[0]?.uri,
+            type: response.type || response.assets?.[0]?.type,
+            name: response.fileName || response.assets?.[0]?.fileName,
+        });
+        console.log(formData);
+        try {
+            const response = await axios.post(Globals.API_URL + `/MemberProfiles/UpdateMemberImageInMobileApp/${MemberData[0].memberId}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            // Handle the response from the server if needed
+            console.log('Image upload success', response.data);
+        } catch (error) {
+            // Handle errors
+            console.error('Image upload failed', error);
+        }
+    };
+
     return (
         <>
             <View style={styles.container}>
@@ -147,9 +307,12 @@ const ProfileEdit = ({ navigation, route }) => {
                                 marginTop: 16, borderRadius: 23, paddingVertical: 25,
                             }}>
                                 <View>
-                                    <Image source={require('../assets/defaultUserImg2.png')} style={styles.img1} />
+                                    {(!memberProfilePic && !selectedImage) && <Image source={require('../assets/defaultUserImg2.png')} style={styles.img1} />}
+                                    {memberProfilePic && <Image source={{ uri: Globals.Root_URL + memberProfilePic }} style={styles.img1} />}
+                                    {selectedImage && <Image source={{ uri: selectedImage }} style={styles.img1} />}
+
                                     <View style={styles.pencilView}>
-                                        <TouchableOpacity>
+                                        <TouchableOpacity onPress={() => setOptionModalVisible(true)}>
                                             <Image source={require('../assets/pencilsimple.png')} style={styles.pencilImg} />
                                         </TouchableOpacity>
                                     </View>
@@ -199,6 +362,30 @@ const ProfileEdit = ({ navigation, route }) => {
                             </View>
                         </View>
                     </ScrollView>
+
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={optionModalVisible}
+                        onRequestClose={() => setOptionModalVisible(false)}>
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                            <TouchableWithoutFeedback onPress={() => setOptionModalVisible(false)}>
+                                <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }} />
+                            </TouchableWithoutFeedback>
+                            <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: 300 }}>
+                                <TouchableWithoutFeedback style={{ flex: 1 }}>
+                                    <Pressable style={{ zIndex: 1000 }} onPress={() => openImagePicker('library')}>
+                                        <Text style={{ fontSize: 18, marginBottom: 10 }}>Choose from Library</Text>
+                                    </Pressable>
+                                </TouchableWithoutFeedback>
+                                <TouchableWithoutFeedback>
+                                    <Pressable onPress={() => openImagePicker('camera')}>
+                                        <Text style={{ fontSize: 18 }}>Take Photo</Text>
+                                    </Pressable>
+                                </TouchableWithoutFeedback>
+                            </View>
+                        </View>
+                    </Modal>
 
                 </View>
                 <SafeAreaView style={{ flex: 1 }}>
@@ -275,19 +462,19 @@ const styles = StyleSheet.create({
         position: 'absolute',
     },
     pencilView: {
-        height: 35,
-        width: 35,
+        height: 40,
+        width: 40,
         backgroundColor: '#73a5bc',
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 500,
         position: 'absolute',
-        right: 0,
-        top: '50%'
+        right: -5,
+        top: '60%'
     },
     pencilImg: {
-        height: 20,
-        width: 20
+        height: 22,
+        width: 22
     },
     frame2vJu: {
         backgroundColor: '#140d05',

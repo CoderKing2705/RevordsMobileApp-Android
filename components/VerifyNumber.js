@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, Image, Text, View, Pressable, Button, SafeAreaView, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Image, Text, View, Pressable, Button, SafeAreaView, KeyboardAvoidingView, ToastAndroid } from 'react-native';
 import MaskInput from 'react-native-mask-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Globals from '../components/Globals';
@@ -17,12 +17,13 @@ const VerifyNumber = ({ navigation }) => {
   randomnumber = "";
   CustomerExists = false;
 
-  function generateRandomNumber() {
+  const generateRandomNumber = () => {
     const min = 1000;
     const max = 9999;
     const randomNumber =
       Math.floor(Math.random() * (max - min + 1)) + min;
     randomnumber = randomNumber.toString();
+    return randomNumber;
   };
 
   async function fetchAPI() {
@@ -32,9 +33,33 @@ const VerifyNumber = ({ navigation }) => {
         Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + unMaskPhone)
       const json = await response.json();
       CustomerExists = json != undefined && json.length > 0 ? json : null;
-      navigation.navigate('GetOtp', { OTP: '1234', CustomerExists: CustomerExists, Phone: unMaskPhone })
-      setLoading(false);
-      return json;
+
+      const randomOtp = await generateRandomNumber();
+      console.log(randomOtp)
+      try {
+        fetch(`${Globals.API_URL}/Mail/SendOTP/${parseFloat(unMaskPhone)}/${randomOtp}`, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }).then((res) => {
+          console.log('otp response-----',JSON.stringify(res))
+          navigation.navigate('GetOtp', { OTP: randomOtp, CustomerExists: CustomerExists, Phone: unMaskPhone })
+          setLoading(false);
+          // return json;
+        });
+      } catch (error) {
+        console.log(error);
+        ToastAndroid.showWithGravityAndOffset(
+          'There is some issue! TRY Again!',
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM,
+          25,
+          50,
+        );
+      }
+
     } catch (error) {
       setLoading(false);
       alert(error)
@@ -58,7 +83,7 @@ const VerifyNumber = ({ navigation }) => {
   }
 
   return (
-    <KeyboardAwareScrollView style={{ backgroundColor: '#d9e7ed'}}>
+    <KeyboardAwareScrollView style={{ backgroundColor: '#d9e7ed' }}>
       <View style={styles.container}>
         <Text style={styles.welcomeText}>Welcome To</Text>
         <Image source={require('../assets/companylogo.png')} style={styles.companylogo} />
@@ -121,7 +146,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     width: '70%',
     resizeMode: 'contain',
-    marginTop: '-10%'
+    // marginTop: '-10%'
   },
   deviceView: {
     backgroundColor: '#fff',
@@ -130,7 +155,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: '5%',
     borderRadius: 500,
-    marginTop: '-10%',
+    // marginTop: '-10%',
     justifyContent: 'center'
   },
   mobilelogo: {

@@ -1,15 +1,18 @@
-import { StyleSheet, Image, Text, View } from 'react-native';
+import { StyleSheet, Image, Text, View, ToastAndroid } from 'react-native';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Globals from './Globals';
 
 const GetOtp = ({ route, navigation }) => {
     const [otp, setOtp] = useState(['', '', '', '']);
     const refs = [useRef(), useRef(), useRef(), useRef()];
 
     const [isVerified, setIsVerified] = useState(true);
-    const { OTP, CustomerExists, Phone } = route.params;
+    let { OTP, CustomerExists, Phone } = route.params;
     console.log(OTP);
-
+    console.log(Phone);
+    const [seconds, setSeconds] = useState(10);
+    const [isResentDisabled, setResentDisabled] = useState(false);
     const [token, setToken] = useState(null);
 
     const handleInputChange = (text, index) => {
@@ -34,15 +37,46 @@ const GetOtp = ({ route, navigation }) => {
         }
     };
 
-    const resendOtp = () => {
+    const generateRandomNumber = () => {
+        const min = 1000;
+        const max = 9999;
+        const randomNumber =
+            Math.floor(Math.random() * (max - min + 1)) + min;
+        randomnumber = randomNumber.toString();
+        return randomNumber;
+    };
+
+    const resendOtp = async () => {
         console.log('resend')
+        const randomOtp = await generateRandomNumber();
+        try {
+            fetch(`${Globals.API_URL}/Mail/SendOTP/${parseFloat(Phone)}/${randomOtp}`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            }).then((res) => {
+                OTP = randomOtp;
+                setResentDisabled(true);
+            });
+        } catch (error) {
+            console.log(error);
+            ToastAndroid.showWithGravityAndOffset(
+                'There is some issue! TRY Again after few minutes!',
+                ToastAndroid.LONG,
+                ToastAndroid.BOTTOM,
+                25,
+                50,
+            );
+        }
     }
 
     const verifyOtp = async () => {
         try {
             if (otp.join('').length !== 0) {
                 if (otp.join('') == OTP) {
-                    setIsVerified(true);                    
+                    setIsVerified(true);
                     navigation.navigate('AppTour', { MemberData: CustomerExists, Phone: Phone });
                 } else {
                     setIsVerified(false);
@@ -54,9 +88,23 @@ const GetOtp = ({ route, navigation }) => {
         }
     }
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setSeconds((prevSeconds) => prevSeconds - 1);
+        }, 1000);
+
+        if (seconds === 0) {
+            // Add your logic here when the timer reaches 0
+            clearInterval(interval); // Clear the interval to stop the timer
+        }
+
+        // Clear the interval when the component is unmounted
+        return () => clearInterval(interval);
+    }, [seconds]);
+
     return (
         <View style={styles.container}>
-            <Text style={styles.welcomeText}>Otp</Text>
+            <Text style={styles.welcomeText}>Enter Otp</Text>
             <View style={styles.deviceView}>
                 <Image source={require('../assets/envelopesimple-8N5.png')} style={styles.emaillogo} />
             </View>
@@ -78,22 +126,39 @@ const GetOtp = ({ route, navigation }) => {
                 ))}
             </View>
             <View style={{ 'height': 25 }}>
-                {!isVerified && <Text style={{ 'paddingTop': 10, 'color': 'red' }}>Please Enter Correct OTP</Text>}
+                {!isVerified && <Text style={{ 'paddingTop': 4, 'color': 'red' }}>Please Enter Correct OTP</Text>}
                 {otp.join('').length == 0 && <Text style={{ 'paddingTop': 4, 'color': '#203139' }}>Please Enter the OTP</Text>}
             </View>
             <TouchableOpacity activeOpacity={.7} onPress={verifyOtp} style={styles.frame2vJu}>
                 <Text style={styles.getStartednru}>Verify</Text>
             </TouchableOpacity>
 
-            <Text style={styles.verifyCodeText1}>Don't receive the code?</Text>
-            <TouchableOpacity activeOpacity={.7} onPress={resendOtp} style={styles.resendView}>
+            <Text style={styles.verifyCodeText1}>Didn't receive the code?</Text>
+            {seconds !== 0 && <Text style={styles.timerText}>{`${Math.floor(seconds / 60)}:${(seconds % 60).toLocaleString('en-US', {
+                minimumIntegerDigits: 2,
+                useGrouping: false,
+            })}`}</Text>}
+            {(seconds === 0 && !isResentDisabled) && <TouchableOpacity activeOpacity={.7} onPress={resendOtp} style={styles.resendView}>
                 <Text style={styles.verifyCodeText2}>Resend</Text>
-            </TouchableOpacity>
+            </TouchableOpacity>}
+            {(seconds === 0 && isResentDisabled) && <Text style={styles.resentText}>Resent</Text>}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
+    resentText: {
+        color: '#a3abaf',
+        fontSize: 24,
+        fontWeight: '700',
+        marginBottom: '5%',
+        textAlign: 'center',
+        paddingHorizontal: 30,
+    },
+    timerText: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#252525'
+    },
     container: {
         height: '100%',
         width: '100%',

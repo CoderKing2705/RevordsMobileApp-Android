@@ -20,6 +20,7 @@ const ProfileEdit = ({ navigation, route }) => {
     const [name, setName] = useState('');
     const [emailId, setEmail] = useState('');
     const [phone, setPhone] = useState('');
+    const [birthDate, setBirthDate] = useState('');
     const [formatPhone, setFormatPhone] = useState('');
     const [loading, setLoading] = useState(false);
     const [isValid, setIsValid] = useState(true);
@@ -38,6 +39,10 @@ const ProfileEdit = ({ navigation, route }) => {
         await setMemberData(value);
         setName(value[0].name);
         setEmail(value[0].emailId);
+        let bDay = (value[0].birthDay == '' || value[0].birthDay == null || value[0].birthDay == undefined ||
+        value[0].birthMonth == '' || value[0].birthMonth == null || value[0].birthMonth == undefined) ?
+        null : value[0].birthDay + ' ' + value[0].birthMonth;
+        setBirthDate(bDay);
         setMemberProfilePic(value[0].memberImageFile);
         let numP1 = String(value[0].phone).toString().substring(0, 3);
         let numP2 = String(value[0].phone).toString().substring(3, 6);
@@ -170,9 +175,11 @@ const ProfileEdit = ({ navigation, route }) => {
                             console.log('response', response)
                             console.log(MemberData[0].memberId)
                         }
+                        setOptionModalVisible(false);
                     });
                 } else {
                     console.log('Camera permission denied after request');
+                    setOptionModalVisible(false);
                 }
             } else {
                 const result = await request(PERMISSIONS.IOS.CAMERA);
@@ -307,8 +314,8 @@ const ProfileEdit = ({ navigation, route }) => {
                                 marginTop: 16, borderRadius: 23, paddingVertical: 25,
                             }}>
                                 <View>
-                                    {(!memberProfilePic && !selectedImage) && <Image source={require('../assets/defaultUserImg2.png')} style={styles.img1} />}
-                                    {memberProfilePic && <Image source={{ uri: Globals.Root_URL + memberProfilePic }} style={styles.img1} />}
+                                    {(!memberProfilePic && !selectedImage) && <Image source={require('../assets/defaultUser1.png')} style={styles.img1} />}
+                                    {memberProfilePic && <Image source={{ uri: memberProfilePic }} style={styles.img1} />}
                                     {selectedImage && <Image source={{ uri: selectedImage }} style={styles.img1} />}
 
                                     <View style={styles.pencilView}>
@@ -350,6 +357,17 @@ const ProfileEdit = ({ navigation, route }) => {
                                                 marginTop: 5, fontSize: 16, borderRadius: 10, backgroundColor: '#e1e5e8', fontWeight: '600'
                                             }}
                                             value={formatPhone}
+                                            editable={false}
+                                        />
+                                    </View>
+                                    <View style={{ borderRadius: 23, padding: 5, width: '100%' }}>
+                                        <Text style={{ fontSize: 18, fontWeight: '700', paddingLeft: 5 }}>Birth Date</Text>
+                                        <TextInput
+                                            style={{
+                                                height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingLeft: 10,
+                                                marginTop: 5, fontSize: 16, borderRadius: 10, backgroundColor: '#e1e5e8', fontWeight: '600'
+                                            }}
+                                            value={(birthDate == '' || birthDate == null ||  birthDate == undefined) ? 'No BirthDate Given' : birthDate}
                                             editable={false}
                                         />
                                     </View>

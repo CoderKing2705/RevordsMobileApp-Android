@@ -151,11 +151,12 @@ export default function BusinessDetailsView({ route }) {
                             "badgeId": 1,
                             "tagId": null,
                             "businessGroupId": businessDetails.businessGroupId,
-                            "lastVisitDate": currentDate,
+                            "lastVisitDate": null,
                             "lifeTimePoints": 0,
                             "lifeTimeVisits": 0,
-                            "smsoptIn": true,
-                            "emailOptIn": true,
+                            "smsoptIn": false,
+                            "emailOptIn": ((JSON.parse(value))[0].emailId == '' || (JSON.parse(value))[0].emailId == null ||
+                                (JSON.parse(value))[0].emailId == undefined) ? false : true,
                             "notificationOptIn": true,
                             "isHighroller": false,
                             "currentPoints": 0,
@@ -166,7 +167,8 @@ export default function BusinessDetailsView({ route }) {
                             "createdDate": currentDate,
                             "lastModifiedBy": (JSON.parse(value))[0].memberId,
                             "lastModifiedDate": currentDate,
-                            "businessLocationID": businessDetails.businessId
+                            "businessLocationID": businessDetails.businessId,
+                            "baseLocationID": businessDetails.businessId
                         }),
                     }).then(async (res) => {
                         ToastAndroid.showWithGravityAndOffset(
@@ -344,10 +346,10 @@ export default function BusinessDetailsView({ route }) {
                                     </Text>
                                 ))}
                             </View>
-                            <View style={{ paddingHorizontal: '3%' }} >
+                            {businessDetails.adress && <View style={{ paddingHorizontal: '3%' }} >
                                 <Text style={styles.adressHeading}>Address:</Text>
                                 <Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>{businessDetails.adress}</Text>
-                            </View>
+                            </View>}
                             <View style={{ paddingHorizontal: '3%', marginTop: '3%' }}>
                                 <View style={styles.mapViewMain}>
                                     <MapView
@@ -421,18 +423,18 @@ export default function BusinessDetailsView({ route }) {
                                     </MapView>
                                 </View>
                             </View>
-                            <View style={{ paddingHorizontal: '3%' }} >
+                            {businessDetails.phoneNo && <View style={{ paddingHorizontal: '3%' }} >
                                 <Text style={styles.adressHeading}>Phone:</Text>
                                 {businessDetails.phoneNo && <Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
                                     {businessDetails.phoneNo.replace(/(\d{3})(\d{3})(\d{4})/, (_, a, b, c) => `(${a}) ${b}-${c}`)}
                                 </Text>}
-                            </View>
-                            <View style={{ paddingHorizontal: '3%' }} >
+                            </View>}
+                            {businessDetails.descriptions && <View style={{ paddingHorizontal: '3%' }} >
                                 <Text style={styles.adressHeading}>Description:</Text>
                                 <Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', marginBottom: '3%', paddingHorizontal: '2%' }}>
                                     {businessDetails.descriptions}
                                 </Text>
-                            </View>
+                            </View>}
                         </View>
                     </ScrollView>
                 </SafeAreaView>

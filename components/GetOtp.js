@@ -79,7 +79,7 @@ const GetOtp = ({ route, navigation }) => {
             </View>
             <View style={{ 'height': 25 }}>
                 {!isVerified && <Text style={{ 'paddingTop': 10, 'color': 'red' }}>Please Enter Correct OTP</Text>}
-                {otp.join('').length == 0 && <Text style={{ 'paddingTop': 6, 'color': '#203139' }}>Please Enter the OTP</Text>}
+                {otp.join('').length == 0 && <Text style={{ 'paddingTop': 4, 'color': '#203139' }}>Please Enter the OTP</Text>}
             </View>
             <TouchableOpacity activeOpacity={.7} onPress={verifyOtp} style={styles.frame2vJu}>
                 <Text style={styles.getStartednru}>Verify</Text>

@@ -15,6 +15,7 @@ import { Button } from 'react-native-paper';
 import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import Spinner from 'react-native-loading-spinner-overlay';
+import { useNetInfo } from '@react-native-community/netinfo';
 
 
 export default function MapViewing({ navigation }) {
@@ -31,13 +32,14 @@ export default function MapViewing({ navigation }) {
     const businessGroupID = "1";
     const baseUrl = Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesByGroupID"
     const [loading, setLoading] = useState(false);
+    const netinfo = useNetInfo();
 
     async function handleCheckPressed() {
         if (Platform.OS === 'android') {
             const checkEnabled = await isLocationEnabled();
             if (!checkEnabled) {
                 await handleEnabledPressed();
-                await getCurrentLocation();
+                // await getCurrentLocation();
             }
         }
     }
@@ -56,6 +58,7 @@ export default function MapViewing({ navigation }) {
         }, []));
 
     useEffect(() => {
+        console.log('netinfo', netinfo)
         setLoading(true);
         requestLocationPermission();
         checkApplicationPermission();
@@ -100,7 +103,7 @@ export default function MapViewing({ navigation }) {
             error => {
                 console.error('Error getting current location: ', error);
             },
-            { enableHighAccuracy: false, timeout: 5000 }
+            { enableHighAccuracy: false, timeout: 10000 }
         );
     };
 

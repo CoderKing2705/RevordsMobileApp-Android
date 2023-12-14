@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import TourPage1 from './TourPage1';
 import TourPage2 from './TourPage2';
 import TourPage3 from './TourPage3';
@@ -11,8 +11,10 @@ const AppTourGuide = ({ route, navigation }) => {
     const [step, setStep] = useState(1);
     const { MemberData, Phone } = route.params;
     let tokenid = "";
+    let platformOS;
 
     const getDeviceToken = async () => {
+        platformOS = (Platform.OS == "android" ? 1 : 2);
         tokenid = await messaging().getToken();
     };
 
@@ -23,32 +25,31 @@ const AppTourGuide = ({ route, navigation }) => {
     const closeTour = async () => {
         setStep(null);
         if (MemberData) {
-            console.log(1)
+            // let platformOS = (Platform.OS == "android" ? 1 : 2);
             await getDeviceToken();
-            fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}`, {
+            console.log('platformOSssssw', platformOS)
+            fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}`, {
                 method: 'PUT'
             }).then((res) => {
                 console.log('tokenId set')
                 navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
             });
         } else {
-            console.log(2)
             navigation.navigate('RegistrationPage', { Phone: Phone });
         }
     };
 
     const GotoRegistration = async () => {
         if (MemberData) {
-            console.log(1)
+            // let platformOS = (Platform.OS == "android" ? 1 : 2);
             await getDeviceToken();
-            fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}`, {
+            fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}`, {
                 method: 'PUT'
             }).then((res) => {
                 console.log('tokenId set')
                 navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
             });
         } else {
-            console.log(2)
             navigation.navigate('RegistrationPage', { Phone: Phone });
         }
 

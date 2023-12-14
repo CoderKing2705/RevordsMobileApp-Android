@@ -16,11 +16,11 @@ import Location from "./components/Location";
 import NotificationTray from "./components/NotificationTray";
 
 export default function App() {
-
   const Stack = createStackNavigator();
-  useEffect(() => {
+  useEffect(() => {    
     getDeviceToken();
   }, []);
+ 
   const getDeviceToken = async () => {
     let token = await messaging().getToken();
     console.log(token)

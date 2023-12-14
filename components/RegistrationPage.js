@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
@@ -75,6 +75,7 @@ export default function RegistrationPage({ route }) {
         const MemberData = [];
         let currentDate = (new Date()).toISOString();
         let currentYear = new Date().getFullYear();
+        let platformOS = Platform.OS;
 
         fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileByPhone', {
             method: 'POST',
@@ -85,9 +86,10 @@ export default function RegistrationPage({ route }) {
             body: JSON.stringify({
                 "uniqueID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                 "id": 0,
-                "memberName": name == '' ? 'User' + Phone.substring(5,) : name,
-                "birthDate": (selectedMonth == '' || selectedDay == '') ? null : `${currentYear}-${selectedMonth}-${selectedDay}`,
-                "emailID": email == '' ? null : email,
+                "memberName": (name == '' || name == null || name == undefined) ? 'USER ' + Phone.substring(5,) : name,
+                "birthDate": (selectedMonth == '' || selectedDay == '' || selectedMonth == null || selectedDay == null ||
+                selectedMonth == undefined || selectedDay == undefined ) ? null : `${currentYear}-${selectedMonth}-${selectedDay}`,
+                "emailID": (email == '' || email == null || email == undefined) ? null : email,
                 "phoneNo": Phone,
                 "isActive": true,
                 "createdBy": 1,
@@ -95,10 +97,11 @@ export default function RegistrationPage({ route }) {
                 "lastModifiedBy": 1,
                 "lastModifiedDate": currentDate,
                 "appToken": tokenid,
+                "deviceOS": platformOS == "android" ? 1 : 2,
                 "memberProfile": []
             }),
         }).then((res) => {
-            console.log(JSON.stringify(res))
+            console.log('JSON.stringify(res)', JSON.stringify(res));
             getMemberData();
         });
     }
@@ -332,7 +335,7 @@ const pickerSelectStyles = StyleSheet.create({
         // backgroundColor: 'white',
         marginTop: 5,
         width: '100%',
-        alignSelf: 'center',             
+        alignSelf: 'center',
     },
     inputIOSContainer: {
         borderBottomColor: 'purple', // Border color when open

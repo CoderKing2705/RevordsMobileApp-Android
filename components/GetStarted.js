@@ -22,7 +22,7 @@ const GetStarted = ({ navigation }) => {
         <View style={styles.container}>
             <Image source={require('../assets/companylogo.png')} style={styles.companylogo} />
             <Image source={require('../assets/vector-Ypq.png')} style={styles.vectorP61} />
-            <View style={{width: '100%', alignItems: 'center'}}>
+            <View style={{width: '100%', alignItems: 'center', position: 'absolute', bottom: '5%'}}>
                 <TouchableOpacity activeOpacity={.7} onPress={() => { navigation.navigate('VerifyNumber') }} style={styles.frame2vJu}>
                     <Text style={styles.getStartednru}>Get Started</Text>
                     <Image source={require('../assets/arrowcircleright-R8m.png')} style={styles.arrowcirclerightTy3} />
@@ -40,12 +40,11 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     companylogo: {
-        flexShrink: 0,
+        marginTop: 20,
         width: '70%',
         resizeMode: 'contain',
     },
-    frame2vJu: {
-        top: '97%',               
+    frame2vJu: {                   
         backgroundColor: '#140d05',
         borderRadius: 12,
         alignItems: 'center',

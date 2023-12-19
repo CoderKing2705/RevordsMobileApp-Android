@@ -227,12 +227,12 @@ const Favourite = ({ navigation }) => {
                                             <Image source={require('../assets/ViewImg.png')} style={styles.ViewBtnImg} />
                                         </TouchableOpacity>
                                     </View>
-                                    <Text style={styles.industry}> {item.industry} </Text>
-                                    <Text style={styles.memberDetails}> <Text style={{color: '#73a5bc'}}>{item.distance} mi </Text> | Member Since - {moment(item.createdDate).format("MM/DD/YYYY")}</Text>
+                                    <Text style={styles.industry}>{item.industry}</Text>
+                                    <Text style={styles.memberDetails}><Text style={{ color: '#73a5bc' }}>{item.distance} mi </Text> | Member Since - {moment(item.createdDate).format("MM/DD/YYYY")}</Text>
 
                                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                         <View style={styles.cardView}>
-                                            <Card style={[{ width: 150, borderRadius: 20, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '']}>
+                                            <Card style={[{ width: 150, borderRadius: 20, height: 150, marginRight: 10, marginLeft: 5, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '']}>
                                                 <Text style={styles.badge}> {item.badgeName} </Text>
                                                 {(item.badgeName).toString().toLowerCase() == 'bronze' && <Image source={require('../assets/Bronze.png')} style={[styles.trophyImg]} />}
                                                 {(item.badgeName).toString().toLowerCase() == 'silver' && <Image source={require('../assets/Silver.png')} style={[styles.trophyImg]} />}
@@ -455,7 +455,12 @@ const styles = StyleSheet.create({
     },
     ViewBtn: {
         paddingStart: 15,
-        bottom: '10%',
+        // bottom: '10%',
+    },
+    ViewBtnImg: {
+        height: 15,
+        width: 15,
+        marginTop: 5
     },
     frame2vJuClaimed: {
         backgroundColor: '#6b6868',
@@ -500,10 +505,6 @@ const styles = StyleSheet.create({
         zIndex: 10,
         textAlign: 'center',
         textAlignVertical: 'center'
-    },
-    ViewBtnImg: {
-        height: 15,
-        width: 15
     },
     getStartednru1: {
         lineHeight: 22.5,
@@ -584,36 +585,41 @@ const styles = StyleSheet.create({
         color: '#203139',
         fontWeight: '700',
         fontSize: 14,
-        bottom: '6%',
-        right: '1.5%'
+        paddingVertical: 10
+        // bottom: '6%',
+        // right: '1.5%'
     },
     industry: {
         color: '#717679',
         fontWeight: '700',
         fontSize: 15,
-        bottom: '10%',
-        right: '1.5%'
+        // bottom: '10%',
+        // right: '1.5%'
     },
     totalLikes: {
         alignSelf: 'flex-end',
-        bottom: '19%',
-        right: '-4%',
+        // bottom: '19%',
+        right: '1%',
         fontWeight: '700',
         fontSize: 14,
-        color: '#717679'
+        color: '#717679',
+        position: 'absolute',
+        top: 35
     },
     likeHeart: {
         width: 24,
         height: 21,
         alignSelf: 'flex-end',
         right: '21%',
-        bottom: '12%'
+        position: 'absolute',
+        top: 35
+        // bottom: '12%'
     },
     businessName: {
         fontWeight: '800',
         fontSize: 18,
         color: '#000000',
-        bottom: '12%',
+        // bottom: '12%',
     },
     logoBusiness: {
         height: 50,

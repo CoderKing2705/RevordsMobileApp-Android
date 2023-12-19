@@ -30,7 +30,7 @@ export default function MapViewing({ navigation }) {
     lat = 0;
     const [businessData, setBusinessData] = useState([{}]);
     const businessGroupID = "1";
-    const baseUrl = Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesByGroupID"
+    const baseUrl = Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesForMobile"
     const [loading, setLoading] = useState(false);
     const netinfo = useNetInfo();
 
@@ -64,7 +64,7 @@ export default function MapViewing({ navigation }) {
         checkApplicationPermission();
         axios({
             method: 'GET',
-            url: `${baseUrl}/${businessGroupID}`
+            url: `${baseUrl}`
         })
             .then(async response => {
                 await setBusinessDataWhole(response.data);
@@ -95,7 +95,7 @@ export default function MapViewing({ navigation }) {
         Geolocation.getCurrentPosition(
             async position => {
                 const { latitude, longitude } = position.coords;
-                console.log('position.coords',latitude)
+                console.log('position.coords', latitude)
                 await setLangandLat(position.coords.latitude, position.coords.longitude);
                 await setMarkers(position.coords.latitude, position.coords.longitude);
                 // You can now use the latitude and longitude in your app
@@ -112,7 +112,7 @@ export default function MapViewing({ navigation }) {
             try {
                 const enableResult = await promptForEnableLocationIfNeeded();
                 // if (enableResult) {
-                    // await getCurrentLocation();
+                // await getCurrentLocation();
                 // }
             } catch (error) {
                 if (error instanceof Error) {
@@ -177,16 +177,17 @@ export default function MapViewing({ navigation }) {
                 </TouchableOpacity>
             </View>
 
-            <View style={{ flexDirection: 'row', width: '100%', height: 75, marginTop: 20 }}>
+            <View style={{ flexDirection: 'row', width: '100%', height: 75, marginTop: 20, }}>
                 <View style={{ width: '82%', paddingHorizontal: '2%', height: '70%' }}>
                     <TextInput style={styles.searchInput} placeholder='Search..' />
                     <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                 </View>
-                <View style={styles.mainMapImage}>
-                    <TouchableHighlight activeOpacity={.9} onPress={() => navigation.navigate('Locations')}>
+                <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('Locations')}
+                    style={{ width: '16%', height: '70%', marginRight: '2%'}}>
+                    <View style={styles.mainMapImage}>
                         <Image style={styles.mapImage} source={require('../assets/listImg.png')} />
-                    </TouchableHighlight>
-                </View>
+                    </View>
+                </TouchableOpacity>
             </View>
 
             <View style={styles.mapViewMain}>
@@ -301,7 +302,7 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 22,
         fontWeight: '800',
-        marginTop: '5%',
+        // marginTop: '5%',
         textAlign: 'center',
         width: '80%'
     },
@@ -341,14 +342,15 @@ const styles = StyleSheet.create({
     mapImage: {
         width: 26,
         height: 24,
-        backgroundColor: '#3380a3',
+        // backgroundColor: '#3380a3',
     },
     mainMapImage: {
         backgroundColor: '#3380a3',
         borderRadius: 8,
         flexShrink: 0,
-        width: '15%',
-        height: '70%',
+        width: '100%',
+        padding: 25,
+        height: '100%',
         alignItems: 'center',
         justifyContent: 'center'
     },

@@ -20,7 +20,7 @@ const Location = ({ navigation }) => {
     const [loadingData, setLoadingData] = useState(true);
     const [userData, setUserData] = useState('');
     const userId = "1";
-    const baseUrl = Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesByGroupID"
+    const baseUrl = Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesForMobile"
     const getCurrentLocation = async () => {
         Geolocation.getCurrentPosition(
             async position => {
@@ -77,7 +77,7 @@ const Location = ({ navigation }) => {
 
         await axios({
             method: 'GET',
-            url: `${baseUrl}/${userId}`
+            url: `${baseUrl}`
         }).then(async response => {
             await Geolocation.getCurrentPosition(
                 async position => {
@@ -107,6 +107,8 @@ const Location = ({ navigation }) => {
                         let d = R * c
                         data1.distance = parseInt(d * 0.621371);
                     })
+
+                    response.data = response.data.sort((a, b) => { return a.distance - b.distance });
                     await setUserData(response.data);
                     setLoadingData(false)
                 },
@@ -177,11 +179,11 @@ const Location = ({ navigation }) => {
                                 )}
                             />} */}
                             <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
-                            <View style={styles.mainMapImage}>
-                                <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate("MapViewing")}>
+                            <TouchableOpacity style={{ width: '16%', marginRight: '2%', }} activeOpacity={.7} onPress={() => navigation.navigate("MapViewing")}>
+                                <View style={styles.mainMapImage}>
                                     <Image style={styles.mapImage} source={require('../assets/mapImg.png')} />
-                                </TouchableOpacity>
-                            </View>
+                                </View>
+                            </TouchableOpacity>
                         </View>
                         <View style={styles.store}>
                             <FlatList
@@ -266,7 +268,8 @@ const styles = StyleSheet.create({
         flexShrink: 0,
         marginTop: '2%',
         alignSelf: 'center',
-        marginBottom: '20%'
+        // marginBottom: '20%',
+        height: '90%'
     },
     mapImage: {
         width: 26,
@@ -282,8 +285,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#3380a3',
         borderRadius: 8,
         flexShrink: 0,
-        marginRight: '2%',
-        width: '16%',
+        // marginRight: '2%',
+        width: '100%',
         alignItems: 'center'
     },
     magnifyingGlass: {
@@ -307,7 +310,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         display: 'flex',
         flexShrink: 0,
-        height: 75
+        height: '10%'
     },
     notificationLbl: {
         width: 48,
@@ -362,7 +365,7 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 22,
         fontWeight: '800',
-        marginTop: '5%',
+        // marginTop: '5%',
         textAlign: 'center',
         width: '80%'
     },

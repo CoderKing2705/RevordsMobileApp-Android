@@ -338,19 +338,19 @@ export default function BusinessDetailsView({ route }) {
                                     <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={require('../assets/rectangle-34.png')} />
                                 </View>
                             </View>
-                            <View style={{ paddingHorizontal: '3%' }} >
+                            {businessDetails.businesswiseWorkingDays && <View style={{ paddingHorizontal: '3%' }} >
                                 <Text style={{ marginTop: '7%', fontWeight: '700', fontSize: 18 }}>Hours</Text>
                                 {businessDetails.businesswiseWorkingDays && businessDetails.businesswiseWorkingDays.map((day, index) => (
                                     <Text key={index} style={{ marginTop: '1%', fontWeight: '700', color: '#717679', paddingHorizontal: '2%', fontSize: 12 }}>
                                         {`${day.dayName}: ${day.fromTime} - ${day.toTime}`}
                                     </Text>
                                 ))}
-                            </View>
+                            </View>}
                             {businessDetails.adress && <View style={{ paddingHorizontal: '3%' }} >
                                 <Text style={styles.adressHeading}>Address:</Text>
                                 <Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>{businessDetails.adress}</Text>
                             </View>}
-                            <View style={{ paddingHorizontal: '3%', marginTop: '3%' }}>
+                            {businessDetails.adress && <View style={{ paddingHorizontal: '3%', marginTop: '3%' }}>
                                 <View style={styles.mapViewMain}>
                                     <MapView
                                         style={styles.mapView}
@@ -422,7 +422,7 @@ export default function BusinessDetailsView({ route }) {
                                         )}
                                     </MapView>
                                 </View>
-                            </View>
+                            </View>}
                             {businessDetails.phoneNo && <View style={{ paddingHorizontal: '3%' }} >
                                 <Text style={styles.adressHeading}>Phone:</Text>
                                 {businessDetails.phoneNo && <Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 18,
         fontWeight: '800',
-        marginTop: '15%',
+        marginTop: '13%',
         textAlign: 'center',
         width: '70%',
         height: '100%'

@@ -1,4 +1,4 @@
-import { StyleSheet, Image, Text, View } from 'react-native';
+import { StyleSheet, Image, Text, View, Dimensions } from 'react-native';
 
 const TourPage1 = () => {
 
@@ -16,51 +16,52 @@ const TourPage1 = () => {
     );
 };
 
+const { width, height } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
     container: {
-        height: '100%',
-        width: '100%',
+        flex: 1,
         backgroundColor: '#d9e7ed',
         alignItems: 'center',
-    },
-    companylogo: {
-        flexShrink: 0,
+        // paddingTop: height * 0.05, // Adjust based on your design
+        paddingHorizontal: width * 0.05, // Adjust based on your design
+      },
+      companylogo: {
         width: '55%',
+        aspectRatio: 1, // Maintain aspect ratio
         resizeMode: 'contain',
-        marginTop: '-10%',
-    },
-    img1: {
-        flexShrink: 0,
-        width: 225,
-        height: 225,
-        borderRadius: 500,
-        marginTop: '-15%',
-    },
-    txt1: {
+        // marginBottom: height * 0.02, // Adjust based on your design
+      },
+      img1: {
+        width: width * 0.4, // 80% of screen width
+        height: width * 0.4, // Maintain aspect ratio
+        borderRadius: width * 0.4, // Half of the width for circular shape
+        // marginBottom: height * 0.02, // Adjust based on your design
+      },
+      txt1: {
         fontSize: 24,
         fontWeight: '700',
-        marginTop: '10%',
-        color: '#140D05'
-    },
-    txt2: {
+        marginTop: height * 0.02, // Adjust based on your design
+        color: '#140D05',
+      },
+      txt2: {
         fontSize: 24,
         fontWeight: '900',
-        marginTop: '3%',
-        color: '#140D05'
-    },
-    txt3: {
+        marginTop: height * 0.01, // Adjust based on your design
+        color: '#140D05',
+      },
+      txt3: {
         fontSize: 24,
         fontWeight: '900',
-        color: '#140D05'
-    },
-    txt4: {
+        color: '#140D05',
+      },
+      txt4: {
         fontSize: 15,
         fontWeight: '500',
-        marginTop: '3%',
+        marginTop: height * 0.01, // Adjust based on your design
         color: '#8C9194',
         textAlign: 'center',
-        paddingHorizontal: 40
-    }
+      },
 });
 
 export default TourPage1;

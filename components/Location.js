@@ -129,28 +129,6 @@ const Location = ({ navigation }) => {
         handleCheckPressed();
     }, [focus]);
 
-    // const [query, setQuery] = useState('');
-    // const [menuVisible, setMenuVisible] = useState(false);
-    // const [suggestions, setSuggestions] = useState([
-    //     'Apple', 'Banana', 'Cherry', 'Date', 'Grapes', 'Lemon', 'Orange', 'Peach', 'Pear', 'Plum'
-    // ]);
-
-    // const handleInputChange = (text) => {
-    //     // Update the query and filter the suggestions based on the input
-    //     setQuery(text);
-    //     const filteredSuggestions = suggestions.filter(item =>
-    //         item.toLowerCase().includes(text.toLowerCase())
-    //     );
-    //     setSuggestions(filteredSuggestions);
-    // };
-
-    // const handleItemPress = (item) => {
-    //     // Set the selected suggestion as the input value
-    //     setQuery(item);
-    //     // Clear the suggestions
-    //     setSuggestions([]);
-    // };
-
     return (
         <>
             <View style={styles.container}>
@@ -164,20 +142,7 @@ const Location = ({ navigation }) => {
 
                     <View style={{ width: '97%', height: '90%', marginTop: 10 }}>
                         <View style={styles.searchBoxMain}>
-                            <TextInput style={styles.searchInput} placeholder='Search..'
-                            // value={query}
-                            //     onChangeText={handleInputChange} onFocus={() => setMenuVisible(true)} 
-                            />
-                            {/* {menuVisible && <FlatList
-                                style={styles.autocompleteList}
-                                data={suggestions}
-                                keyExtractor={(item) => item}
-                                renderItem={({ item }) => (
-                                    <TouchableOpacity onPress={() => handleItemPress(item)}>
-                                        <Text style={styles.suggestionItem}>{item}</Text>
-                                    </TouchableOpacity>
-                                )}
-                            />} */}
+                            <TextInput style={styles.searchInput} placeholder='Search..' />
                             <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                             <TouchableOpacity style={{ width: '16%', marginRight: '2%', }} activeOpacity={.7} onPress={() => navigation.navigate("MapViewing")}>
                                 <View style={styles.mainMapImage}>

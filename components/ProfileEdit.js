@@ -234,21 +234,6 @@ const ProfileEdit = ({ navigation, route }) => {
                     } else if (option === 'camera') {
                         launchCamera(options, launchCallback);
                     }
-                    // launchImageLibrary(options, (response) => {
-                    //     if (response.didCancel) {
-                    //         console.log('User cancelled image picker');
-                    //     } else if (response.error) {
-                    //         console.log('Image picker error: ', response.error);
-                    //     } else {
-                    //         let imageUri = response.uri || response.assets?.[0]?.uri;
-                    //         setMemberProfilePic(null);
-                    //         setSelectedImage(imageUri);
-                    //         setImageRes(response);
-                    //         console.log(imageUri)
-                    //         console.log('response', response)
-                    //         console.log(MemberData[0].memberId)
-                    //     }
-                    // });
                 } else {
                     console.log('Camera permission is not granted');
                     requestCameraPermission();
@@ -340,6 +325,7 @@ const ProfileEdit = ({ navigation, route }) => {
                                     <View style={{ borderRadius: 23, padding: 5, width: '100%' }}>
                                         <Text style={{ fontSize: 18, fontWeight: '700', paddingLeft: 5 }}>Email</Text>
                                         <TextInput
+                                            inputMode='email'
                                             style={{
                                                 height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingLeft: 10,
                                                 marginTop: 5, fontSize: 16, borderRadius: 10, backgroundColor: '#e6edf1', fontWeight: '600'

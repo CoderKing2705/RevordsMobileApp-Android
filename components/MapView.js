@@ -111,9 +111,6 @@ export default function MapViewing({ navigation }) {
         if (Platform.OS === 'android') {
             try {
                 const enableResult = await promptForEnableLocationIfNeeded();
-                // if (enableResult) {
-                // await getCurrentLocation();
-                // }
             } catch (error) {
                 if (error instanceof Error) {
                     console.error(error.message);

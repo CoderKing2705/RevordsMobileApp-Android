@@ -192,14 +192,6 @@ export default function BusinessDetailsView({ route }) {
 
     useEffect(() => {
         LoadData();
-
-        // axios({
-        //     method: 'GET',
-        //     url: `${wdays}/${id}`
-        // }).then(async (response) => {
-        //     await setworkingDaysAwait(response.data);
-        //     setLoading(false);
-        // });
     }, [isFocused])
     return (
         <View style={styles.container}>
@@ -261,8 +253,6 @@ export default function BusinessDetailsView({ route }) {
                                     ))}
                                 </View>
                             }
-                            {/* {businessDetails.autopilotData.length > 0 &&
-                                <View style={{ paddingHorizontal: '3%' }}> */}
                             {businessDetails.autopilotData && businessDetails.autopilotData.map((auto, index) => (
                                 <View style={{ paddingHorizontal: '3%' }} key={index}>
                                     <Fragment>

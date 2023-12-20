@@ -76,10 +76,8 @@ const NotificationTray = ({ navigation }) => {
                 25,
                 50,
             );
-            // setWishList([]);
-            // await getRefreshData();
             setIsPromoModalVisible(false);
-            // setLoading(false)
+            
         }).catch(error => {
             console.error('Error retrieving dataa:', error);
             setLoading(false);
@@ -89,7 +87,7 @@ const NotificationTray = ({ navigation }) => {
     const closePromoRedeemModal = async (type, ID) => {
         setLoading(true)
         await claimData(type, ID);
-        // setIsPromoModalVisible(false);
+        
         await getData();
         setLoading(false);
     }
@@ -106,16 +104,11 @@ const NotificationTray = ({ navigation }) => {
                 25,
                 50,
             );
-            // setWishList([]);
-            // await getRefreshData();
-
             setIsAutoPilotModalVisible(false);
-            // setLoading(false)
         }).catch(error => {
             console.error('Error retrieving dataa:', error);
             setLoading(false);
         });
-        // setLoading(false)
     }
 
     const ToastForClaimed = () => {

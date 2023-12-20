@@ -41,7 +41,7 @@ const Profile = ({ route, navigation }) => {
                             console.log('Token removed successfully');
                             navigation.navigate('LandingScreen')
                         });
-                        
+                        // navigation.navigate('LandingScreen')
                     } catch (error) {
                         console.error('Error removing token:', error);
                     }

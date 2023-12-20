@@ -119,6 +119,7 @@ const GetOtp = ({ route, navigation }) => {
                         style={styles.otpInput}
                         keyboardType="numeric"
                         maxLength={1}
+                        textContentType='oneTimeCode'
                         onChangeText={(text) => handleInputChange(text, index)}
                         onKeyPress={(e) => handleKeyPress(e, index)}
                         value={otp[index]}

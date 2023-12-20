@@ -16,6 +16,7 @@ import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { useNetInfo } from '@react-native-community/netinfo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function MapViewing({ navigation }) {
@@ -62,18 +63,32 @@ export default function MapViewing({ navigation }) {
         setLoading(true);
         requestLocationPermission();
         checkApplicationPermission();
-        axios({
-            method: 'GET',
-            url: `${baseUrl}`
-        })
-            .then(async response => {
-                await setBusinessDataWhole(response.data);
-                setLoading(false);
+
+        AsyncStorage.getItem('token')
+            .then(async (value) => {
+                if (value !== null) {
+                    // memberID = (JSON.parse(value))[0].memberId;
+                    axios({
+                        method: 'GET',
+                        url: `${baseUrl}/${(JSON.parse(value))[0].memberId}`
+                    })
+                        .then(async response => {
+                            console.log('businesdata-----', response.data)
+                            await setBusinessDataWhole(response.data);
+                            setLoading(false);
+                        })
+                        .catch((error) => {
+                            console.error("Error fetching data", error);
+                            setLoading(false);
+                        });
+                }
             })
-            .catch((error) => {
-                console.error("Error fetching data", error);
-                setLoading(false);
+            .catch(error => {
+                console.error('Error retrieving dataa:', error);
             });
+
+        setLoading(false);
+
     }, [isFocused]);
 
     async function setLangandLat(latitude, longitude) {
@@ -111,6 +126,9 @@ export default function MapViewing({ navigation }) {
         if (Platform.OS === 'android') {
             try {
                 const enableResult = await promptForEnableLocationIfNeeded();
+                // if (enableResult) {
+                // await getCurrentLocation();
+                // }
             } catch (error) {
                 if (error instanceof Error) {
                     console.error(error.message);
@@ -180,7 +198,7 @@ export default function MapViewing({ navigation }) {
                     <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                 </View>
                 <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('Locations')}
-                    style={{ width: '16%', height: '70%', marginRight: '2%'}}>
+                    style={{ width: '16%', height: '70%', marginRight: '2%' }}>
                     <View style={styles.mainMapImage}>
                         <Image style={styles.mapImage} source={require('../assets/listImg.png')} />
                     </View>
@@ -257,8 +275,8 @@ export default function MapViewing({ navigation }) {
                             key={index}
                             coordinate={{ latitude: parseFloat(business.latitude), longitude: parseFloat(business.longitude) }}>
                             <Image
-                                source={(customIcon)}
-                                style={{ width: 32, height: 32 }}
+                                source={{ uri: Globals.Root_URL + business.mapIconPath }}
+                                style={{ width: 32, height: 32, }}
                                 resizeMode="contain"
                             />
                             <Callout onPress={() => navigation.navigate('BusinessDetailView', { id: business.id })}

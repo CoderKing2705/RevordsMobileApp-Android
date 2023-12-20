@@ -202,7 +202,7 @@ const Favourite = ({ navigation }) => {
         <View style={styles.container} >
             <View style={[styles.suncontainer, isPromoModalVisible ? { backgroundColor: 'rgba(0,0,0,0.5)', opacity: 0.4 } : '', isAutoPilotModalVisible ? { backgroundColor: 'rgba(0,0,0,0.5)', opacity: 0.4 } : '']}>
                 <View style={{ flexDirection: 'row', width: '97%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={styles.welcomeText}>Favourite</Text>
+                    <Text style={styles.welcomeText}>Favorite</Text>
                     <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('NotificationTray')}>
                         <Image source={require('../assets/notification-skD.png')} style={styles.setimg1} />
                     </TouchableOpacity>

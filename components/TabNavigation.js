@@ -52,7 +52,7 @@ export default function TabNavigation({ route, navigation }) {
                         <Ionicons name="compass-outline" color={color} size={size} />
                     ),
                 }} />
-                <Tab.Screen name="Favourite" component={Favourite} initialParams={MemberData[0].memberId} options={{
+                <Tab.Screen name="Favorite" component={Favourite} initialParams={MemberData[0].memberId} options={{
                     headerShown: false, tabBarIcon: ({ color, size }) => (
                         <Ionicons name="heart" color={color} size={size} />
                     ),

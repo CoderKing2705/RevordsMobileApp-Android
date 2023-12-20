@@ -47,7 +47,7 @@ const VerifyNumber = ({ navigation }) => {
           console.log('otp response-----',JSON.stringify(res))
           navigation.navigate('GetOtp', { OTP: randomOtp, CustomerExists: CustomerExists, Phone: unMaskPhone })
           setLoading(false);
-          
+          // return json;
         });
       } catch (error) {
         console.log(error);
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     width: '70%',
     resizeMode: 'contain',
-    
+    // marginTop: '-10%'
   },
   deviceView: {
     backgroundColor: '#fff',
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: '5%',
     borderRadius: 500,
-    
+    // marginTop: '-10%',
     justifyContent: 'center'
   },
   mobilelogo: {

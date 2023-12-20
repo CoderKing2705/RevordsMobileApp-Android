@@ -24,20 +24,20 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#d9e7ed',
         alignItems: 'center',
-        
+        // paddingTop: height * 0.05, // Adjust based on your design
         paddingHorizontal: width * 0.05, // Adjust based on your design
     },
     companylogo: {
         width: '55%',
         aspectRatio: 1, // Maintain aspect ratio
         resizeMode: 'contain',
-        
+        // marginBottom: height * 0.02, // Adjust based on your design
     },
     img1: {
         width: width * 0.4, // 80% of screen width
         height: width * 0.4, // Maintain aspect ratio
         borderRadius: width * 0.4, // Half of the width for circular shape
-        
+        // marginBottom: height * 0.02, // Adjust based on your design
     },
     txt1: {
         fontSize: 24,

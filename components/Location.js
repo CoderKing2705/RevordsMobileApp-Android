@@ -11,6 +11,7 @@ import Geolocation from '@react-native-community/geolocation';
 import { useIsFocused } from '@react-navigation/native';
 import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Location = ({ navigation }) => {
     const focus = useIsFocused();
@@ -75,59 +76,92 @@ const Location = ({ navigation }) => {
     const getData = async () => {
         setLoadingData(true);
 
-        await axios({
-            method: 'GET',
-            url: `${baseUrl}`
-        }).then(async response => {
-            await Geolocation.getCurrentPosition(
-                async position => {
-                    const { latitude, longitude } = position.coords;
+        AsyncStorage.getItem('token')
+            .then(async (value) => {
+                if (value !== null) {
+                    // memberID = (JSON.parse(value))[0].memberId;
+                    await axios({
+                        method: 'GET',
+                        url: `${baseUrl}/${(JSON.parse(value))[0].memberId}`
+                    }).then(async response => {
+                        await Geolocation.getCurrentPosition(
+                            async position => {
+                                const { latitude, longitude } = position.coords;
+            
+                                await setLangandLat(latitude, longitude);
+                                // You can now use the latitude and longitude in your app
+            
+                                await response.data.map((data1, index) => {
+            
+            
+                                    const toRadian = n => (n * Math.PI) / 180
+                                    let lat2 = data1.latitude
+                                    let lon2 = data1.longitude
+                                    let lat1 = lat
+                                    let lon1 = lang
+            
+                                    let R = 6371  // km
+                                    let x1 = lat2 - lat1
+                                    let dLat = toRadian(x1)
+                                    let x2 = lon2 - lon1
+                                    let dLon = toRadian(x2)
+                                    let a =
+                                        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                                        Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+                                    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+                                    let d = R * c
+                                    data1.distance = parseInt(d * 0.621371);
+                                })
+            
+                                response.data = response.data.sort((a, b) => { return a.distance - b.distance });
+                                await setUserData(response.data);
+                                setLoadingData(false)
+                            },
+                            error => {
+                                console.error('Error getting current location: ', error);
+                                setLoadingData(false)
+                            },
+                            { enableHighAccuracy: false, timeout: 5000 }
+                        );
+            
+            
+                    }).catch((error) => {
+                        console.error("Error fetching data", error)
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error retrieving dataa:', error);
+            });
 
-                    await setLangandLat(latitude, longitude);
-                    // You can now use the latitude and longitude in your app
-
-                    await response.data.map((data1, index) => {
-
-
-                        const toRadian = n => (n * Math.PI) / 180
-                        let lat2 = data1.latitude
-                        let lon2 = data1.longitude
-                        let lat1 = lat
-                        let lon1 = lang
-
-                        let R = 6371  // km
-                        let x1 = lat2 - lat1
-                        let dLat = toRadian(x1)
-                        let x2 = lon2 - lon1
-                        let dLon = toRadian(x2)
-                        let a =
-                            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                            Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
-                        let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-                        let d = R * c
-                        data1.distance = parseInt(d * 0.621371);
-                    })
-
-                    response.data = response.data.sort((a, b) => { return a.distance - b.distance });
-                    await setUserData(response.data);
-                    setLoadingData(false)
-                },
-                error => {
-                    console.error('Error getting current location: ', error);
-                    setLoadingData(false)
-                },
-                { enableHighAccuracy: false, timeout: 5000 }
-            );
-
-
-        }).catch((error) => {
-            console.error("Error fetching data", error)
-        });
+        
     }
 
     useEffect(() => {
         handleCheckPressed();
     }, [focus]);
+
+    // const [query, setQuery] = useState('');
+    // const [menuVisible, setMenuVisible] = useState(false);
+    // const [suggestions, setSuggestions] = useState([
+    //     'Apple', 'Banana', 'Cherry', 'Date', 'Grapes', 'Lemon', 'Orange', 'Peach', 'Pear', 'Plum'
+    // ]);
+
+    // const handleInputChange = (text) => {
+    //     // Update the query and filter the suggestions based on the input
+    //     setQuery(text);
+    //     const filteredSuggestions = suggestions.filter(item =>
+    //         item.toLowerCase().includes(text.toLowerCase())
+    //     );
+    //     setSuggestions(filteredSuggestions);
+    // };
+
+    // const handleItemPress = (item) => {
+    //     // Set the selected suggestion as the input value
+    //     setQuery(item);
+    //     // Clear the suggestions
+    //     setSuggestions([]);
+    // };
 
     return (
         <>
@@ -142,7 +176,20 @@ const Location = ({ navigation }) => {
 
                     <View style={{ width: '97%', height: '90%', marginTop: 10 }}>
                         <View style={styles.searchBoxMain}>
-                            <TextInput style={styles.searchInput} placeholder='Search..' />
+                            <TextInput style={styles.searchInput} placeholder='Search..'
+                            // value={query}
+                            //     onChangeText={handleInputChange} onFocus={() => setMenuVisible(true)} 
+                            />
+                            {/* {menuVisible && <FlatList
+                                style={styles.autocompleteList}
+                                data={suggestions}
+                                keyExtractor={(item) => item}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity onPress={() => handleItemPress(item)}>
+                                        <Text style={styles.suggestionItem}>{item}</Text>
+                                    </TouchableOpacity>
+                                )}
+                            />} */}
                             <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                             <TouchableOpacity style={{ width: '16%', marginRight: '2%', }} activeOpacity={.7} onPress={() => navigation.navigate("MapViewing")}>
                                 <View style={styles.mainMapImage}>

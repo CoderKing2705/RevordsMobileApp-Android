@@ -21,7 +21,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function MapViewing({ navigation }) {
     const isFocused = useIsFocused();
-
+    const [filteredData, setFilteredData] = useState('');
     const [initialRegion, setInitialRegion] = useState(null);
     const [markerForOther, setMarkersForOtherBusiness] = useState({ title: '', coordinate: { latitude: 0.00000, longitude: 0.00000 } });
     const [locationPermission, setLocationPermission] = useState(null);
@@ -97,6 +97,7 @@ export default function MapViewing({ navigation }) {
     }
     async function setBusinessDataWhole(data) {
         setBusinessData(data);
+        setFilteredData(data);
     }
     async function setMarkers(centerLat, centerLong) {
         setInitialRegion({
@@ -182,6 +183,16 @@ export default function MapViewing({ navigation }) {
             console.error('Error checking/requesting location permission: ', error);
         }
     };
+
+    const handleInputChange = (text) => {
+        if (text === '') {
+            setFilteredData(businessData);
+        } else {
+            let data = businessData.filter(item => item.metaData.toLowerCase().includes(text.toLowerCase()));
+            setFilteredData(data);
+        }
+    }
+
     return (
         <View style={styles.container}>
 
@@ -194,7 +205,7 @@ export default function MapViewing({ navigation }) {
 
             <View style={{ flexDirection: 'row', width: '100%', height: 75, marginTop: 20, }}>
                 <View style={{ width: '82%', paddingHorizontal: '2%', height: '70%' }}>
-                    <TextInput style={styles.searchInput} placeholder='Search..' />
+                    <TextInput style={styles.searchInput} placeholder='Search..'  onChangeText={text => handleInputChange(text)} />
                     <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                 </View>
                 <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('Locations')}
@@ -270,7 +281,7 @@ export default function MapViewing({ navigation }) {
                             />
                         </Marker>
                     )}
-                    {businessData && businessData.map((business, index) => (
+                    {filteredData && filteredData.map((business, index) => (
                         business.latitude && <Marker
                             key={index}
                             coordinate={{ latitude: parseFloat(business.latitude), longitude: parseFloat(business.longitude) }}>

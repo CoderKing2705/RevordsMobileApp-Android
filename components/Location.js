@@ -15,7 +15,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Location = ({ navigation }) => {
     const focus = useIsFocused();
-
+    const [search, setSearch] = useState('');
+    const [filteredData, setFilteredData] = useState('');
     lang = 0;
     lat = 0;
     const [loadingData, setLoadingData] = useState(true);
@@ -87,19 +88,19 @@ const Location = ({ navigation }) => {
                         await Geolocation.getCurrentPosition(
                             async position => {
                                 const { latitude, longitude } = position.coords;
-            
+
                                 await setLangandLat(latitude, longitude);
                                 // You can now use the latitude and longitude in your app
-            
+
                                 await response.data.map((data1, index) => {
-            
-            
+
+
                                     const toRadian = n => (n * Math.PI) / 180
                                     let lat2 = data1.latitude
                                     let lon2 = data1.longitude
                                     let lat1 = lat
                                     let lon1 = lang
-            
+
                                     let R = 6371  // km
                                     let x1 = lat2 - lat1
                                     let dLat = toRadian(x1)
@@ -112,9 +113,10 @@ const Location = ({ navigation }) => {
                                     let d = R * c
                                     data1.distance = parseInt(d * 0.621371);
                                 })
-            
+
                                 response.data = response.data.sort((a, b) => { return a.distance - b.distance });
                                 await setUserData(response.data);
+                                await setFilteredData(response.data);
                                 setLoadingData(false)
                             },
                             error => {
@@ -123,8 +125,8 @@ const Location = ({ navigation }) => {
                             },
                             { enableHighAccuracy: false, timeout: 5000 }
                         );
-            
-            
+
+
                     }).catch((error) => {
                         console.error("Error fetching data", error)
                     });
@@ -134,7 +136,7 @@ const Location = ({ navigation }) => {
                 console.error('Error retrieving dataa:', error);
             });
 
-        
+
     }
 
     useEffect(() => {
@@ -163,6 +165,15 @@ const Location = ({ navigation }) => {
     //     setSuggestions([]);
     // };
 
+    const handleInputChange = (text) => {
+        if (text === '') {
+            setFilteredData(userData);
+        } else {
+            let data = userData.filter(item => item.metaData.toLowerCase().includes(text.toLowerCase()));
+            setFilteredData(data);
+        }
+    }
+
     return (
         <>
             <View style={styles.container}>
@@ -176,7 +187,7 @@ const Location = ({ navigation }) => {
 
                     <View style={{ width: '97%', height: '90%', marginTop: 10 }}>
                         <View style={styles.searchBoxMain}>
-                            <TextInput style={styles.searchInput} placeholder='Search..'
+                            <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)}
                             // value={query}
                             //     onChangeText={handleInputChange} onFocus={() => setMenuVisible(true)} 
                             />
@@ -200,7 +211,7 @@ const Location = ({ navigation }) => {
                         <View style={styles.store}>
                             <FlatList
                                 showsVerticalScrollIndicator={false}
-                                data={userData}
+                                data={filteredData}
                                 keyExtractor={(item, index) => index.toString()}
                                 renderItem={({ item }) => {
                                     return (
@@ -310,6 +321,7 @@ const styles = StyleSheet.create({
     },
     searchInput: {
         width: '50%',
+        height: 50,
         padding: 13.97,
         backgroundColor: '#ffffff',
         borderRadius: 8,
@@ -322,7 +334,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         display: 'flex',
         flexShrink: 0,
-        height: '10%'
+        height: 50,
+        marginTop: 10
     },
     notificationLbl: {
         width: 48,

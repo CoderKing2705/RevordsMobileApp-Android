@@ -44,10 +44,21 @@ const VerifyNumber = ({ navigation }) => {
             'Content-Type': 'application/json',
           },
         }).then((res) => {
-          console.log('otp response-----',JSON.stringify(res))
-          navigation.navigate('GetOtp', { OTP: randomOtp, CustomerExists: CustomerExists, Phone: unMaskPhone })
-          setLoading(false);
-          // return json;
+          console.log('otp response-----', JSON.stringify(res))
+          if (res.ok) {
+            navigation.navigate('GetOtp', { OTP: randomOtp, CustomerExists: CustomerExists, Phone: unMaskPhone })
+            setLoading(false);
+            return json;
+          } else {
+            ToastAndroid.showWithGravityAndOffset(
+              'You can only signin with U.S.A. Number!',
+              ToastAndroid.LONG,
+              ToastAndroid.BOTTOM,
+              25,
+              50,
+            );
+            setLoading(false);
+          }
         });
       } catch (error) {
         console.log(error);

@@ -414,7 +414,7 @@ export default function BusinessDetailsView({ route }) {
                                                 title={businessDetails.businessName}
                                             >
                                                 <Image
-                                                    source={(currentIcon)}
+                                                     source={{ uri: Globals.Root_URL + businessDetails.mapIconPath }}
                                                     style={{ width: 32, height: 32 }}
                                                     resizeMode="contain"
                                                 />

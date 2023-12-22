@@ -11,7 +11,7 @@ const GetOtp = ({ route, navigation }) => {
     let { OTP, CustomerExists, Phone } = route.params;
     console.log(OTP);
     console.log(Phone);
-    const [seconds, setSeconds] = useState(10);
+    const [seconds, setSeconds] = useState(60);
     const [isResentDisabled, setResentDisabled] = useState(false);
     const [token, setToken] = useState(null);
 
@@ -75,7 +75,7 @@ const GetOtp = ({ route, navigation }) => {
     const verifyOtp = async () => {
         try {
             if (otp.join('').length !== 0) {
-                if (otp.join('') == '1234') {
+                if (otp.join('') == OTP) {
                     setIsVerified(true);
                     navigation.navigate('AppTour', { MemberData: CustomerExists, Phone: Phone });
                 } else {

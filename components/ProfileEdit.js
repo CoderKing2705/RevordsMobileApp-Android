@@ -1,17 +1,14 @@
-import { StyleSheet, Image, Text, View, ScrollView, ToastAndroid, PermissionsAndroid, Alert, PanResponder, Modal, TouchableWithoutFeedback, Pressable } from 'react-native';
+import { StyleSheet, Image, Text, View, ScrollView, ToastAndroid, PermissionsAndroid, Modal, TouchableWithoutFeedback, Pressable } from 'react-native';
 // import { TextInput } from 'react-native-gesture-handler';
-import MaskInput from 'react-native-mask-input';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SafeAreaView } from "react-native";
-import { StatusBar } from "react-native";
 import Globals from '../components/Globals';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Spinner from 'react-native-loading-spinner-overlay';
 // import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import RNFS from 'react-native-fs';
 import { useIsFocused } from '@react-navigation/native';
 
 const ProfileEdit = ({ navigation, route }) => {

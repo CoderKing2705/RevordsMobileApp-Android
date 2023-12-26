@@ -9,22 +9,23 @@ import TabNavigation from "./components/TabNavigation";
 import ProfileEdit from "./components/ProfileEdit";
 import { useEffect } from "react";
 import LandingScreen from "./components/LandingScreen";
-
 import messaging from '@react-native-firebase/messaging';
 import BusinessDetailsView from "./components/BusinessDetailsView";
 import Location from "./components/Location";
 import NotificationTray from "./components/NotificationTray";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function App() {
   const Stack = createStackNavigator();
-  useEffect(() => {    
+  useEffect(() => {
     getDeviceToken();
   }, []);
- 
+
   const getDeviceToken = async () => {
     let token = await messaging().getToken();
     console.log(token)
   };
+
   return (
     <NavigationContainer>
       <Stack.Navigator>

@@ -20,11 +20,11 @@ const NotificationTray = ({ navigation }) => {
     memberID = 0;
     // const [loadingData, setLoadingData] = useState(true);
     const [userData, setUserData] = useState('');
-    const baseUrl = Globals.API_URL + "/MembersWishLists/GetNotificationFormMobileApp"
+    const baseUrl = Globals.API_URL + "/MembersWishLists/GetMobileNotificationTray"
     const [MemberData, setMemberData] = useState([{}]);
     const [isPromoModalVisible, setIsPromoModalVisible] = useState(false);
     const [isAutoPilotModalVisible, setIsAutoPilotModalVisible] = useState(false);
-    const [promotionClaimData, setPromotionClaimData] = useState([]);
+    const [notificationData, setNotificationData] = useState([]);
     const [autoPilotClaimData, setAutoPilotClaimData] = useState([]);
     const [loading, setLoading] = useState(false);
     const videoPlayer = useRef(null);
@@ -35,7 +35,7 @@ const NotificationTray = ({ navigation }) => {
 
     const setIsPromoModalVisibleData = async (promotion) => {
         setIsPromoModalVisible(true);
-        setPromotionClaimData(promotion);
+        setNotificationData(promotion);
     }
     const setIsAPModalVisibleData = async (autopilot, businessdata) => {
         setIsAutoPilotModalVisible(true);
@@ -203,7 +203,7 @@ const NotificationTray = ({ navigation }) => {
                                                         <Image source={require('../assets/giftImg1.png')} style={[styles.giftIcon]} />
                                                     </View>
                                                     <View style={{ width: '80%', height: '100%' }}>
-                                                        <Title style={{ fontSize: 16, fontWeight: '800', color: '#3380a3' }}>{item.promotionalMessage}</Title>
+                                                        <Title style={{ fontSize: 16, fontWeight: '800', color: '#3380a3' }}>{item.message}</Title>
                                                         <View style={{ flexDirection: 'row' }}>
                                                             {item.sentAgo > 1 && <Text style={{ color: '#717679', fontSize: 12, fontWeight: '400' }}>{item.sentAgo} Days ago</Text>}
                                                             {item.sentAgo == 1 && <Text style={{ color: '#717679', fontSize: 12, fontWeight: '400' }}>{item.sentAgo} Day ago</Text>}
@@ -233,37 +233,62 @@ const NotificationTray = ({ navigation }) => {
                     <View style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                         <View style={styles.modal}>
                             <View style={{ flexDirection: 'row', width: '100%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
-                                <Image source={{ uri: `${Globals.Root_URL}${promotionClaimData.sentFromGroupImage}` }} style={styles.logoBusinessInModal} />
+                                <Image source={{ uri: `${Globals.Root_URL}${notificationData.businessGroupImage}` }} style={styles.logoBusinessInModal} />
 
                                 <TouchableOpacity activeOpacity={.7} onPress={closePromoModal} style={styles.cancelImgContainer}>
                                     <Image source={require('../assets/cancelImg.png')} style={styles.cancelImg} />
                                 </TouchableOpacity>
                             </View>
 
-                            <Text style={styles.modalPromoMsg}>DEAL : {promotionClaimData.promotionalMessage}</Text>
-                            <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer Start Date </Text>- {moment(promotionClaimData.offerStartDate).format("MM/DD/YYYY")}</Text>
-                            <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer End Date </Text>- {moment(promotionClaimData.offerEndDate).format("MM/DD/YYYY")}</Text>
-                            {(promotionClaimData.expiryDays > 1) && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in - </Text>{promotionClaimData.expiryDays} days</Text>}
-                            {(promotionClaimData.expiryDays == 1) && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today</Text></Text>}
-                            {(promotionClaimData.expiryDays <= 0) && <Text style={styles.modaltext}><Text style={{ fontWeight: '600', color: '#b0afaf' }}>Expired</Text></Text>}
+                            {/* for business group name */}
+                            <Text style={styles.modalbusinessName}>{notificationData.sentFrom}</Text>
 
-                            {(promotionClaimData.filePath != '' && promotionClaimData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + promotionClaimData.filePath }} ></Image>}
-                            <Text style={styles.modaltext}>Redeemable at -<Text style={{ fontWeight: '700' }}> {promotionClaimData.redeemableAt}</Text></Text>
-                            {(promotionClaimData.isClaimed == false && promotionClaimData.expiryDays >= 1 && promotionClaimData.isRedeemed == false)
-                                && <TouchableOpacity activeOpacity={.9} onPress={() => closePromoRedeemModal('promo', promotionClaimData.id)} style={styles.frame2vJu1ModalClaim}>
+                            {/* for message */}
+                            {(notificationData.type != 3) && <Text style={styles.modalPromoMsg}>DEAL : {notificationData.message}</Text>}
+                            {(notificationData.type == 3) && <Text style={styles.modalPromoMsg}>{notificationData.message}</Text>}
+
+                            {/* for offer start and end date */}
+                            {(notificationData.type != 3) && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer Start Date </Text>- {moment(notificationData.offerStartDate).format("MM/DD/YYYY")}</Text>}
+                            {(notificationData.type != 3) && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer End Date </Text>- {moment(notificationData.offerEndDate).format("MM/DD/YYYY")}</Text>}
+
+                            {/* for expiry days */}
+                            {(notificationData.expiryDays > 1 && notificationData.type != 3) && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in - </Text>{notificationData.expiryDays} days</Text>}
+                            {(notificationData.expiryDays == 1 && notificationData.type != 3) && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today</Text></Text>}
+                            {(notificationData.expiryDays <= 0 && notificationData.type != 3) && <Text style={styles.modaltext}><Text style={{ fontWeight: '600', color: '#b0afaf' }}>Expired</Text></Text>}
+                            {(notificationData.offerEndDate && notificationData.type == 3) && <Text style={[styles.modaltext, { textAlign: 'center' }]}><Text style={{ fontWeight: '700' }}>Expire Date:</Text>{moment(notificationData.offerEndDate).format("MM/DD/YYYY")}</Text>}
+
+                            {/* for image */}
+                            {(notificationData.filePath != '' && notificationData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + notificationData.filePath }} ></Image>}
+
+                            {/* for redeem location */}
+                            {(notificationData.type != 3) && <Text style={styles.modaltext}>Redeemable at -<Text style={{ fontWeight: '700' }}> {notificationData.redeemableAt}</Text></Text>}
+
+                            {notificationData.isSpinWheel && <Text style={styles.modaltext}>Spin the wheel and get rewards at store</Text>}
+
+                            {/* for claim button */}
+                            {(notificationData.isClaimed == false && notificationData.expiryDays >= 1 && notificationData.isRedeemed == false
+                                && notificationData.type != 3 && notificationData.type == 1)
+                                && <TouchableOpacity activeOpacity={.9} onPress={() => closePromoRedeemModal('promo', notificationData.id)} style={styles.frame2vJu1ModalClaim}>
                                     <Text style={styles.getStartednru1}>Claim</Text>
                                 </TouchableOpacity>}
-                            {(promotionClaimData.isClaimed == true && promotionClaimData.isRedeemed == false) &&
+                            {(notificationData.isClaimed == false && notificationData.expiryDays >= 1 && notificationData.isRedeemed == false
+                                && notificationData.type != 3 && notificationData.type == 2)
+                                && <TouchableOpacity activeOpacity={.9} onPress={() => closePromoRedeemModal('ap', notificationData.id)} style={styles.frame2vJu1ModalClaim}>
+                                    <Text style={styles.getStartednru1}>Claim</Text>
+                                </TouchableOpacity>}
+
+                            {(notificationData.isClaimed == true && notificationData.isRedeemed == false && notificationData.type != 3) &&
                                 <TouchableOpacity activeOpacity={.9} style={styles.frame2vJu1ModalBack} onPress={ToastForClaimed}>
                                     <Text style={styles.getStartednru1}>Claimed</Text>
                                 </TouchableOpacity>
                             }
-                            {(promotionClaimData.isClaimed == false && promotionClaimData.expiryDays <= 0 && promotionClaimData.isRedeemed == false)
+                            {(notificationData.isClaimed == false && notificationData.expiryDays <= 0 && notificationData.isRedeemed == false
+                                && notificationData.type != 3)
                                 && <TouchableOpacity activeOpacity={.9} style={styles.frame2vJu1ModalBack} onPress={ToastForExpired}>
                                     <Text style={styles.getStartednru1}>Expired</Text>
                                 </TouchableOpacity>
                             }
-                            {(promotionClaimData.isRedeemed == true) &&
+                            {(notificationData.isRedeemed == true && notificationData.type != 3) &&
                                 <TouchableOpacity activeOpacity={.9} style={styles.frame2vJu1ModalBack} onPress={ToastForRedeemed}>
                                     <Text style={styles.getStartednru1}>Redeemed</Text>
                                 </TouchableOpacity>
@@ -330,12 +355,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: '#325b6f',
         textAlign: 'center',
-        marginTop: 7,
+        marginTop: 15,
         borderBottomColor: 'black',
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderTopColor: 'black',
         borderTopWidth: StyleSheet.hairlineWidth,
-        paddingVertical: 5
+        paddingVertical: 5        
     },
     modalPromoMsg: {
         fontWeight: '600',
@@ -361,10 +386,11 @@ const styles = StyleSheet.create({
     },
     logoBusinessInModal: {
         height: 50,
-        width: 100,
+        width: 125,
         marginTop: 10,
         marginLeft: 10,
-        alignSelf: 'center'
+        alignSelf: 'center',
+        borderRadius: 7
     },
     modal: {
         alignSelf: 'center',

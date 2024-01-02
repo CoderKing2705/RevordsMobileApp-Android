@@ -77,6 +77,7 @@ const GetOtp = ({ route, navigation }) => {
             if (otp.join('').length !== 0) {
                 if (otp.join('') == OTP) {
                     setIsVerified(true);
+                    setSeconds(0);
                     navigation.navigate('AppTour', { MemberData: CustomerExists, Phone: Phone });
                 } else {
                     setIsVerified(false);

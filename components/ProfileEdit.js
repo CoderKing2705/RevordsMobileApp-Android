@@ -1,15 +1,20 @@
-import { StyleSheet, Image, Text, View, ScrollView, ToastAndroid, PermissionsAndroid, Modal, TouchableWithoutFeedback, Pressable } from 'react-native';
+import { StyleSheet, Image, Text, View, ScrollView, ToastAndroid, PermissionsAndroid, Alert, PanResponder, Modal, TouchableWithoutFeedback, Pressable } from 'react-native';
 // import { TextInput } from 'react-native-gesture-handler';
+import MaskInput from 'react-native-mask-input';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from "react-native";
+import { StatusBar } from "react-native";
 import Globals from '../components/Globals';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Spinner from 'react-native-loading-spinner-overlay';
 // import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import RNFS from 'react-native-fs';
 import { useIsFocused } from '@react-navigation/native';
+import RNPickerSelect from 'react-native-picker-select';
+import moment from 'moment';
 
 const ProfileEdit = ({ navigation, route }) => {
     const focus = useIsFocused();
@@ -27,6 +32,25 @@ const ProfileEdit = ({ navigation, route }) => {
     const [imageRes, setImageRes] = useState(null);
     const [optionModalVisible, setOptionModalVisible] = useState(false);
 
+    const [selectedMonth, setSelectedMonth] = useState('');
+    const [selectedDay, setSelectedDay] = useState('');
+    const [daysInMonth, setDaysInMonth] = useState([]);
+
+    const months = [
+        { label: 'January', value: '01' },
+        { label: 'February', value: '02' },
+        { label: 'March', value: '03' },
+        { label: 'April', value: '04' },
+        { label: 'May', value: '05' },
+        { label: 'June', value: '06' },
+        { label: 'July', value: '07' },
+        { label: 'August', value: '08' },
+        { label: 'September', value: '09' },
+        { label: 'October', value: '10' },
+        { label: 'November', value: '11' },
+        { label: 'December', value: '12' },
+    ];
+
     const validateEmail = (email) => {
         const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         return emailPattern.test(email);
@@ -37,8 +61,8 @@ const ProfileEdit = ({ navigation, route }) => {
         setName(value[0].name);
         setEmail(value[0].emailId);
         let bDay = (value[0].birthDay == '' || value[0].birthDay == null || value[0].birthDay == undefined ||
-        value[0].birthMonth == '' || value[0].birthMonth == null || value[0].birthMonth == undefined) ?
-        null : value[0].birthDay + ' ' + value[0].birthMonth;
+            value[0].birthMonth == '' || value[0].birthMonth == null || value[0].birthMonth == undefined) ?
+            null : value[0].birthDay + ' ' + value[0].birthMonth;
         setBirthDate(bDay);
         setMemberProfilePic(value[0].memberImageFile);
         let numP1 = String(value[0].phone).toString().substring(0, 3);
@@ -46,9 +70,28 @@ const ProfileEdit = ({ navigation, route }) => {
         let numP3 = String(value[0].phone).toString().substring(6,);
         setFormatPhone('(' + numP1 + ') ' + numP2 + '-' + numP3);
         setPhone(String(value[0].phone));
+
+        // if (value[0].birthDay != '' && value[0].birthDay != null && value[0].birthDay != undefined &&
+        //     value[0].birthMonth != '' && value[0].birthMonth != null && value[0].birthMonth != undefined) {
+        //     setSelectedDay(value[0].birthDay);
+        //     setSelectedMonth(value[0].birthMonth);
+        // }
     }
 
     useEffect(() => {
+        if (selectedMonth) {
+            const daysArray = [];
+            const daysInSelectedMonth = moment(`2024-${selectedMonth}`, 'YYYY-MM').daysInMonth();
+
+            for (let i = 1; i <= daysInSelectedMonth; i++) {
+                const formattedDay = i < 10 ? `0${i}` : `${i}`;
+                daysArray.push({ label: formattedDay, value: formattedDay });
+            }
+
+            setDaysInMonth(daysArray);
+            setSelectedDay('');
+        }
+
         AsyncStorage.getItem('token')
             .then(async (value) => {
                 if (value !== null) {
@@ -59,73 +102,61 @@ const ProfileEdit = ({ navigation, route }) => {
             .catch(error => {
                 console.error('Error retrieving dataa:', error);
             });
-    }, [focus]);
+    }, [focus, selectedMonth]);
 
+    const putData = () => {
+        setLoading(true);
+        const apiUrl = Globals.API_URL + '/MemberProfiles/PutMemberInMobileApp';
+        let currentDate = (new Date()).toISOString();
+
+        let currentYear = new Date().getFullYear();
+        let bDate;
+        if (!MemberData[0].isBirthDateChange) {
+            bDate = (selectedMonth == '' || selectedDay == '' || selectedMonth == null || selectedDay == null ||
+                selectedMonth == undefined || selectedDay == undefined) ? null
+                : `${currentYear}-${selectedMonth}-${selectedDay}`;
+        } else {
+            bDate = null;
+        }
+
+        console.log('bDate', bDate)
+
+        const requestBody = {
+            id: MemberData[0].memberId,
+            memberName: name,
+            emailID: emailId,
+            lastModifiedBy: MemberData[0].memberId,
+            lastModifiedDate: currentDate,
+            birthDate: bDate
+        };
+
+        axios.put(apiUrl, requestBody)
+            .then(async (response) => {
+                if (selectedImage) {
+                    await uploadImage(imageRes);
+                }
+                await getMemberData();
+                setLoading(false);
+                ToastAndroid.showWithGravityAndOffset(
+                    'Updated Successfully!',
+                    ToastAndroid.LONG,
+                    ToastAndroid.BOTTOM,
+                    25,
+                    50,
+                );
+                navigation.navigate('Profiles');
+            })
+            .catch(error => console.error(error));
+    }
     const Save = () => {
         if (emailId !== null && emailId !== undefined && emailId !== '') {
             const isValidEmail = validateEmail(emailId);
             setIsValid(isValidEmail);
             if (isValidEmail) {
-                setLoading(true);
-                const apiUrl = Globals.API_URL + '/MemberProfiles/PutMemberInMobileApp';
-                let currentDate = (new Date()).toISOString();
-
-                const requestBody = {
-                    id: MemberData[0].memberId,
-                    memberName: name,
-                    emailID: emailId,
-                    lastModifiedBy: MemberData[0].memberId,
-                    lastModifiedDate: currentDate,
-                };
-
-                axios.put(apiUrl, requestBody)
-                    .then(async (response) => {
-                        if (selectedImage) {
-                            await uploadImage(imageRes);
-                        }
-                        await getMemberData();
-                        setLoading(false);
-                        ToastAndroid.showWithGravityAndOffset(
-                            'Updated Successfully!',
-                            ToastAndroid.LONG,
-                            ToastAndroid.BOTTOM,
-                            25,
-                            50,
-                        );
-                        navigation.navigate('Profiles');
-                    })
-                    .catch(error => console.error(error));
+                putData();
             }
         } else {
-            setLoading(true);
-            const apiUrl = Globals.API_URL + '/MemberProfiles/PutMemberInMobileApp';
-            let currentDate = (new Date()).toISOString();
-
-            const requestBody = {
-                id: MemberData[0].memberId,
-                memberName: name,
-                emailID: null,
-                lastModifiedBy: MemberData[0].memberId,
-                lastModifiedDate: currentDate,
-            };
-
-            axios.put(apiUrl, requestBody)
-                .then(async (response) => {
-                    if (selectedImage) {
-                        await uploadImage(imageRes);
-                    }
-                    await getMemberData();
-                    setLoading(false);
-                    ToastAndroid.showWithGravityAndOffset(
-                        'Updated Successfully!',
-                        ToastAndroid.LONG,
-                        ToastAndroid.BOTTOM,
-                        25,
-                        50,
-                    );
-                    navigation.navigate('Profiles');
-                })
-                .catch(error => console.error(error));
+            putData();
         }
     }
 
@@ -359,21 +390,43 @@ const ProfileEdit = ({ navigation, route }) => {
                                     </View>
                                     <View style={{ borderRadius: 23, padding: 5, width: '100%' }}>
                                         <Text style={{ fontSize: 18, fontWeight: '700', paddingLeft: 5 }}>Birth Date</Text>
-                                        <TextInput
+                                        {MemberData[0].isBirthDateChange && <TextInput
                                             style={{
                                                 height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingLeft: 10,
                                                 marginTop: 5, fontSize: 16, borderRadius: 10, backgroundColor: '#e1e5e8', fontWeight: '600'
                                             }}
-                                            value={(birthDate == '' || birthDate == null ||  birthDate == undefined) ? 'No BirthDate Given' : birthDate}
+                                            value={(birthDate == '' || birthDate == null || birthDate == undefined) ? 'No BirthDate Given' : birthDate}
                                             editable={false}
-                                        />
+                                        />}
+
+                                        {!MemberData[0].isBirthDateChange &&
+                                            <>
+                                                <View style={styles.pickerContainer}>
+                                                    <RNPickerSelect
+                                                        placeholder={{ label: 'Select Birth Month', value: null }}
+                                                        items={months}
+                                                        onValueChange={(value) => setSelectedMonth(value)}
+                                                        style={pickerSelectStyles}
+                                                        value={selectedMonth}
+                                                    />
+                                                </View>
+                                                <View style={styles.pickerContainer}>
+                                                    <RNPickerSelect
+                                                        placeholder={{ label: 'Select Birth Day', value: null }}
+                                                        items={daysInMonth}
+                                                        onValueChange={(value) => setSelectedDay(value)}
+                                                        style={pickerSelectStyles}
+                                                        value={selectedDay}
+                                                    />
+                                                </View>
+                                            </>
+                                        }
                                     </View>
 
                                     <TouchableOpacity activeOpacity={.7} onPress={Save} style={styles.frame2vJu}>
                                         <Text style={styles.getStartednru}>Save</Text>
                                     </TouchableOpacity>
                                 </View>
-
                             </View>
                         </View>
                     </ScrollView>
@@ -402,7 +455,7 @@ const ProfileEdit = ({ navigation, route }) => {
                         </View>
                     </Modal>
 
-                </View>
+                </View >
                 <SafeAreaView style={{ flex: 1 }}>
                     <View style={styles.container}>
                         <Spinner
@@ -415,7 +468,7 @@ const ProfileEdit = ({ navigation, route }) => {
                         />
                     </View>
                 </SafeAreaView>
-            </View>
+            </View >
         </>
     );
 };
@@ -513,6 +566,52 @@ const styles = StyleSheet.create({
         zIndex: 10,
         textAlign: 'center',
     },
+    pickerContainer: {
+        width: '100%',
+        marginBottom: 5
+    }
 })
 
+const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+        fontSize: 16,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        borderWidth: 1,
+        borderColor: 'gray',
+        borderRadius: 4,
+        color: 'black',
+        paddingRight: 30,
+        marginTop: 5,
+        width: '100%',
+        alignSelf: 'center',
+        backgroundColor: '#e6edf1',
+    },
+    inputAndroid: {
+        fontSize: 16,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        borderWidth: 2,
+        borderColor: '#000',
+        borderRadius: 15,
+        color: 'black',
+        paddingRight: 30,
+        marginTop: 5,
+        width: '100%',
+        alignSelf: 'center',
+        backgroundColor: '#f9f9f9',
+    },
+    inputIOSContainer: {
+        borderBottomColor: 'purple', // Border color when open
+        borderBottomWidth: 2, // Border width when open
+        borderWidth: 2,
+        borderColor: '#000',
+    },
+    inputAndroidContainer: {
+        borderBottomColor: 'purple', // Border color when open
+        borderBottomWidth: 2, // Border width when open
+        borderWidth: 2,
+        borderColor: '#000',
+    },
+});
 export default ProfileEdit;

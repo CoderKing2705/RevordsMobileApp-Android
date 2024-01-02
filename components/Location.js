@@ -1,4 +1,4 @@
-import { TextInput, TouchableOpacity } from 'react-native';
+import { TextInput, ToastAndroid, TouchableOpacity } from 'react-native';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { Avatar, Card, Drawer, Title } from 'react-native-paper';
 import axios from 'axios';
@@ -12,6 +12,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Animatable from 'react-native-animatable';
 
 const Location = ({ navigation }) => {
     const focus = useIsFocused();
@@ -22,7 +23,19 @@ const Location = ({ navigation }) => {
     const [loadingData, setLoadingData] = useState(true);
     const [userData, setUserData] = useState('');
     const userId = "1";
-    const baseUrl = Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesForMobile"
+    const baseUrl = Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesForMobile";
+    const pulse = {
+        0: {
+            scale: 1,
+        },
+        0.5: {
+            scale: 1.3
+        },
+        1: {
+            scale: 1
+        }
+    }
+
     const getCurrentLocation = async () => {
         Geolocation.getCurrentPosition(
             async position => {
@@ -80,7 +93,6 @@ const Location = ({ navigation }) => {
         AsyncStorage.getItem('token')
             .then(async (value) => {
                 if (value !== null) {
-                    // memberID = (JSON.parse(value))[0].memberId;
                     await axios({
                         method: 'GET',
                         url: `${baseUrl}/${(JSON.parse(value))[0].memberId}`
@@ -91,10 +103,7 @@ const Location = ({ navigation }) => {
 
                                 await setLangandLat(latitude, longitude);
                                 // You can now use the latitude and longitude in your app
-
                                 await response.data.map((data1, index) => {
-
-
                                     const toRadian = n => (n * Math.PI) / 180
                                     let lat2 = data1.latitude
                                     let lon2 = data1.longitude
@@ -141,29 +150,7 @@ const Location = ({ navigation }) => {
 
     useEffect(() => {
         handleCheckPressed();
-    }, [focus]);
-
-    // const [query, setQuery] = useState('');
-    // const [menuVisible, setMenuVisible] = useState(false);
-    // const [suggestions, setSuggestions] = useState([
-    //     'Apple', 'Banana', 'Cherry', 'Date', 'Grapes', 'Lemon', 'Orange', 'Peach', 'Pear', 'Plum'
-    // ]);
-
-    // const handleInputChange = (text) => {
-    //     // Update the query and filter the suggestions based on the input
-    //     setQuery(text);
-    //     const filteredSuggestions = suggestions.filter(item =>
-    //         item.toLowerCase().includes(text.toLowerCase())
-    //     );
-    //     setSuggestions(filteredSuggestions);
-    // };
-
-    // const handleItemPress = (item) => {
-    //     // Set the selected suggestion as the input value
-    //     setQuery(item);
-    //     // Clear the suggestions
-    //     setSuggestions([]);
-    // };
+    }, [focus]);   
 
     const handleInputChange = (text) => {
         if (text === '') {
@@ -172,6 +159,72 @@ const Location = ({ navigation }) => {
             let data = userData.filter(item => item.metaData.toLowerCase().includes(text.toLowerCase()));
             setFilteredData(data);
         }
+    }
+
+    const likeProfile = (business) => {
+        AsyncStorage.getItem('token')
+            .then(async (value) => {
+                if (value !== null) {
+                    memberID = (JSON.parse(value))[0].memberId;
+                    console.log(memberID)
+                    console.log('business', business.id)
+                    console.log('businessGroup', business.businessGroupID)
+                    let currentDate = (new Date()).toISOString();
+                    await fetch(Globals.API_URL + '/MembersWishLists/PostMemberWishlistInMobile', {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            "uniqueId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                            "id": 0,
+                            "memberId": memberID,
+                            "notes": null,
+                            "badgeId": 1,
+                            "tagId": null,
+                            "businessGroupId": business.businessGroupID,
+                            "lastVisitDate": null,
+                            "lifeTimePoints": 0,
+                            "lifeTimeVisits": 0,
+                            "smsoptIn": false,
+                            "emailOptIn": ((JSON.parse(value))[0].emailId == '' || (JSON.parse(value))[0].emailId == null ||
+                                (JSON.parse(value))[0].emailId == undefined) ? false : true,
+                            "notificationOptIn": true,
+                            "isHighroller": false,
+                            "currentPoints": 0,
+                            "sourceId": 14,
+                            "stateId": 3,
+                            "isActive": true,
+                            "createdBy": memberID,
+                            "createdDate": currentDate,
+                            "lastModifiedBy": memberID,
+                            "lastModifiedDate": currentDate,
+                            "businessLocationID": business.id,
+                            "baseLocationID": business.id
+                        }),
+                    }).then(async (res) => {
+                        ToastAndroid.showWithGravityAndOffset(
+                            'Liked!',
+                            ToastAndroid.LONG,
+                            ToastAndroid.BOTTOM,
+                            25,
+                            50,
+                        );
+                        await handleCheckPressed();
+                    }).catch((error) => {
+                        console.log("Error fetching data:/", error)
+                        setLoading(false);
+                    });
+                    ;
+                } else {
+                    console.log('not available')
+                }
+            })
+            .catch(error => {
+                console.error('Error retrieving dataa:', error);
+                setLoading(false);
+            });
     }
 
     return (
@@ -187,20 +240,7 @@ const Location = ({ navigation }) => {
 
                     <View style={{ width: '97%', height: '90%', marginTop: 10 }}>
                         <View style={styles.searchBoxMain}>
-                            <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)}
-                            // value={query}
-                            //     onChangeText={handleInputChange} onFocus={() => setMenuVisible(true)} 
-                            />
-                            {/* {menuVisible && <FlatList
-                                style={styles.autocompleteList}
-                                data={suggestions}
-                                keyExtractor={(item) => item}
-                                renderItem={({ item }) => (
-                                    <TouchableOpacity onPress={() => handleItemPress(item)}>
-                                        <Text style={styles.suggestionItem}>{item}</Text>
-                                    </TouchableOpacity>
-                                )}
-                            />} */}
+                            <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)}/>                           
                             <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                             <TouchableOpacity style={{ width: '16%', marginRight: '2%', }} activeOpacity={.7} onPress={() => navigation.navigate("MapViewing")}>
                                 <View style={styles.mainMapImage}>
@@ -217,16 +257,27 @@ const Location = ({ navigation }) => {
                                     return (
                                         <Card style={styles.card} onPress={() => this.NavigateToBusinessDetails(item.id)}>
                                             <Card.Cover source={{ uri: Globals.Root_URL + item.imagePath }} style={styles.cardCover} />
-                                            <Card.Title
-                                                left={() =>
-                                                    <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + item.logoPath }}></Image>
-                                                }
-                                            />
+
                                             <Card.Content style={styles.cardContent}>
-                                                {(item.businessName).toString().length < 25 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {item.businessName}</Title>}
-                                                {(item.businessName).toString().length >= 25 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {(item.businessName).toString().substring(0, 25)}...</Title>}
-                                                <Text style={{ color: '#717679', fontWeight: '500' }}> {item.industry} </Text>
-                                                <Text style={styles.milesText}> {item.distance} mi </Text>
+                                                <View style={{ width: '30%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + item.logoPath }}></Image>
+                                                </View>
+                                                <View style={{ width: '70%', height: '100%' }}>
+                                                    {(item.businessName).toString().length < 25 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {item.businessName}</Title>}
+                                                    {(item.businessName).toString().length >= 25 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {(item.businessName).toString().substring(0, 25)}...</Title>}
+                                                    <Text style={{ color: '#717679', fontWeight: '500' }}> {item.industry} </Text>
+                                                    <View style={{ flexDirection: 'row', width: '85%', justifyContent: 'space-between' }}>
+                                                        <Text style={styles.milesText}> {item.distance} mi </Text>
+                                                        {(item.isLiked == false) && <TouchableOpacity activeOpacity={.7} onPress={() => likeProfile(item)}>
+                                                            <Animatable.Image animation={pulse} easing="ease-in-out" iterationCount="infinite"
+                                                                style={{ width: 25, height: 25, left: '41%', position: 'absolute' }} source={require('../assets/likeOutline.png')} />
+                                                            {/* <Image source={require('../assets/likeOutline.png')} style={{ width: 25, height: 25, left: '41%', position: 'absolute' }}></Image> */}
+                                                        </TouchableOpacity>}
+                                                        {(item.isLiked == true) && <TouchableOpacity activeOpacity={.7}>
+                                                            <Image source={require('../assets/likeFill.png')} style={{ width: 25, height: 25, left: '41%', position: 'absolute' }}></Image>
+                                                        </TouchableOpacity>}
+                                                    </View>
+                                                </View>
                                             </Card.Content>
                                         </Card>
                                     );
@@ -250,32 +301,18 @@ const Location = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    // autocompleteList: {
-    //     marginTop: 10,
-    //     top: '100%',
-    //     width: '100%',
-    //     position: 'absolute',
-    //     zIndex: 15,
-    //     backgroundColor: 'white'
-    // },
-    // suggestionItem: {
-    //     padding: 10,
-    //     fontSize: 18,
-    //     borderBottomWidth: 1,
-    //     borderBottomColor: 'lightgray',
-    // },
     cardContent: {
         marginHorizontal: '2%',
-        flexDirection: 'column',
+        flexDirection: 'row',
         alignItems: 'flex-start',
-        bottom: '25%',
-        left: '27%',
+        width: '100%',
+        height: '30%'
     },
     avatarImg: {
-        height: '100%',
-        // height: 50,
-        width: 100,
+        height: '60%',
+        width: '100%',
         left: -7,
+        borderRadius: 7
     },
     cardCover: {
         height: '70%',
@@ -291,7 +328,6 @@ const styles = StyleSheet.create({
         flexShrink: 0,
         marginTop: '2%',
         alignSelf: 'center',
-        // marginBottom: '20%',
         height: '90%'
     },
     mapImage: {
@@ -301,14 +337,9 @@ const styles = StyleSheet.create({
     },
     mainMapImage: {
         padding: 15,
-        // paddingHorizontal: 23,
-        // paddingBottom: 15,
-        // paddingLeft: 24,
-        // height: '100%',
         backgroundColor: '#3380a3',
         borderRadius: 8,
         flexShrink: 0,
-        // marginRight: '2%',
         width: '100%',
         alignItems: 'center'
     },
@@ -390,7 +421,6 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 22,
         fontWeight: '800',
-        // marginTop: '5%',
         textAlign: 'center',
         width: '80%'
     },

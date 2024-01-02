@@ -40,7 +40,7 @@ export default function RegistrationPage({ route }) {
     useEffect(() => {
         if (selectedMonth) {
             const daysArray = [];
-            const daysInSelectedMonth = moment(`2022-${selectedMonth}`, 'YYYY-MM').daysInMonth();
+            const daysInSelectedMonth = moment(`2024-${selectedMonth}`, 'YYYY-MM').daysInMonth();
 
             for (let i = 1; i <= daysInSelectedMonth; i++) {
                 const formattedDay = i < 10 ? `0${i}` : `${i}`;

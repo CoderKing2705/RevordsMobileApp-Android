@@ -6,17 +6,17 @@ import ProfileEdit from './ProfileEdit';
 
 const ProfileStack = ({ route, navigation }) => {
     const profileStack = createNativeStackNavigator();
-    const {MemberData} = route.params
+    const { MemberData } = route.params
     console.log(MemberData)
     return (
         <>
-            <profileStack.Navigator  initialRouteName='Profile' >
+            <profileStack.Navigator initialRouteName='Profile' >
                 <profileStack.Screen name="Profiles" component={Profile} initialParams={{ MemberData }} options={{
                     headerShown: false,
-                }}/>
+                }} />
                 <profileStack.Screen name="ProfileEdit" component={ProfileEdit} initialParams={{ MemberData }} options={{
                     headerShown: false,
-                }}/>
+                }} />
             </profileStack.Navigator>
         </>
     );

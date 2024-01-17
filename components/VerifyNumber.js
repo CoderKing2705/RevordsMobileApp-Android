@@ -44,7 +44,7 @@ const VerifyNumber = ({ navigation }) => {
             'Content-Type': 'application/json',
           },
         }).then((res) => {
-          console.log('otp response-----', JSON.stringify(res))
+          // console.log('otp response-----', JSON.stringify(res))
           // if (res.ok) {
             navigation.navigate('GetOtp', { OTP: randomOtp, CustomerExists: CustomerExists, Phone: unMaskPhone })
             setLoading(false);

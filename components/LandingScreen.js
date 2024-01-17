@@ -6,6 +6,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Globals from './Globals';
+import messaging from '@react-native-firebase/messaging';
 
 const LandingScreen = ({ navigation }) => {
     const focus = useIsFocused();
@@ -17,10 +18,13 @@ const LandingScreen = ({ navigation }) => {
         AsyncStorage.getItem('token')
             .then(async value => {
                 if (value !== null) {
+                    console.log("This is for value does exist:-", value);
                     console.log('token exist', (JSON.parse(value))[0].phone)
                     await getMemberData((JSON.parse(value))[0].phone, value);
-
+                    // await postData((JSON.parse(value))[0].memberId);
+                    console.log((JSON.parse(value))[0].memberId);   
                 } else {
+                    console.log("This is for value does not exist:-", value);
                     console.log('Value does not exist');
                     setLoading(false);
                     navigation.navigate('GetStarted');
@@ -31,6 +35,33 @@ const LandingScreen = ({ navigation }) => {
             });
     }, [focus]);
 
+
+    // const postData = async (memberId) => {
+    //     let currentDate = (new Date()).toISOString();
+    //     let token = await messaging().getToken();
+    //     let platformOS = Platform.OS;
+    //     fetch(Globals.API_URL + '/MobileAppVisitersLogs/PostMobileAppVisitersLog', {
+    //         method: 'POST',
+    //         headers: {
+    //             Accept: 'application/json',
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             "uniqueID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    //             "id": 0,
+    //             "memberId":memberId,
+    //             "createdDate": currentDate,
+    //             "deviceOS": platformOS,
+    //             "appToken": token
+    //         }),
+    //     })
+    //         .then((response) => {
+    //             console.log('JSON.stringify(res)', JSON.stringify(response));
+    //         })
+    //         .catch((error) => {
+    //             console.log("Error Saving Logs:- ", error)
+    //         })
+    // }
     const getMemberData = async (phone, value) => {
         const response = await fetch(
             Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + phone)

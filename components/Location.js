@@ -150,7 +150,7 @@ const Location = ({ navigation }) => {
 
     useEffect(() => {
         handleCheckPressed();
-    }, [focus]);
+    }, [focus]);   
 
     const handleInputChange = (text) => {
         if (text === '') {
@@ -184,7 +184,7 @@ const Location = ({ navigation }) => {
                             "badgeId": 1,
                             "tagId": null,
                             "businessGroupId": business.businessGroupID,
-                            "lastVisitDate": null,
+                            "lastVisitDate": currentDate,
                             "lifeTimePoints": 0,
                             "lifeTimeVisits": 0,
                             "smsoptIn": false,
@@ -240,7 +240,7 @@ const Location = ({ navigation }) => {
 
                     <View style={{ width: '97%', height: '90%', marginTop: 10 }}>
                         <View style={styles.searchBoxMain}>
-                            <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)} />
+                            <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)}/>                           
                             <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                             <TouchableOpacity style={{ width: '16%', marginRight: '2%', }} activeOpacity={.7} onPress={() => navigation.navigate("MapViewing")}>
                                 <View style={styles.mainMapImage}>

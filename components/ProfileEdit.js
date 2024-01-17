@@ -319,6 +319,20 @@ const ProfileEdit = ({ navigation, route }) => {
         }
     };
 
+    const alertForBirthDate = () => {
+        
+        Alert.alert(
+            null,
+            'Your birthdate has been updated once before. If you need further assistance, please contact our Revords support team.',
+            [
+              {
+                text: 'OK',
+              },
+            ],
+            { cancelable: false }
+          );
+    }
+
     return (
         <>
             <View style={styles.container}>
@@ -390,15 +404,18 @@ const ProfileEdit = ({ navigation, route }) => {
                                     </View>
                                     <View style={{ borderRadius: 23, padding: 5, width: '100%' }}>
                                         <Text style={{ fontSize: 18, fontWeight: '700', paddingLeft: 5 }}>Birth Date</Text>
-                                        {MemberData[0].isBirthDateChange && <TextInput
-                                            style={{
-                                                height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingLeft: 10,
-                                                marginTop: 5, fontSize: 16, borderRadius: 10, backgroundColor: '#e1e5e8', fontWeight: '600'
-                                            }}
-                                            value={(birthDate == '' || birthDate == null || birthDate == undefined) ? 'No BirthDate Given' : birthDate}
-                                            editable={false}
-                                        />}
-
+                                        {MemberData[0].isBirthDateChange &&
+                                            <TouchableOpacity activeOpacity={.7} onPress={alertForBirthDate} >
+                                                <TextInput
+                                                    style={{
+                                                        height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingLeft: 10,
+                                                        marginTop: 5, fontSize: 16, borderRadius: 10, backgroundColor: '#e1e5e8', fontWeight: '600'
+                                                    }}
+                                                    value={(birthDate == '' || birthDate == null || birthDate == undefined) ? 'No BirthDate Given' : birthDate}
+                                                    editable={false}
+                                                />
+                                            </TouchableOpacity>}
+                                        {/* {MemberData[0].isBirthDateChange && <Text></Text>} */}
                                         {!MemberData[0].isBirthDateChange &&
                                             <>
                                                 <View style={styles.pickerContainer}>

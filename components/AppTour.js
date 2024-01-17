@@ -6,7 +6,6 @@ import TourPage3 from './TourPage3';
 import TourPage4 from './TourPage4';
 import Globals from './Globals';
 import messaging from '@react-native-firebase/messaging';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AppTourGuide = ({ route, navigation }) => {
     const [step, setStep] = useState(1);
@@ -58,33 +57,33 @@ const AppTourGuide = ({ route, navigation }) => {
 
     }
 
-    const postData = async (memberId) => {
-        let currentDate = (new Date()).toISOString();
-        await getDeviceToken();
-        let obj = JSON.stringify({
-            "uniqueID": "",
-            "id": 0,
-            "memberId": memberId,
-            "createdDate": currentDate,
-            "deviceOS": platformOS,
-            "appToken": tokenid
-        })
-        console.log("This is objh",obj);
-        fetch(Globals.API_URL + '/MobileAppVisitersLogs/PostMobileAppVisitersLog', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: obj
-        })
-            .then((response) => {
-                console.log('JSON.stringify(res)', JSON.stringify(response));
-            })
-            .catch((error) => {
-                console.log("Error Saving Logs:- ", error)
-            })
-    }
+    // const postData = async (memberId) => {
+    //     let currentDate = (new Date()).toISOString();
+    //     await getDeviceToken();
+    //     let obj = JSON.stringify({
+    //         "uniqueID": "",
+    //         "id": 0,
+    //         "memberId": memberId,
+    //         "createdDate": currentDate,
+    //         "deviceOS": platformOS,
+    //         "appToken": tokenid
+    //     })
+    //     console.log("This is objh",obj);
+    //     fetch(Globals.API_URL + '/MobileAppVisitersLogs/PostMobileAppVisitersLog', {
+    //         method: 'POST',
+    //         headers: {
+    //             Accept: 'application/json',
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: obj
+    //     })
+    //         .then((response) => {
+    //             console.log('JSON.stringify(res)', JSON.stringify(response));
+    //         })
+    //         .catch((error) => {
+    //             console.log("Error Saving Logs:- ", error)
+    //         })
+    // }
 
     const tourSteps = [
         {

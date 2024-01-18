@@ -32,7 +32,7 @@ export default function TabNavigation({ route, navigation }) {
 
     return (
         <>
-            <Tab.Navigator screenOptions={() => ({           
+            <Tab.Navigator screenOptions={() => ({
                 tabBarActiveTintColor: 'white',
                 tabBarInactiveTintColor: 'gray',
                 labelStyle: {

@@ -46,7 +46,7 @@ const Favourite = ({ navigation }) => {
             scale: 1
         }
     }
-    
+
     async function setLangandLat(latitude, longitude) {
         lang = longitude;
         lat = latitude;
@@ -296,7 +296,7 @@ const Favourite = ({ navigation }) => {
 
     useEffect(() => {
         getRefreshData();
-    }, [isFocused]);    
+    }, [isFocused]);
 
     return (
         <View style={styles.container} >
@@ -323,7 +323,7 @@ const Favourite = ({ navigation }) => {
                                     <Image source={{ uri: Globals.Root_URL + item.logoPath }} style={styles.logoBusiness} />
                                     <View style={{ position: 'absolute', right: '1%', flexDirection: 'row' }}>
                                         {item.isLiked && <Image source={require('../assets/likeFill.png')} style={styles.likeHeart} />}
-                                        {!item.isLiked &&        
+                                        {!item.isLiked &&
                                             <TouchableOpacity activeOpacity={.7} onPress={() => likeProfile(item)}>
                                                 <Animatable.Image
                                                     animation={pulse}

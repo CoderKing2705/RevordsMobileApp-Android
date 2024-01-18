@@ -11,7 +11,7 @@ const LocationStack = ({ route, navigation }) => {
             <locationStack.Navigator initialRouteName='MapViewing' >
                 <locationStack.Screen name="Locations" component={Location} options={{
                     headerShown: false,
-                }} />                
+                }} />
                 <locationStack.Screen name="MapViewing" component={MapViewing} options={{
                     headerShown: false,
                 }} />

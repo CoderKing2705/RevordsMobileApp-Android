@@ -25,9 +25,9 @@ const AppTourGuide = ({ route, navigation }) => {
     const closeTour = async () => {
         setStep(null);
         if (MemberData) {
-            // await postData(MemberData[0].memberId)
             console.log(MemberData[0].memberId);
             console.log('platformOSssssw', platformOS)
+            await getDeviceToken();
             fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}`, {
                 method: 'PUT'
             }).then((res) => {
@@ -35,7 +35,6 @@ const AppTourGuide = ({ route, navigation }) => {
                 navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
             });
         } else {
-            // await postData(MemberData[0].memberId)
             navigation.navigate('RegistrationPage', { Phone: Phone });
         }
     };
@@ -43,7 +42,6 @@ const AppTourGuide = ({ route, navigation }) => {
     const GotoRegistration = async () => {
         if (MemberData) {
             // let platformOS = (Platform.OS == "android" ? 1 : 2);
-            // await postData(MemberData[0].memberId)
             fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}`, {
                 method: 'PUT'
             }).then((res) => {
@@ -51,39 +49,10 @@ const AppTourGuide = ({ route, navigation }) => {
                 navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
             });
         } else {
-            // await postData(MemberData[0].memberId)
             navigation.navigate('RegistrationPage', { Phone: Phone });
         }
 
     }
-
-    // const postData = async (memberId) => {
-    //     let currentDate = (new Date()).toISOString();
-    //     await getDeviceToken();
-    //     let obj = JSON.stringify({
-    //         "uniqueID": "",
-    //         "id": 0,
-    //         "memberId": memberId,
-    //         "createdDate": currentDate,
-    //         "deviceOS": platformOS,
-    //         "appToken": tokenid
-    //     })
-    //     console.log("This is objh",obj);
-    //     fetch(Globals.API_URL + '/MobileAppVisitersLogs/PostMobileAppVisitersLog', {
-    //         method: 'POST',
-    //         headers: {
-    //             Accept: 'application/json',
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: obj
-    //     })
-    //         .then((response) => {
-    //             console.log('JSON.stringify(res)', JSON.stringify(response));
-    //         })
-    //         .catch((error) => {
-    //             console.log("Error Saving Logs:- ", error)
-    //         })
-    // }
 
     const tourSteps = [
         {

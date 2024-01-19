@@ -150,7 +150,7 @@ const Location = ({ navigation }) => {
 
     useEffect(() => {
         handleCheckPressed();
-    }, [focus]);
+    }, [focus]);   
 
     const handleInputChange = (text) => {
         if (text === '') {
@@ -165,6 +165,11 @@ const Location = ({ navigation }) => {
         AsyncStorage.getItem('token')
             .then(async (value) => {
                 if (value !== null) {
+                    await filteredData.map((data1, index) => {
+                        if(business.id == data1.id){
+                            data1.isLiked = true;
+                        }
+                    })
                     memberID = (JSON.parse(value))[0].memberId;
                     console.log(memberID)
                     console.log('business', business.id)
@@ -212,8 +217,13 @@ const Location = ({ navigation }) => {
                             50,
                         );
                         await handleCheckPressed();
-                    }).catch((error) => {
+                    }).catch(async(error) => {
                         console.log("Error fetching data:/", error)
+                        await filteredData.map((data1, index) => {
+                            if(business.id == data1.id){
+                                data1.isLiked = false;
+                            }
+                        })
                         setLoading(false);
                     });
                     ;
@@ -240,7 +250,7 @@ const Location = ({ navigation }) => {
 
                     <View style={{ width: '97%', height: '90%', marginTop: 10 }}>
                         <View style={styles.searchBoxMain}>
-                            <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)} />
+                            <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)}/>                           
                             <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                             <TouchableOpacity style={{ width: '16%', marginRight: '2%', }} activeOpacity={.7} onPress={() => navigation.navigate("MapViewing")}>
                                 <View style={styles.mainMapImage}>
@@ -263,8 +273,8 @@ const Location = ({ navigation }) => {
                                                     <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + item.logoPath }}></Image>
                                                 </View>
                                                 <View style={{ width: '70%', height: '100%' }}>
-                                                    {(item.businessName).toString().length < 25 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {item.businessName}</Title>}
-                                                    {(item.businessName).toString().length >= 25 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {(item.businessName).toString().substring(0, 25)}...</Title>}
+                                                    {(item.businessName).toString().length < 22 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {item.businessName}</Title>}
+                                                    {(item.businessName).toString().length >= 22 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {(item.businessName).toString().substring(0, 22)}...</Title>}
                                                     <Text style={{ color: '#717679', fontWeight: '500' }}> {item.industry} </Text>
                                                     <View style={{ flexDirection: 'row', width: '85%', justifyContent: 'space-between' }}>
                                                         <Text style={styles.milesText}> {item.distance} mi </Text>

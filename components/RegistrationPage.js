@@ -88,7 +88,7 @@ export default function RegistrationPage({ route }) {
                 "id": 0,
                 "memberName": (name == '' || name == null || name == undefined) ? 'USER ' + Phone.substring(5,) : name,
                 "birthDate": (selectedMonth == '' || selectedDay == '' || selectedMonth == null || selectedDay == null ||
-                    selectedMonth == undefined || selectedDay == undefined) ? null : `${currentYear}-${selectedMonth}-${selectedDay}`,
+                selectedMonth == undefined || selectedDay == undefined ) ? null : `${currentYear}-${selectedMonth}-${selectedDay}`,
                 "emailID": (email == '' || email == null || email == undefined) ? null : email,
                 "phoneNo": Phone,
                 "isActive": true,

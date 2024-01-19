@@ -17,8 +17,8 @@ const Favourite = ({ navigation }) => {
     const businessGroupId = "1";
     lang = 0;
     lat = 0;
-    const wishListUrl = `${Globals.API_URL}/MembersWishLists/GetMemberWishListByMemberID`;
-    // const userEarnedRewardsAPI = Globals.API_URL + `/RewardConfigs/GetRewardConfigBusinessGroupwiseMemberwise/${businessGroupId}`;
+    // const wishListUrl = `${Globals.API_URL}/MembersWishLists/GetMemberWishListByMemberID`;
+    const userEarnedRewardsAPI = Globals.API_URL + `/RewardConfigs/GetRewardConfigBusinessGroupwiseMemberwise/${businessGroupId}`;
     const [wishList, setWishList] = useState([]);
     const [promotionClaimData, setPromotionClaimData] = useState([]);
     const [autoPilotClaimData, setAutoPilotClaimData] = useState([]);
@@ -46,7 +46,7 @@ const Favourite = ({ navigation }) => {
             scale: 1
         }
     }
-
+    
     async function setLangandLat(latitude, longitude) {
         lang = longitude;
         lat = latitude;
@@ -232,6 +232,11 @@ const Favourite = ({ navigation }) => {
         AsyncStorage.getItem('token')
             .then(async (value) => {
                 if (value !== null) {
+                    await wishList.map((data1, index) => {
+                        if(business.businessId == data1.businessId){
+                            data1.isLiked = true;
+                        }
+                    })
                     memberID = (JSON.parse(value))[0].memberId;
                     console.log(memberID)
                     console.log('business', business.id)
@@ -279,8 +284,13 @@ const Favourite = ({ navigation }) => {
                             50,
                         );
                         await getRefreshData();
-                    }).catch((error) => {
+                    }).catch(async(error) => {
                         console.log("Error fetching data:/", error)
+                        await wishList.map((data1, index) => {
+                            if(business.businessId == data1.businessId){
+                                data1.isLiked = true;
+                            }
+                        })
                         setLoading(false);
                     });
                     ;
@@ -296,7 +306,7 @@ const Favourite = ({ navigation }) => {
 
     useEffect(() => {
         getRefreshData();
-    }, [isFocused]);
+    }, [isFocused]);    
 
     return (
         <View style={styles.container} >
@@ -323,7 +333,7 @@ const Favourite = ({ navigation }) => {
                                     <Image source={{ uri: Globals.Root_URL + item.logoPath }} style={styles.logoBusiness} />
                                     <View style={{ position: 'absolute', right: '1%', flexDirection: 'row' }}>
                                         {item.isLiked && <Image source={require('../assets/likeFill.png')} style={styles.likeHeart} />}
-                                        {!item.isLiked &&
+                                        {!item.isLiked &&        
                                             <TouchableOpacity activeOpacity={.7} onPress={() => likeProfile(item)}>
                                                 <Animatable.Image
                                                     animation={pulse}

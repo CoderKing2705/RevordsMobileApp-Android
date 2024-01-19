@@ -320,17 +320,17 @@ const ProfileEdit = ({ navigation, route }) => {
     };
 
     const alertForBirthDate = () => {
-
+        
         Alert.alert(
             null,
             'Your birthdate has been updated once before. If you need further assistance, please contact our Revords support team.',
             [
-                {
-                    text: 'OK',
-                },
+              {
+                text: 'OK',
+              },
             ],
             { cancelable: false }
-        );
+          );
     }
 
     return (

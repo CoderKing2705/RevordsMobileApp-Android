@@ -150,7 +150,7 @@ const Location = ({ navigation }) => {
 
     useEffect(() => {
         handleCheckPressed();
-    }, [focus]);   
+    }, [focus]);
 
     const handleInputChange = (text) => {
         if (text === '') {
@@ -166,7 +166,7 @@ const Location = ({ navigation }) => {
             .then(async (value) => {
                 if (value !== null) {
                     await filteredData.map((data1, index) => {
-                        if(business.id == data1.id){
+                        if (business.id == data1.id) {
                             data1.isLiked = true;
                         }
                     })
@@ -217,10 +217,10 @@ const Location = ({ navigation }) => {
                             50,
                         );
                         await handleCheckPressed();
-                    }).catch(async(error) => {
+                    }).catch(async (error) => {
                         console.log("Error fetching data:/", error)
                         await filteredData.map((data1, index) => {
-                            if(business.id == data1.id){
+                            if (business.id == data1.id) {
                                 data1.isLiked = false;
                             }
                         })
@@ -250,7 +250,7 @@ const Location = ({ navigation }) => {
 
                     <View style={{ width: '97%', height: '90%', marginTop: 10 }}>
                         <View style={styles.searchBoxMain}>
-                            <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)}/>                           
+                            <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)} />
                             <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                             <TouchableOpacity style={{ width: '16%', marginRight: '2%', }} activeOpacity={.7} onPress={() => navigation.navigate("MapViewing")}>
                                 <View style={styles.mainMapImage}>

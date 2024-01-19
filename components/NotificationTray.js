@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderTopColor: 'black',
         borderTopWidth: StyleSheet.hairlineWidth,
-        paddingVertical: 5        
+        paddingVertical: 5
     },
     modalPromoMsg: {
         fontWeight: '600',

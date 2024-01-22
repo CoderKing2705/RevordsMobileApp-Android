@@ -9,8 +9,6 @@ const GetOtp = ({ route, navigation }) => {
 
     const [isVerified, setIsVerified] = useState(true);
     let { OTP, CustomerExists, Phone } = route.params;
-    console.log(OTP);
-    console.log(Phone);
     const [seconds, setSeconds] = useState(60);
     const [isResentDisabled, setResentDisabled] = useState(false);
     const [token, setToken] = useState(null);

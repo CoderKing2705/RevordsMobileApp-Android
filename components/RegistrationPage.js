@@ -4,24 +4,19 @@ import { View, Text, Platform } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-import SelectDropdown from 'react-native-select-dropdown';
 import Globals from '../components/Globals';
 import messaging from '@react-native-firebase/messaging';
 import moment from 'moment';
 import RNPickerSelect from 'react-native-picker-select';
+
 export default function RegistrationPage({ route }) {
-    // const [selectedMonths, setSelectedMonth] = useState('January');
-    // const [selectDays, setSelectedDays] = useState('1');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const { Phone } = route.params;
     const [isValid, setIsValid] = useState(true);
-
-
     const [selectedMonth, setSelectedMonth] = useState('');
     const [selectedDay, setSelectedDay] = useState('');
     const [daysInMonth, setDaysInMonth] = useState([]);
-
     const months = [
         { label: 'January', value: '01' },
         { label: 'February', value: '02' },
@@ -52,13 +47,6 @@ export default function RegistrationPage({ route }) {
         }
     }, [selectedMonth]);
 
-
-    //console.log(Phone)
-    // const months = [
-    //     'January', 'February', 'March', 'April', 'May',
-    //     'June', 'July', 'August', 'September', 'October',
-    //     'November', 'December'
-    // ];
     let tokenid = "";
     const days = Array.from({ length: 31 }, (_, index) => (index + 1).toString());
     const navigation = useNavigation();
@@ -88,7 +76,7 @@ export default function RegistrationPage({ route }) {
                 "id": 0,
                 "memberName": (name == '' || name == null || name == undefined) ? 'USER ' + Phone.substring(5,) : name,
                 "birthDate": (selectedMonth == '' || selectedDay == '' || selectedMonth == null || selectedDay == null ||
-                    selectedMonth == undefined || selectedDay == undefined) ? null : `${currentYear}-${selectedMonth}-${selectedDay}`,
+                selectedMonth == undefined || selectedDay == undefined ) ? null : `${currentYear}-${selectedMonth}-${selectedDay}`,
                 "emailID": (email == '' || email == null || email == undefined) ? null : email,
                 "phoneNo": Phone,
                 "isActive": true,
@@ -101,13 +89,11 @@ export default function RegistrationPage({ route }) {
                 "memberProfile": []
             }),
         }).then((res) => {
-            console.log('JSON.stringify(res)', JSON.stringify(res));
             getMemberData();
         });
     }
 
     const start = async () => {
-        console.log(selectedDay, '=', selectedMonth)
         if (email != null && email != '' && email != undefined) {
             const isValidEmail = validateEmail(email);
             setIsValid(isValidEmail);

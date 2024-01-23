@@ -1,6 +1,6 @@
 import { TextInput, ToastAndroid, TouchableOpacity } from 'react-native';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import { Avatar, Card, Drawer, Title } from 'react-native-paper';
+import { Card, Title } from 'react-native-paper';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
@@ -150,7 +150,7 @@ const Location = ({ navigation }) => {
 
     useEffect(() => {
         handleCheckPressed();
-    }, [focus]);
+    }, [focus]);   
 
     const handleInputChange = (text) => {
         if (text === '') {
@@ -166,14 +166,11 @@ const Location = ({ navigation }) => {
             .then(async (value) => {
                 if (value !== null) {
                     await filteredData.map((data1, index) => {
-                        if (business.id == data1.id) {
+                        if(business.id == data1.id){
                             data1.isLiked = true;
                         }
                     })
-                    memberID = (JSON.parse(value))[0].memberId;
-                    console.log(memberID)
-                    console.log('business', business.id)
-                    console.log('businessGroup', business.businessGroupID)
+                    memberID = (JSON.parse(value))[0].memberId;                   
                     let currentDate = (new Date()).toISOString();
                     await fetch(Globals.API_URL + '/MembersWishLists/PostMemberWishlistInMobile', {
                         method: 'POST',
@@ -217,10 +214,9 @@ const Location = ({ navigation }) => {
                             50,
                         );
                         await handleCheckPressed();
-                    }).catch(async (error) => {
-                        console.log("Error fetching data:/", error)
+                    }).catch(async(error) => {
                         await filteredData.map((data1, index) => {
-                            if (business.id == data1.id) {
+                            if(business.id == data1.id){
                                 data1.isLiked = false;
                             }
                         })
@@ -250,7 +246,7 @@ const Location = ({ navigation }) => {
 
                     <View style={{ width: '97%', height: '90%', marginTop: 10 }}>
                         <View style={styles.searchBoxMain}>
-                            <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)} />
+                            <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)}/>                           
                             <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                             <TouchableOpacity style={{ width: '16%', marginRight: '2%', }} activeOpacity={.7} onPress={() => navigation.navigate("MapViewing")}>
                                 <View style={styles.mainMapImage}>

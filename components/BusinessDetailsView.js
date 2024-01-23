@@ -1,4 +1,4 @@
-import { Alert, Modal, Pressable, StyleSheet, ToastAndroid } from 'react-native'
+import { Modal, StyleSheet, ToastAndroid } from 'react-native'
 import { View, Text, Image } from 'react-native'
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -11,7 +11,6 @@ import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Spinner from 'react-native-loading-spinner-overlay';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import currentIcon from '../assets/casinoIcon.png';
 import Geolocation from '@react-native-community/geolocation';
 import * as Progress from 'react-native-progress';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -51,13 +50,13 @@ export default function BusinessDetailsView({ route }) {
     const [buttonClicked, setButtonClicked] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-    const images = [
-        { url: galleryImagePath1Url },
-        { url: galleryImagePath2Url },
-        { url: galleryImagePath3Url },
-        { url: galleryImagePath4Url },
+    const imagesTemp = [
+        { url: galleryImagePath1Url, img: galleryImagePath1 },
+        { url: galleryImagePath2Url, img: galleryImagePath2 },
+        { url: galleryImagePath3Url, img: galleryImagePath3 },
+        { url: galleryImagePath4Url, img: galleryImagePath4 },
     ]
-
+    const images = imagesTemp.filter(x => x.img != null);
 
     async function setMarkers(centerLat, centerLong) {
         setInitialRegion({
@@ -92,7 +91,7 @@ export default function BusinessDetailsView({ route }) {
                 let lon2 = response.data[0].longitude
                 let lat1 = latitude
                 let lon1 = longitude
-                console.log(lat1, lon1 + "===" + lat2, lon2)
+
                 let R = 6371  // km
                 let x1 = lat2 - lat1
                 let dLat = toRadian(x1)
@@ -107,7 +106,7 @@ export default function BusinessDetailsView({ route }) {
 
                 await setBusinessDetailsAwait(response.data[0])
                 await setMarkers(parseFloat(response.data[0].latitude), parseFloat(response.data[0].longitude));
-                console.log('memberID', memberID)
+
                 setLoading(false);
             },
             error => {
@@ -127,11 +126,9 @@ export default function BusinessDetailsView({ route }) {
                     await axios({
                         method: 'GET',
                         url: `${businessDetailsAPI}/${id}/${(JSON.parse(value))[0].memberId}`
-                    }).then(async (response) => {
-                        console.log(response.data);
+                    }).then(async (response) => {                        
                         await getLocation(response);
                     }).catch((error) => {
-                        console.log("Error fetching data:/", error)
                         setLoading(false);
                     });
 
@@ -158,8 +155,6 @@ export default function BusinessDetailsView({ route }) {
                 .then(async (value) => {
                     if (value !== null) {
                         memberID = (JSON.parse(value))[0].memberId;
-                        console.log(memberID)
-                        console.log(businessDetails.businessGroupId)
 
                         let currentDate = (new Date()).toISOString();
                         await fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileInMobileBySave', {
@@ -368,20 +363,21 @@ export default function BusinessDetailsView({ route }) {
                                     </Fragment>
                                 ))}
                             </View>}
-                            <View style={{ paddingHorizontal: 12 }}>
-                                <Text style={{ marginTop: '7%', fontWeight: '700', fontSize: 18 }}>Photos</Text>
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                    <View style={{ flexDirection: 'row', width: 350, height: 100, marginTop: 20 }}>
-                                        {images.map((image, index) => (
-                                            <TouchableOpacity key={index} onPress={() => handleGalleryImagePress(index)}>
-                                                <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={{ uri: image.url }} />
-                                            </TouchableOpacity>
-                                        ))}
-                                    </View>
-                                </ScrollView>
-                            </View>
+                            {(galleryImagePath1 != null || galleryImagePath2 != null || galleryImagePath3 != null ||
+                                galleryImagePath4 != null) && <View style={{ paddingHorizontal: 12, marginTop: 5 }}>
+                                    <Text style={{ marginTop: '7%', fontWeight: '700', fontSize: 18 }}>Photos</Text>
+                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                        <View style={{ flexDirection: 'row', width: 350, height: 100, marginTop: 15 }}>
+                                            {images.map((image, index) => (
+                                                <TouchableOpacity key={index} onPress={() => handleGalleryImagePress(index)}>
+                                                    <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={{ uri: image.url }} />
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                    </ScrollView>
+                                </View>}
                             {businessDetails.businesswiseWorkingDays && <View style={{ paddingHorizontal: '3%' }} >
-                                <Text style={{ marginTop: '7%', fontWeight: '700', fontSize: 18 }}>Hours</Text>
+                                <Text style={{ marginTop: '3%', fontWeight: '700', fontSize: 18 }}>Hours</Text>
                                 {businessDetails.businesswiseWorkingDays && businessDetails.businesswiseWorkingDays.map((day, index) => (
                                     <Text key={index} style={{ marginTop: '1%', fontWeight: '700', color: '#717679', paddingHorizontal: '2%', fontSize: 12 }}>
                                         {`${day.dayName}: ${day.fromTime} - ${day.toTime}`}

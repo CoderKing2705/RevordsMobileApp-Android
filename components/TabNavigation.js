@@ -9,14 +9,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function TabNavigation({ route, navigation }) {
     const Tab = createBottomTabNavigator();
     const { MemberData } = route.params;
-    console.log(MemberData)
     const Stack = createNativeStackNavigator();
 
     AsyncStorage.getItem('token')
         .then(value => {
-            if (value !== null) {
-                console.log(value)
-            } else {
+            if (value === null) {
                 AsyncStorage.setItem('token', JSON.stringify(MemberData))
                     .then(() => {
                         console.log('Data saved successfully!');

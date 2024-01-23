@@ -1,16 +1,13 @@
-import { TextInput, ToastAndroid, TouchableOpacity } from 'react-native';
+import { ToastAndroid, TouchableOpacity } from 'react-native';
 import { View, Text, StyleSheet, Image, Modal } from 'react-native';
-import { Avatar, Card, Drawer, Title } from 'react-native-paper';
+import { Card, Title } from 'react-native-paper';
 import axios from 'axios';
 import { useEffect, useState, useRef } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Globals from './Globals';
-import Geolocation from '@react-native-community/geolocation';
 import { useIsFocused } from '@react-navigation/native';
-import { isLocationEnabled } from 'react-native-android-location-enabler';
-import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment/moment';
 
@@ -360,7 +357,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderTopColor: 'black',
         borderTopWidth: StyleSheet.hairlineWidth,
-        paddingVertical: 5
+        paddingVertical: 5        
     },
     modalPromoMsg: {
         fontWeight: '600',

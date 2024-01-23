@@ -1,12 +1,7 @@
-import { StyleSheet, Image, Text, View, Button, Modal, Alert, Platform, ScrollView } from 'react-native';
-// import { TextInput } from 'react-native-gesture-handler';
-import MaskInput from 'react-native-mask-input';
-import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
-import { useRef, useState } from 'react';
-import ProfileEdit from './ProfileEdit';
+import { StyleSheet, Image, Text, View, Alert, ScrollView } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from "@react-navigation/native";
-import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { useIsFocused } from "@react-navigation/native";
@@ -38,7 +33,6 @@ const Profile = ({ route, navigation }) => {
                             method: 'PUT'
                         }).then(async (res) => {
                             await AsyncStorage.removeItem('token');
-                            console.log('Token removed successfully');
                             navigation.navigate('LandingScreen')
                         });
                         // navigation.navigate('LandingScreen')
@@ -51,7 +45,6 @@ const Profile = ({ route, navigation }) => {
 
     async function setMemData(value) {
         await setMemberData(value);
-        console.log('111111', MemberData)
         setName(value[0].name);
         setEmail(value[0].emailId);
         let bDay = (value[0].birthDay == '' || value[0].birthDay == null || value[0].birthDay == undefined ||
@@ -74,8 +67,7 @@ const Profile = ({ route, navigation }) => {
             })
             .catch(error => {
                 console.error('Error retrieving dataa:', error);
-            });
-        console.log('platform', Platform.OS);
+            });        
     }, [focus]);
 
     return (

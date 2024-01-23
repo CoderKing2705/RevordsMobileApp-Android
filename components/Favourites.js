@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Image, Text, View, TouchableOpacity, Modal, ToastAndroid } from 'react-native';
 import Globals from '../components/Globals';
-import { Button, Card } from 'react-native-paper';
+import { Card } from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as Progress from 'react-native-progress';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -17,7 +17,7 @@ const Favourite = ({ navigation }) => {
     const businessGroupId = "1";
     lang = 0;
     lat = 0;
-    // const wishListUrl = `${Globals.API_URL}/MembersWishLists/GetMemberWishListByMemberID`;
+    const wishListUrl = `${Globals.API_URL}/MembersWishLists/GetMemberWishListByMemberID`;
     const userEarnedRewardsAPI = Globals.API_URL + `/RewardConfigs/GetRewardConfigBusinessGroupwiseMemberwise/${businessGroupId}`;
     const [wishList, setWishList] = useState([]);
     const [promotionClaimData, setPromotionClaimData] = useState([]);
@@ -89,7 +89,6 @@ const Favourite = ({ navigation }) => {
     }
     const openAnnouncementModal = async (announcement, item) => {
         setLoading(true)
-        console.log(announcement);
         await setIsAnnouncementModalVisibleData(announcement, item);
         setLoading(false)
     }
@@ -157,7 +156,6 @@ const Favourite = ({ navigation }) => {
     }
 
     const getRefreshData = () => {
-        console.log('dfghbgjdnfjknb')
         AsyncStorage.getItem('token')
             .then(async (value) => {
                 setLoading(true);
@@ -168,7 +166,6 @@ const Favourite = ({ navigation }) => {
                         method: 'GET',
                         url: `${wishListUrl}/${memberID}`
                     }).then(async (response) => {
-                        console.log('response---', response.data)
                         await Geolocation.getCurrentPosition(
                             async position => {
                                 const { latitude, longitude } = position.coords;
@@ -228,7 +225,6 @@ const Favourite = ({ navigation }) => {
     }
 
     const likeProfile = (business) => {
-        console.log('businesssssss', business)
         AsyncStorage.getItem('token')
             .then(async (value) => {
                 if (value !== null) {
@@ -238,9 +234,6 @@ const Favourite = ({ navigation }) => {
                         }
                     })
                     memberID = (JSON.parse(value))[0].memberId;
-                    console.log(memberID)
-                    console.log('business', business.id)
-                    console.log('businessGroup', business.businessGroupID)
                     let currentDate = (new Date()).toISOString();
                     await fetch(Globals.API_URL + '/MembersWishLists/PostMemberWishlistInMobile', {
                         method: 'POST',
@@ -285,7 +278,6 @@ const Favourite = ({ navigation }) => {
                         );
                         await getRefreshData();
                     }).catch(async(error) => {
-                        console.log("Error fetching data:/", error)
                         await wishList.map((data1, index) => {
                             if(business.businessId == data1.businessId){
                                 data1.isLiked = true;

@@ -11,7 +11,6 @@ const GetOtp = ({ route, navigation }) => {
     let { OTP, CustomerExists, Phone } = route.params;
     const [seconds, setSeconds] = useState(60);
     const [isResentDisabled, setResentDisabled] = useState(false);
-    const [token, setToken] = useState(null);
 
     const handleInputChange = (text, index) => {
         let newOtp = [...otp];
@@ -45,7 +44,6 @@ const GetOtp = ({ route, navigation }) => {
     };
 
     const resendOtp = async () => {
-        console.log('resend')
         const randomOtp = await generateRandomNumber();
         try {
             fetch(`${Globals.API_URL}/Mail/SendOTP/${parseFloat(Phone)}/${randomOtp}`, {
@@ -59,7 +57,6 @@ const GetOtp = ({ route, navigation }) => {
                 setResentDisabled(true);
             });
         } catch (error) {
-            console.log(error);
             ToastAndroid.showWithGravityAndOffset(
                 'There is some issue! TRY Again after few minutes!',
                 ToastAndroid.LONG,

@@ -27,11 +27,9 @@ const AppTourGuide = ({ route, navigation }) => {
         if (MemberData) {
             // let platformOS = (Platform.OS == "android" ? 1 : 2);
             await getDeviceToken();
-            console.log('platformOSssssw', platformOS)
             fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}`, {
                 method: 'PUT'
             }).then((res) => {
-                console.log('tokenId set')
                 navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
             });
         } else {
@@ -46,7 +44,6 @@ const AppTourGuide = ({ route, navigation }) => {
             fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}`, {
                 method: 'PUT'
             }).then((res) => {
-                console.log('tokenId set')
                 navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
             });
         } else {

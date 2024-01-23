@@ -1,17 +1,13 @@
-import { StyleSheet, View, Text, Image, TextInput, PermissionsAndroid, SafeAreaView, BackHandler, Alert } from 'react-native';
-import MapView, { Marker, Callout, PROVIDER_GOOGLE, CalloutSubview } from 'react-native-maps';
+import { StyleSheet, View, Text, Image, TextInput, PermissionsAndroid, SafeAreaView, BackHandler } from 'react-native';
+import MapView, { Marker, Callout, PROVIDER_GOOGLE } from 'react-native-maps';
 import { TouchableHighlight, TouchableOpacity } from 'react-native-gesture-handler';
-import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import React, { useState, useEffect, useCallback } from 'react';
-import customIcon from '../assets/casinoIcon.png';
 import currentIcon from '../assets/currentlocation.png';
-import GeoLocation from 'react-native-geolocation-service';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import * as Location from 'expo-location';
 import Geolocation from '@react-native-community/geolocation';
 import Globals from './Globals';
 import axios from 'axios';
-import { Button } from 'react-native-paper';
 import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -59,7 +55,6 @@ export default function MapViewing({ navigation }) {
         }, []));
 
     useEffect(() => {
-        console.log('netinfo', netinfo)
         setLoading(true);
         requestLocationPermission();
         checkApplicationPermission();
@@ -73,7 +68,6 @@ export default function MapViewing({ navigation }) {
                         url: `${baseUrl}/${(JSON.parse(value))[0].memberId}`
                     })
                         .then(async response => {
-                            console.log('businesdata-----', response.data)
                             await setBusinessDataWhole(response.data);
                             setLoading(false);
                         })
@@ -110,8 +104,6 @@ export default function MapViewing({ navigation }) {
     const getCurrentLocation = async () => {
         Geolocation.getCurrentPosition(
             async position => {
-                const { latitude, longitude } = position.coords;
-                console.log('position.coords', latitude)
                 await setLangandLat(position.coords.latitude, position.coords.longitude);
                 await setMarkers(position.coords.latitude, position.coords.longitude);
                 // You can now use the latitude and longitude in your app
@@ -173,7 +165,6 @@ export default function MapViewing({ navigation }) {
                 if (newPermissionStatus === RESULTS.GRANTED) {
                     await handleCheckPressed();
                     await getCurrentLocation();
-                    console.log('Location permission granted');
                     // You can now access the location
                 } else {
                     console.log('Location permission denied');
@@ -205,7 +196,7 @@ export default function MapViewing({ navigation }) {
 
             <View style={{ flexDirection: 'row', width: '100%', height: 75, marginTop: 20, }}>
                 <View style={{ width: '82%', paddingHorizontal: '2%', height: '70%' }}>
-                    <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)} />
+                    <TextInput style={styles.searchInput} placeholder='Search..'  onChangeText={text => handleInputChange(text)} />
                     <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                 </View>
                 <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('Locations')}

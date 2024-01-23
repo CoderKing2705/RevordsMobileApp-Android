@@ -18,7 +18,6 @@ const Favourite = ({ navigation }) => {
     lang = 0;
     lat = 0;
     const wishListUrl = `${Globals.API_URL}/MembersWishLists/GetMemberWishListByMemberID`;
-    const userEarnedRewardsAPI = Globals.API_URL + `/RewardConfigs/GetRewardConfigBusinessGroupwiseMemberwise/${businessGroupId}`;
     const [wishList, setWishList] = useState([]);
     const [promotionClaimData, setPromotionClaimData] = useState([]);
     const [autoPilotClaimData, setAutoPilotClaimData] = useState([]);
@@ -46,7 +45,7 @@ const Favourite = ({ navigation }) => {
             scale: 1
         }
     }
-    
+
     async function setLangandLat(latitude, longitude) {
         lang = longitude;
         lat = latitude;
@@ -171,7 +170,6 @@ const Favourite = ({ navigation }) => {
                                 const { latitude, longitude } = position.coords;
 
                                 await setLangandLat(latitude, longitude);
-                                // You can now use the latitude and longitude in your app
 
                                 await response.data.map((data1, index) => {
 
@@ -229,7 +227,7 @@ const Favourite = ({ navigation }) => {
             .then(async (value) => {
                 if (value !== null) {
                     await wishList.map((data1, index) => {
-                        if(business.businessId == data1.businessId){
+                        if (business.businessId == data1.businessId) {
                             data1.isLiked = true;
                         }
                     })
@@ -277,9 +275,9 @@ const Favourite = ({ navigation }) => {
                             50,
                         );
                         await getRefreshData();
-                    }).catch(async(error) => {
+                    }).catch(async (error) => {
                         await wishList.map((data1, index) => {
-                            if(business.businessId == data1.businessId){
+                            if (business.businessId == data1.businessId) {
                                 data1.isLiked = true;
                             }
                         })
@@ -298,7 +296,7 @@ const Favourite = ({ navigation }) => {
 
     useEffect(() => {
         getRefreshData();
-    }, [isFocused]);    
+    }, [isFocused]);
 
     return (
         <View style={styles.container} >
@@ -325,16 +323,13 @@ const Favourite = ({ navigation }) => {
                                     <Image source={{ uri: Globals.Root_URL + item.logoPath }} style={styles.logoBusiness} />
                                     <View style={{ position: 'absolute', right: '1%', flexDirection: 'row' }}>
                                         {item.isLiked && <Image source={require('../assets/likeFill.png')} style={styles.likeHeart} />}
-                                        {!item.isLiked &&        
+                                        {!item.isLiked &&
                                             <TouchableOpacity activeOpacity={.7} onPress={() => likeProfile(item)}>
                                                 <Animatable.Image
                                                     animation={pulse}
                                                     easing="ease-in-out"
                                                     iterationCount="infinite" style={styles.likeHeart} source={require('../assets/likeOutline.png')} />
                                             </TouchableOpacity>
-                                            // <TouchableOpacity activeOpacity={.7} onPress={() => likeProfile(item)}>
-                                            //     <Image source={require('../assets/likeOutline.png')} style={styles.likeHeart} />
-                                            // </TouchableOpacity>
                                         }
                                         <Text style={styles.totalLikes}> {item.likeCount} Likes </Text>
                                     </View>
@@ -379,7 +374,6 @@ const Favourite = ({ navigation }) => {
                                                     <Text style={styles.achievableName}>{autopilot.rewardName}</Text>
                                                     {autopilot.expiryDays > 1 && <Text style={styles.achievalbeValue}>Expires in - {autopilot.expiryDays} days</Text>}
                                                     {autopilot.expiryDays == 1 && <Text style={styles.achievalbeValue}>Expiring Today</Text>}
-                                                    {/* {autopilot.expiryDays == 0 &&<Text style={styles.achievalbeValue}>Expiring Today</Text>} */}
                                                     <TouchableOpacity activeOpacity={.7} onPress={() => openAPModal(autopilot, item)} style={[autopilot.isClaimed == false ? styles.frame2vJuClaim : styles.frame2vJuClaimed]}>
                                                         {autopilot.isClaimed == false && <Text style={styles.getStartednru}>Claim</Text>}
                                                         {autopilot.isClaimed == true && <Text style={styles.getStartednru}>Claimed</Text>}
@@ -454,7 +448,6 @@ const Favourite = ({ navigation }) => {
                         <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer End Date </Text>- {moment(promotionClaimData.offerEndDate).format("MM/DD/YYYY")}</Text>
                         {promotionClaimData.expiryDays > 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in </Text>- {promotionClaimData.expiryDays} days</Text>}
                         {promotionClaimData.expiryDays == 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today </Text></Text>}
-                        {/* {promotionClaimData.expiryDays == 0 &&<Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today</Text></Text>} */}
 
                         {promotionClaimData.isSpinWheel && <Text style={styles.modaltext}>Spin the wheel and get rewards at store</Text>}
 
@@ -491,7 +484,6 @@ const Favourite = ({ navigation }) => {
                         <Text style={styles.modalPromoMsg}>{autoPilotClaimData.rewardName}</Text>
                         {autoPilotClaimData.expiryDays > 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in </Text>- {autoPilotClaimData.expiryDays} days</Text>}
                         {autoPilotClaimData.expiryDays == 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today</Text></Text>}
-                        {/* {autoPilotClaimData.expiryDays == 0 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today</Text></Text>} */}
 
                         {(autoPilotClaimData.filePath != '' && autoPilotClaimData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + autoPilotClaimData.filePath }} ></Image>}
                         <Text style={styles.modaltext}>Redeemable at -<Text style={{ fontWeight: '700' }}> Any Locations</Text></Text>
@@ -527,10 +519,6 @@ const Favourite = ({ navigation }) => {
                         {announcementClaimData.validDate && <Text style={[styles.modaltext, { textAlign: 'center' }]}><Text style={{ fontWeight: '700' }}>Expiry Date: </Text>{moment(announcementClaimData.validDate).format("MM/DD/YYYY")}</Text>}
 
                         {(announcementClaimData.fileName != '' && announcementClaimData.fileName != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + announcementClaimData.fileName }} ></Image>}
-
-                        {/* <TouchableOpacity activeOpacity={.7} onPress={closeAnnouncementModal} style={styles.frame2vJu1ModalBack}>
-                            <Text style={styles.getStartednru1}>Back</Text>
-                        </TouchableOpacity> */}
 
                     </View>
                 </View>
@@ -575,11 +563,17 @@ const styles = StyleSheet.create({
         borderRadius: 15
     },
     suncontainer: {
-        width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center'
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     modcontainer: {
-
-        width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', position: 'absolute'
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'absolute'
     },
     modal: {
         alignSelf: 'center',
@@ -683,7 +677,6 @@ const styles = StyleSheet.create({
         color: '#73a5bc',
         fontWeight: '800',
         top: 60,
-        // left: 40,
         alignSelf: 'center',
         bottom: 12,
         fontSize: 13
@@ -707,10 +700,8 @@ const styles = StyleSheet.create({
         fontSize: 15,
         width: 150,
         height: 50,
-        // top: '20%',
         paddingHorizontal: 5,
         paddingVertical: 7
-        // left: 5
     },
     scrollviewContainer: {
         flex: 1,
@@ -748,41 +739,30 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         fontSize: 14,
         paddingVertical: 10
-        // bottom: '6%',
-        // right: '1.5%'
     },
     industry: {
         color: '#717679',
         fontWeight: '700',
         fontSize: 15,
-        // bottom: '10%',
-        // right: '1.5%'
     },
     totalLikes: {
         alignSelf: 'flex-end',
-        // bottom: '19%',
-        // right: '1%',
         fontWeight: '700',
         fontSize: 14,
         color: '#717679',
-        // position: 'absolute',
         top: 25
     },
     likeHeart: {
         width: 24,
         height: 21,
         alignSelf: 'flex-end',
-        // right: '21%',
-        // position: 'absolute',
         top: 25,
-        // bottom: '12%',
         marginRight: 5
     },
     businessName: {
         fontWeight: '800',
         fontSize: 18,
         color: '#000000',
-        // bottom: '12%',
     },
     logoBusiness: {
         height: 50,

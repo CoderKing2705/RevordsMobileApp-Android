@@ -49,11 +49,8 @@ const LandingScreen = ({ navigation }) => {
             <SafeAreaView style={{ flex: 1 }}>
                 <View style={styles.container}>
                     <Spinner
-                        //visibility of Overlay Loading Spinner
                         visible={loading}
-                        //Text with the Spinner
                         textContent={''}
-                        //Text style of the Spinner Text
                         textStyle={styles.spinnerTextStyle}
                     />
                 </View>

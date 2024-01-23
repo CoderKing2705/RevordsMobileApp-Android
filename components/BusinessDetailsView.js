@@ -25,7 +25,6 @@ export default function BusinessDetailsView({ route }) {
     const [loading, setLoading] = useState(false);
     const businessDetailsAPI = `${Globals.API_URL}/BusinessProfiles/GetBusinessLocationWiseMemberDetails`;
     const businessGroupId = "1";
-    const userEarnedRewardsAPI = Globals.API_URL + `/RewardConfigs/GetRewardConfigBusinessGroupwiseMemberwise/${businessGroupId}`;
     const id = route.params.id;
     const [businessDetails, setBusinessDetails] = useState([]);
     const [earnerRewards, setEarnedRevards] = useState([]);
@@ -41,7 +40,6 @@ export default function BusinessDetailsView({ route }) {
     const galleryImagePath2Url = Globals.Root_URL + `${galleryImagePath2}`;
     const galleryImagePath3Url = Globals.Root_URL + `${galleryImagePath3}`;
     const galleryImagePath4Url = Globals.Root_URL + `${galleryImagePath4}`;
-    const wdays = Globals.API_URL + '/BusinessProfiles/GetBusinesswiseWorkingDaysForMobile';
     const [workingDays, setWorkingDays] = useState([{}]);
     const [selectedMarker, setSelectedMarker] = useState(null);
     const [error, setError] = useState(null);
@@ -126,7 +124,7 @@ export default function BusinessDetailsView({ route }) {
                     await axios({
                         method: 'GET',
                         url: `${businessDetailsAPI}/${id}/${(JSON.parse(value))[0].memberId}`
-                    }).then(async (response) => {                        
+                    }).then(async (response) => {
                         await getLocation(response);
                     }).catch((error) => {
                         setLoading(false);
@@ -149,8 +147,6 @@ export default function BusinessDetailsView({ route }) {
         if (!buttonClicked) {
             setButtonClicked(true);
             setLoading(true);
-            // if (!isSave) {
-            //     isSave = true;
             AsyncStorage.getItem('token')
                 .then(async (value) => {
                     if (value !== null) {
@@ -210,7 +206,6 @@ export default function BusinessDetailsView({ route }) {
                 })
                 .catch(error => {
                     console.error('Error retrieving dataa:', error);
-                    // isSave = false;
                     setLoading(false);
                     setButtonClicked(false);
                 });
@@ -219,14 +214,6 @@ export default function BusinessDetailsView({ route }) {
 
     useEffect(() => {
         LoadData();
-
-        // axios({
-        //     method: 'GET',
-        //     url: `${wdays}/${id}`
-        // }).then(async (response) => {
-        //     await setworkingDaysAwait(response.data);
-        //     setLoading(false);
-        // });
     }, [isFocused])
 
     const handleGalleryImagePress = (index) => {
@@ -294,8 +281,6 @@ export default function BusinessDetailsView({ route }) {
                                     ))}
                                 </View>
                             }
-                            {/* {businessDetails.autopilotData.length > 0 &&
-                                <View style={{ paddingHorizontal: '3%' }}> */}
                             {businessDetails.autopilotData && businessDetails.autopilotData.map((auto, index) => (
                                 <View style={{ paddingHorizontal: '3%' }} key={index}>
                                     <Fragment>
@@ -340,8 +325,6 @@ export default function BusinessDetailsView({ route }) {
                                     </Fragment>
                                 </View>
                             ))}
-                            {/* </View>
-                            } */}
                             {businessDetails.rewardData && businessDetails.rewardData.length > 0 && <View style={{ paddingHorizontal: '3%' }}>
                                 <Text style={styles.loyaltyRewards}>Loyalty Rewards</Text>
                                 <Text style={styles.subheading}>Earn {businessDetails.rewardData[0].claimPointBusinessGroup} pt for every {businessDetails.rewardData[0].reclaimHours} hours</Text>
@@ -525,7 +508,6 @@ const styles = StyleSheet.create({
         height: 40
     },
     getStartednru: {
-        // lineHeight: 22.5,
         textTransform: 'uppercase',
         fontFamily: 'SatoshiVariable, SourceSansPro',
         flexShrink: 0,

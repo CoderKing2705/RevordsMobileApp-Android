@@ -22,7 +22,6 @@ const Location = ({ navigation }) => {
     lat = 0;
     const [loadingData, setLoadingData] = useState(true);
     const [userData, setUserData] = useState('');
-    const userId = "1";
     const baseUrl = Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesForMobile";
     const pulse = {
         0: {
@@ -66,7 +65,7 @@ const Location = ({ navigation }) => {
     async function handleEnabledPressed() {
         if (Platform.OS === 'android') {
             try {
-                const enableResult = await promptForEnableLocationIfNeeded();
+                await promptForEnableLocationIfNeeded();
                 await getData();
 
             } catch (error) {
@@ -100,9 +99,7 @@ const Location = ({ navigation }) => {
                         await Geolocation.getCurrentPosition(
                             async position => {
                                 const { latitude, longitude } = position.coords;
-
                                 await setLangandLat(latitude, longitude);
-                                // You can now use the latitude and longitude in your app
                                 await response.data.map((data1, index) => {
                                     const toRadian = n => (n * Math.PI) / 180
                                     let lat2 = data1.latitude
@@ -134,8 +131,6 @@ const Location = ({ navigation }) => {
                             },
                             { enableHighAccuracy: false, timeout: 5000 }
                         );
-
-
                     }).catch((error) => {
                         console.error("Error fetching data", error)
                     });
@@ -150,7 +145,7 @@ const Location = ({ navigation }) => {
 
     useEffect(() => {
         handleCheckPressed();
-    }, [focus]);   
+    }, [focus]);
 
     const handleInputChange = (text) => {
         if (text === '') {
@@ -166,11 +161,11 @@ const Location = ({ navigation }) => {
             .then(async (value) => {
                 if (value !== null) {
                     await filteredData.map((data1, index) => {
-                        if(business.id == data1.id){
+                        if (business.id == data1.id) {
                             data1.isLiked = true;
                         }
                     })
-                    memberID = (JSON.parse(value))[0].memberId;                   
+                    memberID = (JSON.parse(value))[0].memberId;
                     let currentDate = (new Date()).toISOString();
                     await fetch(Globals.API_URL + '/MembersWishLists/PostMemberWishlistInMobile', {
                         method: 'POST',
@@ -214,9 +209,9 @@ const Location = ({ navigation }) => {
                             50,
                         );
                         await handleCheckPressed();
-                    }).catch(async(error) => {
+                    }).catch(async (error) => {
                         await filteredData.map((data1, index) => {
-                            if(business.id == data1.id){
+                            if (business.id == data1.id) {
                                 data1.isLiked = false;
                             }
                         })
@@ -246,7 +241,7 @@ const Location = ({ navigation }) => {
 
                     <View style={{ width: '97%', height: '90%', marginTop: 10 }}>
                         <View style={styles.searchBoxMain}>
-                            <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)}/>                           
+                            <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)} />
                             <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                             <TouchableOpacity style={{ width: '16%', marginRight: '2%', }} activeOpacity={.7} onPress={() => navigation.navigate("MapViewing")}>
                                 <View style={styles.mainMapImage}>
@@ -277,7 +272,6 @@ const Location = ({ navigation }) => {
                                                         {(item.isLiked == false) && <TouchableOpacity activeOpacity={.7} onPress={() => likeProfile(item)}>
                                                             <Animatable.Image animation={pulse} easing="ease-in-out" iterationCount="infinite"
                                                                 style={{ width: 25, height: 25, left: '41%', position: 'absolute' }} source={require('../assets/likeOutline.png')} />
-                                                            {/* <Image source={require('../assets/likeOutline.png')} style={{ width: 25, height: 25, left: '41%', position: 'absolute' }}></Image> */}
                                                         </TouchableOpacity>}
                                                         {(item.isLiked == true) && <TouchableOpacity activeOpacity={.7}>
                                                             <Image source={require('../assets/likeFill.png')} style={{ width: 25, height: 25, left: '41%', position: 'absolute' }}></Image>

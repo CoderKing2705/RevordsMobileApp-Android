@@ -15,7 +15,6 @@ import moment from 'moment/moment';
 const NotificationTray = ({ navigation }) => {
     const focus = useIsFocused();
     memberID = 0;
-    // const [loadingData, setLoadingData] = useState(true);
     const [userData, setUserData] = useState('');
     const baseUrl = Globals.API_URL + "/MembersWishLists/GetMobileNotificationTray"
     const [MemberData, setMemberData] = useState([{}]);
@@ -357,7 +356,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderTopColor: 'black',
         borderTopWidth: StyleSheet.hairlineWidth,
-        paddingVertical: 5        
+        paddingVertical: 5
     },
     modalPromoMsg: {
         fontWeight: '600',

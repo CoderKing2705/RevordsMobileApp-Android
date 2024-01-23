@@ -32,7 +32,6 @@ export default function App() {
       .then(async (value) => {
         if (value !== null) {
           await handleCheckPressed((JSON.parse(value))[0].memberId);
-          // await postData((JSON.parse(value))[0].memberId);
         }
       })
   }, []);
@@ -43,43 +42,10 @@ export default function App() {
   };
 
   const postData = async (memberId) => {
-    // let currentDate = (new Date()).toISOString();
-    // platformOS = (Platform.OS == "android" ? 1 : 2);
-    // await getDeviceToken();
-    // console.log(long)
-    // console.log(lat)
-
-    // fetch(Globals.API_URL + '/MobileAppVisitersLogs/PostMobileAppVisitersLog', {
-    //   method: 'POST',
-    //   headers: {
-    //     Accept: 'application/json',
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     "uniqueID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    //     "id": 0,
-    //     "memberId": memberId,
-    //     "createdDate": currentDate,
-    //     "deviceOS": platformOS,
-    //     "appToken": token,
-    //     "longitude": long,
-    //     "latitude": lat
-    //   })
-    // })
-    //   .then((response) => {
-    //     console.log('JSON.stringify(res)', JSON.stringify(response));
-    //   })
-    //   .catch((error) => {
-    //     console.log("Error Saving Logs:- ", error)
-    //   })
-
 
     let currentDate = (new Date()).toISOString();
     platformOS = (Platform.OS == "android" ? 1 : 2);
     await getDeviceToken();
-    console.log(long)
-    console.log(lat)
-
     await fetch(Globals.API_URL + '/MobileAppVisitersLogs/PostMobileAppVisitersLog', {
       method: 'POST',
       headers: {
@@ -111,7 +77,6 @@ export default function App() {
       console.log('checkEnabled', checkEnabled)
       if (!checkEnabled) {
         await handleEnabledPressed(memberId);
-        // await getCurrentLocation();
       }
       else {
         await getCurrentLocation(memberId);
@@ -146,8 +111,6 @@ export default function App() {
   const getCurrentLocation = async (memberId) => {
     await Geolocation.getCurrentPosition(
       async position => {
-        // long = position.coords.longitude;
-        // lat = position.coords.latitude;
         await setLangandLat(position.coords.latitude, position.coords.longitude, memberId);
 
       },
@@ -157,40 +120,7 @@ export default function App() {
       { enableHighAccuracy: false, timeout: 10000 }
     );
   };
-
-  // const requestLocationPermission = async () => {
-  //   try {
-  //     let permissionStatus;
-
-  //     if (Platform.OS === 'ios') {
-  //       permissionStatus = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-  //     } else if (Platform.OS === 'android') {
-  //       permissionStatus = await check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
-  //     }
-
-  //     if (permissionStatus === RESULTS.GRANTED) {
-  //       await handleCheckPressed();
-  //       // await getCurrentLocation();
-  //       // You can now access the location
-  //     } else if (permissionStatus === RESULTS.DENIED) {
-  //       const newPermissionStatus = await request(
-  //         Platform.OS === 'ios'
-  //           ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
-  //           : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
-  //       );
-
-  //       if (newPermissionStatus === RESULTS.GRANTED) {
-  //         await handleCheckPressed();
-  //         // await getCurrentLocation();
-  //       } else {
-  //         console.log('Location permission denied');
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error('Error checking/requesting location permission: ', error);
-  //   }
-  // };
-
+  
   return (
     <NavigationContainer>
       <Stack.Navigator>

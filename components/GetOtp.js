@@ -90,11 +90,8 @@ const GetOtp = ({ route, navigation }) => {
         }, 1000);
 
         if (seconds === 0) {
-            // Add your logic here when the timer reaches 0
-            clearInterval(interval); // Clear the interval to stop the timer
+            clearInterval(interval); 
         }
-
-        // Clear the interval when the component is unmounted
         return () => clearInterval(interval);
     }, [seconds]);
 

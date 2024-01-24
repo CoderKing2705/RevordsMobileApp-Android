@@ -367,8 +367,7 @@ const ProfileEdit = ({ navigation, route }) => {
                                                     value={(birthDate == '' || birthDate == null || birthDate == undefined) ? 'No BirthDate Given' : birthDate}
                                                     editable={false}
                                                 />
-                                            </TouchableOpacity>}
-                                        {/* {MemberData[0].isBirthDateChange && <Text></Text>} */}
+                                            </TouchableOpacity>}         
                                         {!MemberData[0].isBirthDateChange &&
                                             <>
                                                 <View style={styles.pickerContainer}>
@@ -429,11 +428,8 @@ const ProfileEdit = ({ navigation, route }) => {
                 <SafeAreaView style={{ flex: 1 }}>
                     <View style={styles.container}>
                         <Spinner
-                            //visibility of Overlay Loading Spinner
                             visible={loading}
-                            //Text with the Spinner
                             textContent={''}
-                            //Text style of the Spinner Text
                             textStyle={styles.spinnerTextStyle}
                         />
                     </View>

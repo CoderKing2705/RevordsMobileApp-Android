@@ -11,7 +11,6 @@ import axios from 'axios';
 import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { useNetInfo } from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -19,17 +18,11 @@ export default function MapViewing({ navigation }) {
     const isFocused = useIsFocused();
     const [filteredData, setFilteredData] = useState('');
     const [initialRegion, setInitialRegion] = useState(null);
-    const [markerForOther, setMarkersForOtherBusiness] = useState({ title: '', coordinate: { latitude: 0.00000, longitude: 0.00000 } });
-    const [locationPermission, setLocationPermission] = useState(null);
-    const [location, setLocation] = useState(null);
-    const [errorMsg, setErrorMsg] = useState(null);
     lang = 0;
     lat = 0;
     const [businessData, setBusinessData] = useState([{}]);
-    const businessGroupID = "1";
     const baseUrl = Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesForMobile"
     const [loading, setLoading] = useState(false);
-    const netinfo = useNetInfo();
 
     async function handleCheckPressed() {
         if (Platform.OS === 'android') {
@@ -62,7 +55,6 @@ export default function MapViewing({ navigation }) {
         AsyncStorage.getItem('token')
             .then(async (value) => {
                 if (value !== null) {
-                    // memberID = (JSON.parse(value))[0].memberId;
                     axios({
                         method: 'GET',
                         url: `${baseUrl}/${(JSON.parse(value))[0].memberId}`
@@ -106,7 +98,6 @@ export default function MapViewing({ navigation }) {
             async position => {
                 await setLangandLat(position.coords.latitude, position.coords.longitude);
                 await setMarkers(position.coords.latitude, position.coords.longitude);
-                // You can now use the latitude and longitude in your app
             },
             error => {
                 console.error('Error getting current location: ', error);
@@ -154,7 +145,6 @@ export default function MapViewing({ navigation }) {
             if (permissionStatus === RESULTS.GRANTED) {
                 await handleCheckPressed();
                 await getCurrentLocation();
-                // You can now access the location
             } else if (permissionStatus === RESULTS.DENIED) {
                 const newPermissionStatus = await request(
                     Platform.OS === 'ios'
@@ -165,7 +155,6 @@ export default function MapViewing({ navigation }) {
                 if (newPermissionStatus === RESULTS.GRANTED) {
                     await handleCheckPressed();
                     await getCurrentLocation();
-                    // You can now access the location
                 } else {
                     console.log('Location permission denied');
                 }
@@ -319,7 +308,6 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 22,
         fontWeight: '800',
-        // marginTop: '5%',
         textAlign: 'center',
         width: '80%'
     },
@@ -359,7 +347,6 @@ const styles = StyleSheet.create({
     mapImage: {
         width: 26,
         height: 24,
-        // backgroundColor: '#3380a3',
     },
     mainMapImage: {
         backgroundColor: '#3380a3',
@@ -407,7 +394,6 @@ const styles = StyleSheet.create({
     mapViewMain: {
         position: 'relative',
         flex: 0,
-        // marginTop: 15,
     },
     mapView: {
         width: '100%',

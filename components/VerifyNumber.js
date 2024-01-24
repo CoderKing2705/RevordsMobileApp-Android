@@ -12,7 +12,7 @@ const VerifyNumber = ({ navigation }) => {
   const [unMaskPhone, setunMaskPhone] = useState('');
   const [isValid, setIsValid] = useState(true);
 
-  spinner = false;
+
   randomnumber = "";
   CustomerExists = false;
 
@@ -75,9 +75,6 @@ const VerifyNumber = ({ navigation }) => {
           );
         }
       }
-
-
-
     } catch (error) {
       setLoading(false);
       alert(error)
@@ -148,12 +145,9 @@ const VerifyNumber = ({ navigation }) => {
         </TouchableOpacity>
         <SafeAreaView style={{ flex: 1 }}>
           <View style={styles.container}>
-            <Spinner
-              //visibility of Overlay Loading Spinner
+            <Spinner             
               visible={loading}
-              //Text with the Spinner
               textContent={''}
-              //Text style of the Spinner Text
               textStyle={styles.spinnerTextStyle}
             />
           </View>
@@ -180,8 +174,7 @@ const styles = StyleSheet.create({
   companylogo: {
     flexShrink: 0,
     width: '70%',
-    resizeMode: 'contain',
-    // marginTop: '-10%'
+    resizeMode: 'contain'
   },
   deviceView: {
     backgroundColor: '#fff',
@@ -190,7 +183,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: '5%',
     borderRadius: 500,
-    // marginTop: '-10%',
     justifyContent: 'center'
   },
   mobilelogo: {
@@ -216,8 +208,7 @@ const styles = StyleSheet.create({
   textInputUS: {
     alignSelf: 'center',
     fontSize: 20,
-    paddingRight: 5,
-    // top: 2
+    paddingRight: 5
   },
   frame2vJu: {
     marginTop: '5%',

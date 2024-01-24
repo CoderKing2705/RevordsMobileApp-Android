@@ -1,7 +1,6 @@
-import { StyleSheet, Image, Text, View, Alert, ScrollView } from 'react-native';
+import { StyleSheet, Image, Text, View, Alert, ScrollView, Linking } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useState } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { useIsFocused } from "@react-navigation/native";
@@ -9,14 +8,12 @@ import Globals from './Globals';
 
 const Profile = ({ route, navigation }) => {
     const focus = useIsFocused();
-    const Stack = createNativeStackNavigator();
     const [name, setName] = useState('');
     const [emailId, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [birthDay, setBirthDay] = useState('');
     const [memberProfilePic, setMemberProfilePic] = useState('');
     const [MemberData, setMemberData] = useState([{}]);
-    // const TokenNull = '';
     const appVersion = require('../package.json').version;
 
     const createTwoButtonAlert = () =>
@@ -35,7 +32,6 @@ const Profile = ({ route, navigation }) => {
                             await AsyncStorage.removeItem('token');
                             navigation.navigate('LandingScreen')
                         });
-                        // navigation.navigate('LandingScreen')
                     } catch (error) {
                         console.error('Error removing token:', error);
                     }
@@ -67,7 +63,7 @@ const Profile = ({ route, navigation }) => {
             })
             .catch(error => {
                 console.error('Error retrieving dataa:', error);
-            });        
+            });
     }, [focus]);
 
     return (
@@ -139,8 +135,14 @@ const Profile = ({ route, navigation }) => {
                                 <View style={{
                                     flexDirection: 'row', width: '95%', alignItems: 'left', justifyContent: 'left', marginLeft: 16
                                 }}>
-                                    <Image source={require('../assets/group-6.png')} style={styles.iconimg1} />
-                                    <Text style={styles.innerDText}>Help Center</Text>
+                                    <TouchableOpacity activeOpacity={.7}
+                                        onPress={() => Linking.openURL('mailto:info@revords.com')}
+                                        style={{
+                                            flexDirection: 'row', alignItems: 'left', justifyContent: 'left',
+                                        }}>
+                                        <Image source={require('../assets/group-6.png')} style={styles.iconimg1} />
+                                        <Text style={styles.innerDText}>Help Center</Text>
+                                    </TouchableOpacity>
                                 </View>
                                 <View style={{
                                     flexDirection: 'row', width: '95%', alignItems: 'left', justifyContent: 'left',
@@ -189,7 +191,6 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
-        // marginTop: -15,
     },
     setimg1: {
         width: 50,

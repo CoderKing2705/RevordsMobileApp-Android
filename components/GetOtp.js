@@ -89,9 +89,10 @@ const GetOtp = ({ route, navigation }) => {
             setSeconds((prevSeconds) => prevSeconds - 1);
         }, 1000);
 
-        if (seconds === 0) {
+        if (seconds === 0) {            
             clearInterval(interval); 
         }
+
         return () => clearInterval(interval);
     }, [seconds]);
 

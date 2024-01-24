@@ -48,7 +48,6 @@ export default function RegistrationPage({ route }) {
     }, [selectedMonth]);
 
     let tokenid = "";
-    const days = Array.from({ length: 31 }, (_, index) => (index + 1).toString());
     const navigation = useNavigation();
 
     const getDeviceToken = async () => {
@@ -56,11 +55,7 @@ export default function RegistrationPage({ route }) {
     };
 
     const postData = async () => {
-        // const monthIndex = months.findIndex(month => month.toLowerCase() === selectedMonths.toLowerCase());
-        // const birthMonth = monthIndex > 8 ? monthIndex + 1 : '0' + (monthIndex + 1);
-        // const birthDay = selectDays > 9 ? selectDays : '0' + selectDays;
         await getDeviceToken();
-        const MemberData = [];
         let currentDate = (new Date()).toISOString();
         let currentYear = new Date().getFullYear();
         let platformOS = Platform.OS;
@@ -127,14 +122,6 @@ export default function RegistrationPage({ route }) {
             <View style={styles.lineTwo}></View>
             {!isValid && <Text style={{ color: 'red', marginTop: '2%', marginLeft: '4%', }}>Invalid Email Address</Text>}
 
-            {/* <View style={styles.grpDrpDown}>
-                <SelectDropdown style={styles.drpDownMonth} data={months} onSelect={(selectedItem, index) => setSelectedMonth(selectedItem)}
-                    defaultButtonText='Birth Month' buttonTextAfterSelection={(selectedItem, index) => selectedItem}
-                    rowTextForSelection={(item, index) => item} />
-                <SelectDropdown style={styles.drpDownDays} data={days} onSelect={(selectedItem, index) => setSelectedDays(selectedItem)}
-                    defaultButtonText='Birth Day' buttonTextAfterSelection={(selectedItem, index) => selectedItem}
-                    rowTextForSelection={(item, index) => item} />
-            </View> */}
             <View style={styles.pickerContainer}>
                 <RNPickerSelect
                     placeholder={{ label: 'Select Birth Month', value: null }}

@@ -120,7 +120,7 @@ export default function App() {
       { enableHighAccuracy: false, timeout: 10000 }
     );
   };
-  
+
   return (
     <NavigationContainer>
       <Stack.Navigator>

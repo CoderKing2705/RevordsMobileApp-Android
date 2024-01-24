@@ -1,4 +1,4 @@
-import { Modal, StyleSheet, ToastAndroid } from 'react-native'
+import { Linking, Modal, Platform, StyleSheet, ToastAndroid } from 'react-native'
 import { View, Text, Image } from 'react-native'
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -21,13 +21,10 @@ export default function BusinessDetailsView({ route }) {
     lang = 0;
     lat = 0;
     const [initialRegion, setInitialRegion] = useState(null);
-    let memberID = 0;
     const [loading, setLoading] = useState(false);
     const businessDetailsAPI = `${Globals.API_URL}/BusinessProfiles/GetBusinessLocationWiseMemberDetails`;
-    const businessGroupId = "1";
     const id = route.params.id;
     const [businessDetails, setBusinessDetails] = useState([]);
-    const [earnerRewards, setEarnedRevards] = useState([]);
     const imagePath = businessDetails ? businessDetails.imagePath : null;
     const logoPath = businessDetails ? businessDetails.logoPath : null;
     const galleryImagePath1 = businessDetails ? businessDetails.galleryImagePath1 : null;
@@ -40,11 +37,6 @@ export default function BusinessDetailsView({ route }) {
     const galleryImagePath2Url = Globals.Root_URL + `${galleryImagePath2}`;
     const galleryImagePath3Url = Globals.Root_URL + `${galleryImagePath3}`;
     const galleryImagePath4Url = Globals.Root_URL + `${galleryImagePath4}`;
-    const [workingDays, setWorkingDays] = useState([{}]);
-    const [selectedMarker, setSelectedMarker] = useState(null);
-    const [error, setError] = useState(null);
-    const [MemberData, setMemberData] = useState([{}]);
-    let isSave = false;
     const [buttonClicked, setButtonClicked] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -67,16 +59,6 @@ export default function BusinessDetailsView({ route }) {
 
     async function setBusinessDetailsAwait(data) {
         await setBusinessDetails(data);
-    }
-    async function setworkingDaysAwait(data) {
-        await setWorkingDays(data);
-    }
-
-    async function setMemData(value) {
-        await setMemberData(value);
-    }
-    async function setEarnedRevardsData(value) {
-        await setEarnedRevards(value);
     }
 
     const getLocation = (response) => {
@@ -120,7 +102,6 @@ export default function BusinessDetailsView({ route }) {
         AsyncStorage.getItem('token')
             .then(async (value) => {
                 if (value !== null) {
-                    memberID = (JSON.parse(value))[0].memberId;
                     await axios({
                         method: 'GET',
                         url: `${businessDetailsAPI}/${id}/${(JSON.parse(value))[0].memberId}`
@@ -129,9 +110,6 @@ export default function BusinessDetailsView({ route }) {
                     }).catch((error) => {
                         setLoading(false);
                     });
-
-                    await setMemData(JSON.parse(value));
-
                 } else {
                     console.log('not available')
                 }
@@ -150,8 +128,6 @@ export default function BusinessDetailsView({ route }) {
             AsyncStorage.getItem('token')
                 .then(async (value) => {
                     if (value !== null) {
-                        memberID = (JSON.parse(value))[0].memberId;
-
                         let currentDate = (new Date()).toISOString();
                         await fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileInMobileBySave', {
                             method: 'POST',
@@ -196,7 +172,6 @@ export default function BusinessDetailsView({ route }) {
                             );
                             await LoadData();
                         }).catch(async (error) => {
-                            // isSave = false;
                             setLoading(false);
                             setButtonClicked(false);
                         });
@@ -281,6 +256,7 @@ export default function BusinessDetailsView({ route }) {
                                     ))}
                                 </View>
                             }
+
                             {businessDetails.autopilotData && businessDetails.autopilotData.map((auto, index) => (
                                 <View style={{ paddingHorizontal: '3%' }} key={index}>
                                     <Fragment>
@@ -325,6 +301,7 @@ export default function BusinessDetailsView({ route }) {
                                     </Fragment>
                                 </View>
                             ))}
+
                             {businessDetails.rewardData && businessDetails.rewardData.length > 0 && <View style={{ paddingHorizontal: '3%' }}>
                                 <Text style={styles.loyaltyRewards}>Loyalty Rewards</Text>
                                 <Text style={styles.subheading}>Earn {businessDetails.rewardData[0].claimPointBusinessGroup} pt for every {businessDetails.rewardData[0].reclaimHours} hours</Text>
@@ -446,9 +423,13 @@ export default function BusinessDetailsView({ route }) {
                             </View>}
                             {businessDetails.phoneNo && <View style={{ paddingHorizontal: '3%' }} >
                                 <Text style={styles.adressHeading}>Phone:</Text>
-                                {businessDetails.phoneNo && <Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
-                                    {businessDetails.phoneNo.replace(/(\d{3})(\d{3})(\d{4})/, (_, a, b, c) => `(${a}) ${b}-${c}`)}
-                                </Text>}
+                                {businessDetails.phoneNo &&
+                                    <TouchableOpacity activeOpacity={.7}
+                                        onPress={() => Platform.OS === 'ios' ? Linking.openURL(`telprompt:${businessDetails.phoneNo}`) : Linking.openURL(`tel:${businessDetails.phoneNo}`)}>
+                                        <Text style={{ color: '#1a7da5', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
+                                            {businessDetails.phoneNo.replace(/(\d{3})(\d{3})(\d{4})/, (_, a, b, c) => `(${a}) ${b}-${c}`)}
+                                        </Text>
+                                    </TouchableOpacity>}
                             </View>}
                             {businessDetails.descriptions && <View style={{ paddingHorizontal: '3%' }} >
                                 <Text style={styles.adressHeading}>Description:</Text>

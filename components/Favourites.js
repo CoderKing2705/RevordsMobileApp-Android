@@ -41,7 +41,7 @@ const Favourite = ({ navigation }) => {
             scale: 1
         }
     }
-    
+
     async function setLangandLat(latitude, longitude) {
         lang = longitude;
         lat = latitude;
@@ -154,7 +154,7 @@ const Favourite = ({ navigation }) => {
                             async position => {
                                 const { latitude, longitude } = position.coords;
 
-                                await setLangandLat(latitude, longitude);                              
+                                await setLangandLat(latitude, longitude);
                                 await response.data.map((data1, index) => {
 
                                     const toRadian = n => (n * Math.PI) / 180
@@ -210,7 +210,7 @@ const Favourite = ({ navigation }) => {
             .then(async (value) => {
                 if (value !== null) {
                     await wishList.map((data1, index) => {
-                        if(business.businessId == data1.businessId){
+                        if (business.businessId == data1.businessId) {
                             data1.isLiked = true;
                         }
                     })
@@ -257,9 +257,9 @@ const Favourite = ({ navigation }) => {
                             50,
                         );
                         await getRefreshData();
-                    }).catch(async(error) => {
+                    }).catch(async (error) => {
                         await wishList.map((data1, index) => {
-                            if(business.businessId == data1.businessId){
+                            if (business.businessId == data1.businessId) {
                                 data1.isLiked = true;
                             }
                         })
@@ -278,7 +278,7 @@ const Favourite = ({ navigation }) => {
 
     useEffect(() => {
         getRefreshData();
-    }, [isFocused]);    
+    }, [isFocused]);
 
     return (
         <View style={styles.container} >
@@ -305,13 +305,13 @@ const Favourite = ({ navigation }) => {
                                     <Image source={{ uri: Globals.Root_URL + item.logoPath }} style={styles.logoBusiness} />
                                     <View style={{ position: 'absolute', right: '1%', flexDirection: 'row' }}>
                                         {item.isLiked && <Image source={require('../assets/likeFill.png')} style={styles.likeHeart} />}
-                                        {!item.isLiked &&        
+                                        {!item.isLiked &&
                                             <TouchableOpacity activeOpacity={.7} onPress={() => likeProfile(item)}>
                                                 <Animatable.Image
                                                     animation={pulse}
                                                     easing="ease-in-out"
                                                     iterationCount="infinite" style={styles.likeHeart} source={require('../assets/likeOutline.png')} />
-                                            </TouchableOpacity>                                          
+                                            </TouchableOpacity>
                                         }
                                         <Text style={styles.totalLikes}> {item.likeCount} Likes </Text>
                                     </View>
@@ -321,27 +321,50 @@ const Favourite = ({ navigation }) => {
                                             <Text style={styles.businessName}>{item.businessName}</Text>
                                         </TouchableOpacity>
                                     </View>
-                                    <Text style={styles.industry}>{item.industry}</Text>
-                                    <Text style={styles.memberDetails}><Text style={{ color: '#73a5bc' }}>{item.distance} mi </Text> | Member Since - {moment(item.createdDate).format("MM/DD/YYYY")}</Text>
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text style={styles.industry}>{item.industry} | </Text>
+                                        <Text style={{ color: '#73a5bc', fontWeight: 600, fontSize: 15 }}>{item.distance} mi </Text>
+                                    </View>
+                                    {/* <Text style={styles.memberDetails}><Text style={{ color: '#73a5bc' }}>{item.distance} mi </Text> | Member Since - {moment(item.createdDate).format("MM/DD/YYYY")}</Text> */}
 
-                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                        <View style={styles.cardView}>
-                                            <Card style={[{ width: 150, borderRadius: 20, height: 150, marginRight: 10, marginLeft: 5, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '',
-                                            isAutoPilotModalVisible ? { opacity: 0.4 } : '', isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
-                                                <Text style={styles.badge}> {item.badgeName} </Text>
+                                    <View style={{ flexDirection: 'row', width: '100%', marginTop: 5 }}>
+                                        <Text style={styles.memberDetails}>
+                                            Member Since - {moment(item.createdDate).format("MM/DD/YYYY")}
+                                        </Text>
+                                        <View style={{
+                                            flexDirection: 'row', alignItems: 'center', right: 0, position: 'absolute',
+                                            borderColor: '#d9e7ed', borderWidth: 2, justifyContent: 'center', padding: 5, borderRadius: 25
+                                        }}>
+                                            <View style={{ justifyContent: 'center', paddingHorizontal: 5 }}>
                                                 {(item.badgeName).toString().toLowerCase() == 'bronze' && <Image source={require('../assets/Bronze.png')} style={[styles.trophyImg]} />}
                                                 {(item.badgeName).toString().toLowerCase() == 'silver' && <Image source={require('../assets/Silver.png')} style={[styles.trophyImg]} />}
                                                 {(item.badgeName).toString().toLowerCase() == 'gold' && <Image source={require('../assets/Gold.png')} style={[styles.trophyImg]} />}
                                                 {(item.badgeName).toString().toLowerCase() == 'platinum' && <Image source={require('../assets/platinum.png')} style={[styles.trophyImg]} />}
+                                            </View>
+                                            <View style={{}}>
+                                                <Text style={styles.badge}> {item.badgeName} </Text>
                                                 <Text style={styles.memberPoints}> {item.currentPoints} pt </Text>
-                                            </Card>
+                                            </View>
+                                        </View>
+                                    </View>
+                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                        <View style={styles.cardView}>
+                                            {/* <Card style={[{ width: 150, borderRadius: 20, height: 150, marginRight: 10, marginLeft: 5, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '',
+                                            isAutoPilotModalVisible ? { opacity: 0.4 } : '', isAnnouncementModalVisible ? { opacity: 0.4 } : '']}> */}
+                                            {/* <Text style={styles.badge}> {item.badgeName} </Text>
+                                                {(item.badgeName).toString().toLowerCase() == 'bronze' && <Image source={require('../assets/Bronze.png')} style={[styles.trophyImg]} />}
+                                                {(item.badgeName).toString().toLowerCase() == 'silver' && <Image source={require('../assets/Silver.png')} style={[styles.trophyImg]} />}
+                                                {(item.badgeName).toString().toLowerCase() == 'gold' && <Image source={require('../assets/Gold.png')} style={[styles.trophyImg]} />}
+                                                {(item.badgeName).toString().toLowerCase() == 'platinum' && <Image source={require('../assets/platinum.png')} style={[styles.trophyImg]} />}
+                                                <Text style={styles.memberPoints}> {item.currentPoints} pt </Text> */}
+                                            {/* </Card> */}
 
                                             {item.promotionData.map((promotion, earnReward) => (
                                                 <Card key={earnReward} style={[{ width: 150, borderRadius: 20, paddingHorizontal: 2, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '',
                                                 isAutoPilotModalVisible ? { opacity: 0.4 } : '', isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
                                                     <Text style={styles.achievableName}>{promotion.promotionalMessage}</Text>
                                                     {promotion.expiryDays > 1 && <Text style={styles.achievalbeValue}>Expires in - {promotion.expiryDays} days</Text>}
-                                                    {promotion.expiryDays == 1 && <Text style={styles.achievalbeValue}>Expiring Today</Text>}                                                  
+                                                    {promotion.expiryDays == 1 && <Text style={styles.achievalbeValue}>Expiring Today</Text>}
                                                     <TouchableOpacity activeOpacity={.7} onPress={() => openPromoModal(promotion, item)} style={[promotion.isClaimed == false ? styles.frame2vJuClaim : styles.frame2vJuClaimed]}>
                                                         {promotion.isClaimed == false && <Text style={styles.getStartednru}>Claim</Text>}
                                                         {promotion.isClaimed == true && <Text style={styles.getStartednru}>Claimed</Text>}
@@ -354,7 +377,7 @@ const Favourite = ({ navigation }) => {
                                                 isAutoPilotModalVisible ? { opacity: 0.4 } : '', isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
                                                     <Text style={styles.achievableName}>{autopilot.rewardName}</Text>
                                                     {autopilot.expiryDays > 1 && <Text style={styles.achievalbeValue}>Expires in - {autopilot.expiryDays} days</Text>}
-                                                    {autopilot.expiryDays == 1 && <Text style={styles.achievalbeValue}>Expiring Today</Text>}                                                    
+                                                    {autopilot.expiryDays == 1 && <Text style={styles.achievalbeValue}>Expiring Today</Text>}
                                                     <TouchableOpacity activeOpacity={.7} onPress={() => openAPModal(autopilot, item)} style={[autopilot.isClaimed == false ? styles.frame2vJuClaim : styles.frame2vJuClaimed]}>
                                                         {autopilot.isClaimed == false && <Text style={styles.getStartednru}>Claim</Text>}
                                                         {autopilot.isClaimed == true && <Text style={styles.getStartednru}>Claimed</Text>}
@@ -428,7 +451,7 @@ const Favourite = ({ navigation }) => {
                         <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer Start Date </Text>- {moment(promotionClaimData.offerStartDate).format("MM/DD/YYYY")}</Text>
                         <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Offer End Date </Text>- {moment(promotionClaimData.offerEndDate).format("MM/DD/YYYY")}</Text>
                         {promotionClaimData.expiryDays > 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in </Text>- {promotionClaimData.expiryDays} days</Text>}
-                        {promotionClaimData.expiryDays == 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today </Text></Text>}                        
+                        {promotionClaimData.expiryDays == 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today </Text></Text>}
 
                         {promotionClaimData.isSpinWheel && <Text style={styles.modaltext}>Spin the wheel and get rewards at store</Text>}
 
@@ -464,7 +487,7 @@ const Favourite = ({ navigation }) => {
                         <Text style={styles.modalbusinessName}>{businessClaimData.businessName}</Text>
                         <Text style={styles.modalPromoMsg}>{autoPilotClaimData.rewardName}</Text>
                         {autoPilotClaimData.expiryDays > 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in </Text>- {autoPilotClaimData.expiryDays} days</Text>}
-                        {autoPilotClaimData.expiryDays == 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today</Text></Text>}                        
+                        {autoPilotClaimData.expiryDays == 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today</Text></Text>}
 
                         {(autoPilotClaimData.filePath != '' && autoPilotClaimData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + autoPilotClaimData.filePath }} ></Image>}
                         <Text style={styles.modaltext}>Redeemable at -<Text style={{ fontWeight: '700' }}> Any Locations</Text></Text>
@@ -499,7 +522,7 @@ const Favourite = ({ navigation }) => {
                         <Text style={styles.modalPromoMsg}>{announcementClaimData.subject}</Text>
                         {announcementClaimData.validDate && <Text style={[styles.modaltext, { textAlign: 'center' }]}><Text style={{ fontWeight: '700' }}>Expiry Date: </Text>{moment(announcementClaimData.validDate).format("MM/DD/YYYY")}</Text>}
 
-                        {(announcementClaimData.fileName != '' && announcementClaimData.fileName != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + announcementClaimData.fileName }} ></Image>}                       
+                        {(announcementClaimData.fileName != '' && announcementClaimData.fileName != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + announcementClaimData.fileName }} ></Image>}
                     </View>
                 </View>
             </Modal>
@@ -566,6 +589,7 @@ const styles = StyleSheet.create({
         width: 150,
         height: 150,
         marginRight: 9,
+        marginTop: 50
     },
     frame2vJuClaim: {
         backgroundColor: '#7d5513',
@@ -650,32 +674,32 @@ const styles = StyleSheet.create({
     pendingpoints: {
         color: '#73a5bc',
         fontWeight: '800',
-        top: 60,
+        // top: 60,
         alignSelf: 'center',
-        bottom: 12,
+        // bottom: 12,
         fontSize: 13
     },
     progressBar: {
-        top: 55,
+        // top: 55,
         left: 20
     },
     achievalbeValue: {
         color: '#717679',
         fontWeight: '700',
         fontSize: 12,
-        top: 80,
+        // top: 80,
         alignSelf: 'center',
         padding: '2%',
-        position: 'absolute'
+        // position: 'absolute'
     },
     achievableName: {
         fontWeight: '700',
         color: '#000000',
         fontSize: 15,
         width: 150,
-        height: 50,
+        height: 85,
         paddingHorizontal: 5,
-        paddingVertical: 7
+        paddingVertical: 3
     },
     scrollviewContainer: {
         flex: 1,
@@ -686,33 +710,36 @@ const styles = StyleSheet.create({
     badge: {
         color: '#000000',
         fontWeight: '700',
-        alignSelf: 'center',
-        top: '20%',
-        fontSize: 17
+        // alignSelf: 'center',
+        // top: '20%',
+        fontSize: 12
     },
     memberPoints: {
         color: '#73a5bc',
         fontWeight: '800',
-        top: 40,
-        left: 57,
-        bottom: 20,
-        fontSize: 16
+        // textAlign: 'center',
+        // top: 40,
+        // left: 57,
+        // bottom: 20,
+        fontSize: 12
     },
     trophyImg: {
-        width: 60,
-        height: 50,
-        alignSelf: 'center',
-        top: '30%'
+        width: 20,
+        height: 15,
+        // alignSelf: 'center',
+        // top: '30%'
     },
     cardView: {
         flexDirection: 'row',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        marginTop: 20
     },
     memberDetails: {
         color: '#203139',
         fontWeight: '700',
         fontSize: 14,
-        paddingVertical: 10
+        paddingVertical: 10,
+        width: '70%'
     },
     industry: {
         color: '#717679',

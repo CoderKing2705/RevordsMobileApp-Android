@@ -228,7 +228,7 @@ const ProfileEdit = ({ navigation, route }) => {
                             let imageUri = response.uri || response.assets?.[0]?.uri;
                             setMemberProfilePic(null);
                             setSelectedImage(imageUri);
-                            setImageRes(response);                           
+                            setImageRes(response);
                         }
                     };
 
@@ -236,7 +236,7 @@ const ProfileEdit = ({ navigation, route }) => {
                         launchImageLibrary(options, launchCallback);
                     } else if (option === 'camera') {
                         launchCamera(options, launchCallback);
-                    }                   
+                    }
                 } else {
                     requestCameraPermission();
                 }
@@ -273,17 +273,17 @@ const ProfileEdit = ({ navigation, route }) => {
     };
 
     const alertForBirthDate = () => {
-        
+
         Alert.alert(
             null,
             'Your birthdate has been updated once before. If you need further assistance, please contact our Revords support team.',
             [
-              {
-                text: 'OK',
-              },
+                {
+                    text: 'OK',
+                },
             ],
             { cancelable: false }
-          );
+        );
     }
 
     return (
@@ -367,11 +367,12 @@ const ProfileEdit = ({ navigation, route }) => {
                                                     value={(birthDate == '' || birthDate == null || birthDate == undefined) ? 'No BirthDate Given' : birthDate}
                                                     editable={false}
                                                 />
-                                            </TouchableOpacity>}         
+                                            </TouchableOpacity>}
                                         {!MemberData[0].isBirthDateChange &&
                                             <>
                                                 <View style={styles.pickerContainer}>
                                                     <RNPickerSelect
+                                                        allowFontScaling={false}
                                                         placeholder={{ label: 'Select Birth Month', value: null }}
                                                         items={months}
                                                         onValueChange={(value) => setSelectedMonth(value)}
@@ -381,6 +382,7 @@ const ProfileEdit = ({ navigation, route }) => {
                                                 </View>
                                                 <View style={styles.pickerContainer}>
                                                     <RNPickerSelect
+                                                        allowFontScaling={false}
                                                         placeholder={{ label: 'Select Birth Day', value: null }}
                                                         items={daysInMonth}
                                                         onValueChange={(value) => setSelectedDay(value)}

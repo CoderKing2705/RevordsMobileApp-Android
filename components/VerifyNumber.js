@@ -50,20 +50,20 @@ const VerifyNumber = ({ navigation }) => {
             },
           }).then((res) => {
 
-            if (res.ok) {
-              navigation.navigate('GetOtp', { OTP: randomOtp, CustomerExists: CustomerExists, Phone: unMaskPhone })
-              setLoading(false);
-              return json;
-            } else {
-              ToastAndroid.showWithGravityAndOffset(
-                'You can only signin with U.S.A. Number!',
-                ToastAndroid.LONG,
-                ToastAndroid.BOTTOM,
-                25,
-                50,
-              );
-              setLoading(false);
-            }
+            // if (res.ok) {
+            navigation.navigate('GetOtp', { OTP: randomOtp, CustomerExists: CustomerExists, Phone: unMaskPhone })
+            setLoading(false);
+            return json;
+            // } else {
+            //   ToastAndroid.showWithGravityAndOffset(
+            //     'You can only signin with U.S.A. Number!',
+            //     ToastAndroid.LONG,
+            //     ToastAndroid.BOTTOM,
+            //     25,
+            //     50,
+            //   );
+            //   setLoading(false);
+            // }
           });
         } catch (error) {
           ToastAndroid.showWithGravityAndOffset(
@@ -123,6 +123,7 @@ const VerifyNumber = ({ navigation }) => {
         <View style={{ flexDirection: 'row', height: 50, alignItems: 'center', justifyContent: 'center', }}>
           <Text style={styles.textInputUS}>+1</Text>
           <MaskInput
+            allowFontScaling={false}
             value={phone}
             style={styles.textInput}
             keyboardType="numeric"
@@ -145,7 +146,7 @@ const VerifyNumber = ({ navigation }) => {
         </TouchableOpacity>
         <SafeAreaView style={{ flex: 1 }}>
           <View style={styles.container}>
-            <Spinner             
+            <Spinner
               visible={loading}
               textContent={''}
               textStyle={styles.spinnerTextStyle}

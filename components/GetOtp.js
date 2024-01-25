@@ -84,6 +84,14 @@ const GetOtp = ({ route, navigation }) => {
         }
     }
 
+    const handleAutoFill = (event, index) => {
+        if (event.nativeEvent.textContentType === 'oneTimeCode') {
+            // Handle autofill event
+            const autoFilledValue = event.nativeEvent.text;
+            handleInputChange(autoFilledValue, index);
+        }
+    };
+    
     useEffect(() => {
         const interval = setInterval(() => {
             setSeconds((prevSeconds) => prevSeconds - 1);
@@ -113,10 +121,12 @@ const GetOtp = ({ route, navigation }) => {
                         style={styles.otpInput}
                         keyboardType="numeric"
                         maxLength={1}
-                        textContentType='oneTimeCode'
+                        // textContentType='oneTimeCode'
                         onChangeText={(text) => handleInputChange(text, index)}
                         onKeyPress={(e) => handleKeyPress(e, index)}
                         value={otp[index]}
+                        autoComplete="sms-otp"
+                        onTextInput={(e) => handleAutoFill(e, index)}
                     />
                 ))}
             </View>

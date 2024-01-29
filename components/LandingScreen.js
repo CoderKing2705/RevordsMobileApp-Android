@@ -15,7 +15,7 @@ const LandingScreen = ({ navigation }) => {
 
         AsyncStorage.getItem('token')
             .then(async value => {
-                if (value !== null) {                    
+                if (value !== null) {
                     await getMemberData((JSON.parse(value))[0].phone, value);
                 } else {
                     setLoading(false);

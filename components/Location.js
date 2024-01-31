@@ -13,6 +13,11 @@ import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Animatable from 'react-native-animatable';
+import LinearGradient from 'react-native-linear-gradient';
+import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
+import { ScrollView } from 'react-native-gesture-handler';
+
+const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 
 const Location = ({ navigation }) => {
     const focus = useIsFocused();
@@ -239,57 +244,163 @@ const Location = ({ navigation }) => {
                             </TouchableOpacity>
                         </View>
                         <View style={styles.store}>
-                            <FlatList
-                                showsVerticalScrollIndicator={false}
-                                data={filteredData}
-                                keyExtractor={(item, index) => index.toString()}
-                                renderItem={({ item }) => {
-                                    return (
-                                        <Card style={styles.card} onPress={() => this.NavigateToBusinessDetails(item.id)}>
-                                            <Card.Cover source={{ uri: Globals.Root_URL + item.imagePath }} style={styles.cardCover} />
 
-                                            <Card.Content style={styles.cardContent}>
-                                                <View style={{ width: '30%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + item.logoPath }}></Image>
+
+                            {loadingData ?
+                                <>
+                                    <SafeAreaView style={styles.scrollContainer}>
+                                        <ScrollView style={{ flex: 1, height: '100%', width: '100%', borderRadius: 50 }} showsVerticalScrollIndicator={false}>
+                                            <LinearGradient
+                                                colors={['#b0bec5', '#e1e1e1', '#b0bec5']}
+                                                style={[styles.gradient, { marginTop: 10 }]}>
+                                                <View style={{ width: '100%', height: 220, }}>
+                                                    <ShimmerPlaceholder
+                                                        style={styles.shimmer}
+                                                        shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                                    >
+                                                    </ShimmerPlaceholder>
                                                 </View>
-                                                <View style={{ width: '70%', height: '100%' }}>
-                                                    {(item.businessName).toString().length < 22 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {item.businessName}</Title>}
-                                                    {(item.businessName).toString().length >= 22 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {(item.businessName).toString().substring(0, 22)}...</Title>}
-                                                    <Text style={{ color: '#717679', fontWeight: '500' }}> {item.industry} </Text>
-                                                    <View style={{ flexDirection: 'row', width: '85%', justifyContent: 'space-between' }}>
-                                                        <Text style={styles.milesText}> {item.distance} mi </Text>
-                                                        {(item.isLiked == false) && <TouchableOpacity activeOpacity={.7} onPress={() => likeProfile(item)}>
-                                                            <Animatable.Image animation={pulse} easing="ease-in-out" iterationCount="infinite"
-                                                                style={{ width: 25, height: 25, left: '41%', position: 'absolute' }} source={require('../assets/likeOutline.png')} />
-                                                        </TouchableOpacity>}
-                                                        {(item.isLiked == true) && <TouchableOpacity activeOpacity={.7}>
-                                                            <Image source={require('../assets/likeFill.png')} style={{ width: 25, height: 25, left: '41%', position: 'absolute' }}></Image>
-                                                        </TouchableOpacity>}
+
+                                                <View style={{ width: '100%', height: 80, flexDirection: 'row', alignItems: 'center' }}>
+                                                    <View style={{ width: '40%', height: '90%', marginLeft: 2 }}>
+                                                        <ShimmerPlaceholder
+                                                            style={styles.shimmer}
+                                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                                        >
+                                                        </ShimmerPlaceholder>
+                                                    </View>
+                                                    <View style={{ width: '55%', height: '90%', marginLeft: 10, justifyContent: 'center' }}>
+                                                        <View style={{ width: '85%', height: '35%' }}>
+                                                            <ShimmerPlaceholder
+                                                                style={styles.shimmer}
+                                                                shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                                            >
+                                                            </ShimmerPlaceholder>
+                                                        </View>
+                                                        <View style={{ width: '60%', height: '25%', marginTop: 10 }}>
+                                                            <ShimmerPlaceholder
+                                                                style={styles.shimmer}
+                                                                shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                                            >
+                                                            </ShimmerPlaceholder>
+                                                        </View>
                                                     </View>
                                                 </View>
-                                            </Card.Content>
-                                        </Card>
-                                    );
-                                }}
-                            />
+                                            </LinearGradient>
+
+                                            <LinearGradient
+                                                colors={['#b0bec5', '#e1e1e1', '#b0bec5']}
+                                                style={[styles.gradient, { marginTop: 10 }]}>
+                                                <View style={{ width: '100%', height: 220 }}>
+                                                    <ShimmerPlaceholder
+                                                        style={styles.shimmer}
+                                                        shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                                    >
+                                                    </ShimmerPlaceholder>
+                                                </View>
+
+                                                <View style={{ width: '100%', height: 80, flexDirection: 'row', alignItems: 'center' }}>
+                                                    <View style={{ width: '40%', height: '90%', marginLeft: 2 }}>
+                                                        <ShimmerPlaceholder
+                                                            style={styles.shimmer}
+                                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                                        >
+                                                        </ShimmerPlaceholder>
+                                                    </View>
+                                                    <View style={{ width: '55%', height: '90%', marginLeft: 10, justifyContent: 'center' }}>
+                                                        <View style={{ width: '85%', height: '35%' }}>
+                                                            <ShimmerPlaceholder
+                                                                style={styles.shimmer}
+                                                                shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                                            >
+                                                            </ShimmerPlaceholder>
+                                                        </View>
+                                                        <View style={{ width: '60%', height: '25%', marginTop: 10 }}>
+                                                            <ShimmerPlaceholder
+                                                                style={styles.shimmer}
+                                                                shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                                            >
+                                                            </ShimmerPlaceholder>
+                                                        </View>
+                                                    </View>
+                                                </View>
+                                            </LinearGradient>
+                                        </ScrollView>
+                                    </SafeAreaView>
+                                </>
+                                :
+                                <FlatList
+                                    showsVerticalScrollIndicator={false}
+                                    data={filteredData}
+                                    keyExtractor={(item, index) => index.toString()}
+                                    renderItem={({ item }) => {
+                                        return (
+                                            <Card style={styles.card} onPress={() => this.NavigateToBusinessDetails(item.id)}>
+                                                <Card.Cover source={{ uri: Globals.Root_URL + item.imagePath }} style={styles.cardCover} />
+
+                                                <Card.Content style={styles.cardContent}>
+                                                    <View style={{ width: '30%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                                                        <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + item.logoPath }}></Image>
+                                                    </View>
+                                                    <View style={{ width: '70%', height: '100%' }}>
+                                                        {(item.businessName).toString().length < 22 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {item.businessName}</Title>}
+                                                        {(item.businessName).toString().length >= 22 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {(item.businessName).toString().substring(0, 22)}...</Title>}
+                                                        <Text style={{ color: '#717679', fontWeight: '500' }}> {item.industry} </Text>
+                                                        <View style={{ flexDirection: 'row', width: '85%', justifyContent: 'space-between' }}>
+                                                            <Text style={styles.milesText}> {item.distance} mi </Text>
+                                                            {(item.isLiked == false) && <TouchableOpacity activeOpacity={.7} onPress={() => likeProfile(item)}>
+                                                                <Animatable.Image animation={pulse} easing="ease-in-out" iterationCount="infinite"
+                                                                    style={{ width: 25, height: 25, left: '41%', position: 'absolute' }} source={require('../assets/likeOutline.png')} />
+                                                            </TouchableOpacity>}
+                                                            {(item.isLiked == true) && <TouchableOpacity activeOpacity={.7}>
+                                                                <Image source={require('../assets/likeFill.png')} style={{ width: 25, height: 25, left: '41%', position: 'absolute' }}></Image>
+                                                            </TouchableOpacity>}
+                                                        </View>
+                                                    </View>
+                                                </Card.Content>
+                                            </Card>
+                                        );
+                                    }}
+                                />
+                            }
                         </View>
                     </View>
                 </View>
 
-                <SafeAreaView>
+                {/* <SafeAreaView>
                     <View style={styles.container}>
                         <Spinner
                             visible={loadingData}
                             textContent={''}
                             textStyle={styles.spinnerStyle} />
                     </View>
-                </SafeAreaView>
+                </SafeAreaView> */}
             </View>
         </>
     );
 };
 
 const styles = StyleSheet.create({
+    shimmer: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 10,
+    },
+    scrollContainer: {
+        paddingTop: '5%',
+        height: '100%',
+        width: '100%',
+        alignItems: 'center',
+        borderRadius: 50
+    },
+    gradient: {
+        width: '100%',
+        height: 300,
+        borderRadius: 10,
+        // marginLeft: 7,
+        // paddingLeft: 10
+        // justifyContent: 'center',
+    },
     cardContent: {
         marginHorizontal: '2%',
         flexDirection: 'row',

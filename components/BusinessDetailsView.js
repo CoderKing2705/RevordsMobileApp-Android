@@ -14,7 +14,10 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import * as Progress from 'react-native-progress';
 import ImageViewer from 'react-native-image-zoom-viewer';
+import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
+import LinearGradient from 'react-native-linear-gradient';
 
+const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 export default function BusinessDetailsView({ route }) {
     const navigation = useNavigation();
     const isFocused = useIsFocused();
@@ -211,233 +214,331 @@ export default function BusinessDetailsView({ route }) {
 
                 <SafeAreaView style={{ paddingTop: '5%', height: '90%', width: '97%', alignItems: 'center', borderRadius: 50 }}>
                     <ScrollView style={{ flex: 1, height: '100%', width: '97%', borderRadius: 50 }} showsVerticalScrollIndicator={false}>
-                        <View style={styles.detailView}>
-                            <Image source={{ uri: imageUrl }} style={styles.imageBusiness} />
-                            <Text style={{ fontWeight: '800', paddingHorizontal: '3%', fontSize: 18, top: 5 }}>{businessDetails.businessName}</Text>
+                        {loading ?
+                            <>
+                                <LinearGradient
+                                    colors={['#b0bec5', '#e1e1e1', '#b0bec5']}
+                                    style={[styles.gradient, , { marginTop: 10 }]}>
+                                    <View style={{ width: '100%', height: 200 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '75%', height: 25, marginTop: 10, marginLeft: 5 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '35%', height: 15, marginTop: 5, marginLeft: 5 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '35%', height: 60, marginTop: 15, marginLeft: 5 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '50%', height: 25, marginTop: 15, marginLeft: 5 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '100%', flexDirection: 'row', marginLeft: 25 }}>
+                                        <View style={{ width: 80, height: 80, marginTop: 15 }}>
+                                            <ShimmerPlaceholder
+                                                style={styles.shimmer}
+                                                shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                            >
+                                            </ShimmerPlaceholder>
+                                        </View>
+                                        <View style={{ width: 80, height: 80, marginTop: 15, marginLeft: 10 }}>
+                                            <ShimmerPlaceholder
+                                                style={styles.shimmer}
+                                                shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                            >
+                                            </ShimmerPlaceholder>
+                                        </View>
+                                        <View style={{ width: 80, height: 80, marginTop: 15, marginLeft: 10 }}>
+                                            <ShimmerPlaceholder
+                                                style={styles.shimmer}
+                                                shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                            >
+                                            </ShimmerPlaceholder>
+                                        </View>
+                                    </View>
+                                    <View style={{ width: '50%', height: 25, marginTop: 15, marginLeft: 5 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '85%', height: 150, marginTop: 15, marginLeft: 25 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '50%', height: 25, marginTop: 15, marginLeft: 5 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '50%', height: 20, marginTop: 15, marginLeft: 25, marginBottom: 10 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                </LinearGradient>
+                            </>
+                            :
+                            <View style={styles.detailView}>
+                                <Image source={{ uri: imageUrl }} style={styles.imageBusiness} />
+                                <Text style={{ fontWeight: '800', paddingHorizontal: '3%', fontSize: 18, top: 5 }}>{businessDetails.businessName}</Text>
 
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                <Text style={{ color: '#717679', paddingHorizontal: '3%', fontWeight: '700', fontSize: 14, top: 12 }}>{businessDetails.industry}</Text>
-                                <Text style={{ color: '#73a5bc', paddingHorizontal: '3%', fontWeight: '700', fontSize: 14, top: 12, alignSelf: 'flex-end' }}> {businessDetails.distance} mi </Text>
-                            </View>
-                            {businessDetails.memberString == 'Member' && <Text style={{ fontWeight: '800', paddingHorizontal: '3%', fontSize: 14, top: 15, color: '#7d5513' }}>{businessDetails.memberString}</Text>}
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Image source={{ uri: logoUrl }} style={styles.logoBusiness} />
-                            </View>
-                            {(businessDetails.promotionData || businessDetails.autopilotData) && (businessDetails.promotionData.length > 0 || businessDetails.autopilotData.length > 0) &&
-                                <View style={{ paddingHorizontal: '3%' }}>
-                                    <Text style={styles.Promotion}>Promotions</Text>
-                                    {businessDetails.promotionData && businessDetails.promotionData.map((promo, index) => (
-                                        <Fragment key={index}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    <Text style={{ color: '#717679', paddingHorizontal: '3%', fontWeight: '700', fontSize: 14, top: 12 }}>{businessDetails.industry}</Text>
+                                    <Text style={{ color: '#73a5bc', paddingHorizontal: '3%', fontWeight: '700', fontSize: 14, top: 12, alignSelf: 'flex-end' }}> {businessDetails.distance} mi </Text>
+                                </View>
+                                {businessDetails.memberString == 'Member' && <Text style={{ fontWeight: '800', paddingHorizontal: '3%', fontSize: 14, top: 15, color: '#7d5513' }}>{businessDetails.memberString}</Text>}
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Image source={{ uri: logoUrl }} style={styles.logoBusiness} />
+                                </View>
+                                {(businessDetails.promotionData || businessDetails.autopilotData) && (businessDetails.promotionData.length > 0 || businessDetails.autopilotData.length > 0) &&
+                                    <View style={{ paddingHorizontal: '3%' }}>
+                                        <Text style={styles.Promotion}>Promotions</Text>
+                                        {businessDetails.promotionData && businessDetails.promotionData.map((promo, index) => (
+                                            <Fragment key={index}>
+                                                <View style={{ flexDirection: 'row', width: '100%', marginTop: 7 }}>
+                                                    <View style={{ width: '65%' }}>
+                                                        {(promo.promotionalMessage).toString().length < 25 && <Text style={{ fontWeight: '500', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
+                                                            {promo.promotionalMessage}
+                                                        </Text>}
+                                                        {(promo.promotionalMessage).toString().length >= 25 && <Text onLongPress={() => promo.promotionalMessage} style={{ fontWeight: '500', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
+                                                            {(promo.promotionalMessage).toString().substring(0, 25)}...
+                                                        </Text>}
+                                                    </View>
+                                                    <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
+                                                        {promo.expiryDays > 1 && <Text style={{
+                                                            fontWeight: '500', fontSize: 12, marginTop: '2%', paddingHorizontal: '2%', borderWidth: 1,
+                                                            borderColor: '#767676', paddingHorizontal: 5, paddingVertical: 3, color: '#767676', borderRadius: 5
+                                                        }}>
+                                                            {promo.expiryDays} days left
+                                                        </Text>}
+                                                        {promo.expiryDays == 1 && <Text style={{
+                                                            fontWeight: '500', fontSize: 12, marginTop: '2%', paddingHorizontal: '2%', borderWidth: 1,
+                                                            borderColor: '#767676', paddingHorizontal: 5, paddingVertical: 3, color: '#767676', borderRadius: 5
+                                                        }}>
+                                                            Expiring Today
+                                                        </Text>}
+                                                    </View>
+                                                </View>
+                                            </Fragment>
+                                        ))}
+                                    </View>
+                                }
+
+                                {businessDetails.autopilotData && businessDetails.autopilotData.map((auto, index) => (
+                                    <View style={{ paddingHorizontal: '3%' }} key={index}>
+                                        <Fragment>
                                             <View style={{ flexDirection: 'row', width: '100%', marginTop: 7 }}>
                                                 <View style={{ width: '65%' }}>
-                                                    {(promo.promotionalMessage).toString().length < 25 && <Text style={{ fontWeight: '500', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
-                                                        {promo.promotionalMessage}
-                                                    </Text>}
-                                                    {(promo.promotionalMessage).toString().length >= 25 && <Text onLongPress={() => promo.promotionalMessage} style={{ fontWeight: '500', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
-                                                        {(promo.promotionalMessage).toString().substring(0, 25)}...
-                                                    </Text>}
+                                                    <Text style={{ fontWeight: '500', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
+                                                        {auto.rewardName}
+                                                    </Text>
                                                 </View>
-                                                <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
-                                                    {promo.expiryDays > 1 && <Text style={{
-                                                        fontWeight: '500', fontSize: 12, marginTop: '2%', paddingHorizontal: '2%', borderWidth: 1,
-                                                        borderColor: '#767676', paddingHorizontal: 5, paddingVertical: 3, color: '#767676', borderRadius: 5
-                                                    }}>
-                                                        {promo.expiryDays} days left
-                                                    </Text>}
-                                                    {promo.expiryDays == 1 && <Text style={{
-                                                        fontWeight: '500', fontSize: 12, marginTop: '2%', paddingHorizontal: '2%', borderWidth: 1,
-                                                        borderColor: '#767676', paddingHorizontal: 5, paddingVertical: 3, color: '#767676', borderRadius: 5
-                                                    }}>
-                                                        Expiring Today
-                                                    </Text>}
-                                                </View>
+
+                                                {auto.campaignName != 'Acquirement' &&
+                                                    <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
+                                                        {auto.expiryDays > 1 && <Text style={{
+                                                            fontWeight: '500', fontSize: 12, marginTop: '2%', paddingHorizontal: '2%', borderWidth: 1,
+                                                            borderColor: '#767676', paddingHorizontal: 5, paddingVertical: 3, color: '#767676', borderRadius: 5
+                                                        }}>
+                                                            {auto.expiryDays} days left
+                                                        </Text>}
+                                                        {auto.expiryDays == 1 && <Text style={{
+                                                            fontWeight: '500', fontSize: 12, marginTop: '2%', paddingHorizontal: '2%', borderWidth: 1,
+                                                            borderColor: '#767676', paddingHorizontal: 5, paddingVertical: 3, color: '#767676', borderRadius: 5
+                                                        }}>
+                                                            Expiring Today
+                                                        </Text>}
+                                                    </View>
+                                                }
+                                                {(auto.campaignName == 'Acquirement' && businessDetails.memberString != 'Member') &&
+                                                    <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
+                                                        <TouchableOpacity activeOpacity={.7} disabled={buttonClicked} onPress={saveProfile} style={styles.frame2vJu}>
+                                                            <Text style={styles.getStartednru}>Save</Text>
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                }
+                                                {(auto.campaignName == 'Acquirement' && businessDetails.memberString == 'Member') &&
+                                                    <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
+                                                        <TouchableOpacity activeOpacity={.7} style={styles.frame2vJu1}>
+                                                            <Text style={styles.getStartednru}>Saved</Text>
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                }
                                             </View>
                                         </Fragment>
+                                    </View>
+                                ))}
+
+                                {businessDetails.rewardData && businessDetails.rewardData.length > 0 && <View style={{ paddingHorizontal: '3%' }}>
+                                    <Text style={styles.loyaltyRewards}>Loyalty Rewards</Text>
+                                    <Text style={styles.subheading}>Earn {businessDetails.rewardData[0].claimPointBusinessGroup} pt for every {businessDetails.rewardData[0].reclaimHours} hours</Text>
+                                    {businessDetails.rewardData && businessDetails.rewardData.map((rewards, index) => (
+                                        <Fragment key={index}>
+                                            <Text style={{ fontWeight: '600', fontSize: 16, marginTop: '5%', paddingHorizontal: '2%' }}>
+                                                {rewards.rewardName}
+                                            </Text>
+                                            {rewards.currentPoints != null && <Progress.Bar
+                                                style={styles.progressBar}
+                                                progress={1 - ((rewards.pendingToAchiveValue) / rewards.achivableTargetValue)}
+                                                width={250}
+                                                color='#2ac95d' />}
+                                            {rewards.currentPoints != null && <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: '2%', marginTop: '1%' }}>
+                                                <Text style={{ color: '#717679' }}> {rewards.currentPoints} / {rewards.achivableTargetValue} pts</Text>
+                                                {rewards.pendingToAchiveValue > 0 && <Text style={{ color: '#717679' }}>{rewards.pendingToAchiveValue} pts left</Text>}
+                                                {rewards.pendingToAchiveValue <= 0 && <Text style={{ color: '#717679' }}>Redeem</Text>}
+                                            </View>}
+                                        </Fragment>
                                     ))}
-                                </View>
-                            }
-
-                            {businessDetails.autopilotData && businessDetails.autopilotData.map((auto, index) => (
-                                <View style={{ paddingHorizontal: '3%' }} key={index}>
-                                    <Fragment>
-                                        <View style={{ flexDirection: 'row', width: '100%', marginTop: 7 }}>
-                                            <View style={{ width: '65%' }}>
-                                                <Text style={{ fontWeight: '500', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
-                                                    {auto.rewardName}
-                                                </Text>
-                                            </View>
-
-                                            {auto.campaignName != 'Acquirement' &&
-                                                <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
-                                                    {auto.expiryDays > 1 && <Text style={{
-                                                        fontWeight: '500', fontSize: 12, marginTop: '2%', paddingHorizontal: '2%', borderWidth: 1,
-                                                        borderColor: '#767676', paddingHorizontal: 5, paddingVertical: 3, color: '#767676', borderRadius: 5
-                                                    }}>
-                                                        {auto.expiryDays} days left
-                                                    </Text>}
-                                                    {auto.expiryDays == 1 && <Text style={{
-                                                        fontWeight: '500', fontSize: 12, marginTop: '2%', paddingHorizontal: '2%', borderWidth: 1,
-                                                        borderColor: '#767676', paddingHorizontal: 5, paddingVertical: 3, color: '#767676', borderRadius: 5
-                                                    }}>
-                                                        Expiring Today
-                                                    </Text>}
-                                                </View>
-                                            }
-                                            {(auto.campaignName == 'Acquirement' && businessDetails.memberString != 'Member') &&
-                                                <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
-                                                    <TouchableOpacity activeOpacity={.7} disabled={buttonClicked} onPress={saveProfile} style={styles.frame2vJu}>
-                                                        <Text style={styles.getStartednru}>Save</Text>
-                                                    </TouchableOpacity>
-                                                </View>
-                                            }
-                                            {(auto.campaignName == 'Acquirement' && businessDetails.memberString == 'Member') &&
-                                                <View style={{ width: '35%', alignItems: 'flex-end', justifyContent: 'center' }}>
-                                                    <TouchableOpacity activeOpacity={.7} style={styles.frame2vJu1}>
-                                                        <Text style={styles.getStartednru}>Saved</Text>
-                                                    </TouchableOpacity>
-                                                </View>
-                                            }
-                                        </View>
-                                    </Fragment>
-                                </View>
-                            ))}
-
-                            {businessDetails.rewardData && businessDetails.rewardData.length > 0 && <View style={{ paddingHorizontal: '3%' }}>
-                                <Text style={styles.loyaltyRewards}>Loyalty Rewards</Text>
-                                <Text style={styles.subheading}>Earn {businessDetails.rewardData[0].claimPointBusinessGroup} pt for every {businessDetails.rewardData[0].reclaimHours} hours</Text>
-                                {businessDetails.rewardData && businessDetails.rewardData.map((rewards, index) => (
-                                    <Fragment key={index}>
-                                        <Text style={{ fontWeight: '600', fontSize: 16, marginTop: '5%', paddingHorizontal: '2%' }}>
-                                            {rewards.rewardName}
-                                        </Text>
-                                        {rewards.currentPoints != null && <Progress.Bar
-                                            style={styles.progressBar}
-                                            progress={1 - ((rewards.pendingToAchiveValue) / rewards.achivableTargetValue)}
-                                            width={250}
-                                            color='#2ac95d' />}
-                                        {rewards.currentPoints != null && <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: '2%', marginTop: '1%' }}>
-                                            <Text style={{ color: '#717679' }}> {rewards.currentPoints} / {rewards.achivableTargetValue} pts</Text>
-                                            {rewards.pendingToAchiveValue > 0 && <Text style={{ color: '#717679' }}>{rewards.pendingToAchiveValue} pts left</Text>}
-                                            {rewards.pendingToAchiveValue <= 0 && <Text style={{ color: '#717679' }}>Redeem</Text>}
-                                        </View>}
-                                    </Fragment>
-                                ))}
-                            </View>}
-                            {(galleryImagePath1 != null || galleryImagePath2 != null || galleryImagePath3 != null ||
-                                galleryImagePath4 != null) && <View style={{ paddingHorizontal: 12, marginTop: 5 }}>
-                                    <Text style={{ marginTop: '7%', fontWeight: '700', fontSize: 18 }}>Photos</Text>
-                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                        <View style={{ flexDirection: 'row', width: 350, height: 100, marginTop: 15 }}>
-                                            {images.map((image, index) => (
-                                                <TouchableOpacity key={index} onPress={() => handleGalleryImagePress(index)}>
-                                                    <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={{ uri: image.url }} />
-                                                </TouchableOpacity>
-                                            ))}
-                                        </View>
-                                    </ScrollView>
                                 </View>}
-                            {businessDetails.businesswiseWorkingDays && <View style={{ paddingHorizontal: '3%' }} >
-                                <Text style={{ marginTop: '3%', fontWeight: '700', fontSize: 18 }}>Hours</Text>
-                                {businessDetails.businesswiseWorkingDays && businessDetails.businesswiseWorkingDays.map((day, index) => (
-                                    <Text key={index} style={{ marginTop: '1%', fontWeight: '700', color: '#717679', paddingHorizontal: '2%', fontSize: 12 }}>
-                                        {`${day.dayName}: ${day.fromTime} - ${day.toTime}`}
-                                    </Text>
-                                ))}
-                            </View>}
-                            {businessDetails.adress && <View style={{ paddingHorizontal: '3%' }} >
-                                <Text style={styles.adressHeading}>Address:</Text>
-                                <Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>{businessDetails.adress}</Text>
-                            </View>}
-                            {businessDetails.adress && <View style={{ paddingHorizontal: '3%', marginTop: '3%' }}>
-                                <View style={styles.mapViewMain}>
-                                    <MapView
-                                        style={styles.mapView}
-                                        provider={PROVIDER_GOOGLE}
-                                        region={initialRegion}
-                                        showsMyLocationButton={true}
-                                        selected={true}
-                                        scrollEnabled={false}
-                                        zoomEnabled={false}
-                                        customMapStyle={[
-                                            {
-                                                "featureType": "transit",
-                                                "elementType": "geometry",
-                                                "stylers": [
-                                                    {
-                                                        "color": "#f8f7f7"
-                                                    }
-                                                ]
-                                            },
-                                            {
-                                                "featureType": "road",
-                                                "elementType": "geometry",
-                                                "stylers": [
-                                                    {
-                                                        "color": "#c8d6e3"
-                                                    }
-                                                ]
-                                            },
-                                            {
-                                                "featureType": "road",
-                                                "elementType": "labels.text.fill",
-                                                "stylers": [
-                                                    {
-                                                        "color": "#000"
-                                                    }
-                                                ]
-                                            },
-                                            {
-                                                "featureType": "water",
-                                                "elementType": "geometry",
-                                                "stylers": [
-                                                    {
-                                                        "color": "#95c3d6"
-                                                    }
-                                                ]
-                                            },
-                                            {
-                                                "featureType": "water",
-                                                "elementType": "labels.text.stroke",
-                                                "stylers": [
-                                                    {
-                                                        "color": "#000"
-                                                    }
-                                                ]
-                                            }
-                                        ]}
-                                    >
-                                        {initialRegion && (
-                                            <Marker
-                                                coordinate={initialRegion}
-                                                title={businessDetails.businessName}
-                                            >
-                                                <Image
-                                                    source={{ uri: Globals.Root_URL + businessDetails.mapIconPath }}
-                                                    style={{ width: 32, height: 32 }}
-                                                    resizeMode="contain"
-                                                />
-                                            </Marker>
-                                        )}
-                                    </MapView>
-                                </View>
-                            </View>}
-                            {businessDetails.phoneNo && <View style={{ paddingHorizontal: '3%' }} >
-                                <Text style={styles.adressHeading}>Phone:</Text>
-                                {businessDetails.phoneNo &&
-                                    <TouchableOpacity activeOpacity={.7}
-                                        onPress={() => Platform.OS === 'ios' ? Linking.openURL(`telprompt:${businessDetails.phoneNo}`) : Linking.openURL(`tel:${businessDetails.phoneNo}`)}>
-                                        <Text style={{ color: '#1a7da5', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
-                                            {businessDetails.phoneNo.replace(/(\d{3})(\d{3})(\d{4})/, (_, a, b, c) => `(${a}) ${b}-${c}`)}
+                                {(galleryImagePath1 != null || galleryImagePath2 != null || galleryImagePath3 != null ||
+                                    galleryImagePath4 != null) && <View style={{ paddingHorizontal: 12, marginTop: 5 }}>
+                                        <Text style={{ marginTop: '7%', fontWeight: '700', fontSize: 18 }}>Photos</Text>
+                                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                            <View style={{ flexDirection: 'row', width: 350, height: 100, marginTop: 15 }}>
+                                                {images.map((image, index) => (
+                                                    <TouchableOpacity key={index} onPress={() => handleGalleryImagePress(index)}>
+                                                        <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={{ uri: image.url }} />
+                                                    </TouchableOpacity>
+                                                ))}
+                                            </View>
+                                        </ScrollView>
+                                    </View>}
+                                {businessDetails.businesswiseWorkingDays && <View style={{ paddingHorizontal: '3%' }} >
+                                    <Text style={{ marginTop: '3%', fontWeight: '700', fontSize: 18 }}>Hours</Text>
+                                    {businessDetails.businesswiseWorkingDays && businessDetails.businesswiseWorkingDays.map((day, index) => (
+                                        <Text key={index} style={{ marginTop: '1%', fontWeight: '700', color: '#717679', paddingHorizontal: '2%', fontSize: 12 }}>
+                                            {`${day.dayName}: ${day.fromTime} - ${day.toTime}`}
                                         </Text>
-                                    </TouchableOpacity>}
-                            </View>}
-                            {businessDetails.descriptions && <View style={{ paddingHorizontal: '3%' }} >
-                                <Text style={styles.adressHeading}>Description:</Text>
-                                <Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', marginBottom: '3%', paddingHorizontal: '2%' }}>
-                                    {businessDetails.descriptions}
-                                </Text>
-                            </View>}
-                        </View>
+                                    ))}
+                                </View>}
+                                {businessDetails.adress && <View style={{ paddingHorizontal: '3%' }} >
+                                    <Text style={styles.adressHeading}>Address:</Text>
+                                    <Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>{businessDetails.adress}</Text>
+                                </View>}
+                                {businessDetails.adress && <View style={{ paddingHorizontal: '3%', marginTop: '3%' }}>
+                                    <View style={styles.mapViewMain}>
+                                        <MapView
+                                            style={styles.mapView}
+                                            provider={PROVIDER_GOOGLE}
+                                            region={initialRegion}
+                                            showsMyLocationButton={true}
+                                            selected={true}
+                                            scrollEnabled={false}
+                                            zoomEnabled={false}
+                                            customMapStyle={[
+                                                {
+                                                    "featureType": "transit",
+                                                    "elementType": "geometry",
+                                                    "stylers": [
+                                                        {
+                                                            "color": "#f8f7f7"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "featureType": "road",
+                                                    "elementType": "geometry",
+                                                    "stylers": [
+                                                        {
+                                                            "color": "#c8d6e3"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "featureType": "road",
+                                                    "elementType": "labels.text.fill",
+                                                    "stylers": [
+                                                        {
+                                                            "color": "#000"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "featureType": "water",
+                                                    "elementType": "geometry",
+                                                    "stylers": [
+                                                        {
+                                                            "color": "#95c3d6"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "featureType": "water",
+                                                    "elementType": "labels.text.stroke",
+                                                    "stylers": [
+                                                        {
+                                                            "color": "#000"
+                                                        }
+                                                    ]
+                                                }
+                                            ]}
+                                        >
+                                            {initialRegion && (
+                                                <Marker
+                                                    coordinate={initialRegion}
+                                                    title={businessDetails.businessName}
+                                                >
+                                                    <Image
+                                                        source={{ uri: Globals.Root_URL + businessDetails.mapIconPath }}
+                                                        style={{ width: 32, height: 32 }}
+                                                        resizeMode="contain"
+                                                    />
+                                                </Marker>
+                                            )}
+                                        </MapView>
+                                    </View>
+                                </View>}
+                                {businessDetails.phoneNo && <View style={{ paddingHorizontal: '3%' }} >
+                                    <Text style={styles.adressHeading}>Phone:</Text>
+                                    {businessDetails.phoneNo &&
+                                        <TouchableOpacity activeOpacity={.7}
+                                            onPress={() => Platform.OS === 'ios' ? Linking.openURL(`telprompt:${businessDetails.phoneNo}`) : Linking.openURL(`tel:${businessDetails.phoneNo}`)}>
+                                            <Text style={{ color: '#1a7da5', fontSize: 14, marginTop: '2%', paddingHorizontal: '2%' }}>
+                                                {businessDetails.phoneNo.replace(/(\d{3})(\d{3})(\d{4})/, (_, a, b, c) => `(${a}) ${b}-${c}`)}
+                                            </Text>
+                                        </TouchableOpacity>}
+                                </View>}
+                                {businessDetails.descriptions && <View style={{ paddingHorizontal: '3%' }} >
+                                    <Text style={styles.adressHeading}>Description:</Text>
+                                    <Text style={{ color: '#8c9194', fontSize: 14, marginTop: '2%', marginBottom: '3%', paddingHorizontal: '2%' }}>
+                                        {businessDetails.descriptions}
+                                    </Text>
+                                </View>}
+                            </View>
+                        }
+
+
+
                     </ScrollView>
                 </SafeAreaView >
             </View >
@@ -452,7 +553,7 @@ export default function BusinessDetailsView({ route }) {
                     onClick={() => setModalVisible(false)}
                 />
             </Modal>
-            <SafeAreaView style={{ flex: 1 }}>
+            {/* <SafeAreaView style={{ flex: 1 }}>
                 <View style={styles.container}>
                     <Spinner
                         visible={loading}
@@ -460,12 +561,22 @@ export default function BusinessDetailsView({ route }) {
                         textStyle={styles.spinnerTextStyle}
                     />
                 </View>
-            </SafeAreaView>
+            </SafeAreaView> */}
         </View >
     )
 }
 
 const styles = StyleSheet.create({
+    gradient: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 10,
+    },
+    shimmer: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 10,
+    },
     frame2vJu: {
         backgroundColor: '#3381a3',
         borderRadius: 8,

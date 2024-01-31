@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Image, Text, View, TouchableOpacity, Modal, ToastAndroid } from 'react-native';
+import { StyleSheet, Image, Text, View, TouchableOpacity, Modal, ToastAndroid, Animated } from 'react-native';
 import Globals from '../components/Globals';
 import { Card } from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -12,7 +12,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Spinner from 'react-native-loading-spinner-overlay';
 import moment from 'moment/moment';
 import * as Animatable from 'react-native-animatable';
+import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
+import LinearGradient from 'react-native-linear-gradient';
 
+const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 const Favourite = ({ navigation }) => {
     lang = 0;
     lat = 0;
@@ -24,7 +27,7 @@ const Favourite = ({ navigation }) => {
     const [businessClaimData, setbusinessClaimData] = useState([]);
     const logoPath = wishList[0] ? wishList[0].logoPath : null;
     const logoUrl = Globals.Root_URL + `${logoPath}`;
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const isFocused = useIsFocused();
     const [isPromoModalVisible, setIsPromoModalVisible] = useState(false);
     const [isAutoPilotModalVisible, setIsAutoPilotModalVisible] = useState(false);
@@ -105,6 +108,7 @@ const Favourite = ({ navigation }) => {
             method: 'GET',
             url: `${Globals.API_URL}/Promotions/GetRewardsByActivityTypeAndIDInMobile/${type}/${ID}`
         }).then(async (response) => {
+            setIsPromoModalVisible(false);
             ToastAndroid.showWithGravityAndOffset(
                 'Claimed Successfully!',
                 ToastAndroid.LONG,
@@ -113,7 +117,6 @@ const Favourite = ({ navigation }) => {
                 50,
             );
             await getRefreshData();
-            setIsPromoModalVisible(false);
         }).catch(error => {
             console.error('Error retrieving dataa:', error);
             setLoading(false);
@@ -206,6 +209,7 @@ const Favourite = ({ navigation }) => {
     }
 
     const likeProfile = (business) => {
+        setLoading(true);
         AsyncStorage.getItem('token')
             .then(async (value) => {
                 if (value !== null) {
@@ -298,125 +302,228 @@ const Favourite = ({ navigation }) => {
                         </View>
                     }
                     <ScrollView style={{ flex: 1, height: '100%', width: '100%', borderRadius: 50 }} showsVerticalScrollIndicator={false}>
-                        <View style={styles.wishlistView}>
-                            {wishList && wishList.map((item, index) => (
-                                <View key={index} style={[styles.listView, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '',
-                                isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
-                                    <Image source={{ uri: Globals.Root_URL + item.logoPath }} style={styles.logoBusiness} />
-                                    <View style={{ position: 'absolute', right: '1%', flexDirection: 'row' }}>
-                                        {item.isLiked && <Image source={require('../assets/likeFill.png')} style={styles.likeHeart} />}
-                                        {!item.isLiked &&
-                                            <TouchableOpacity activeOpacity={.7} onPress={() => likeProfile(item)}>
-                                                <Animatable.Image
-                                                    animation={pulse}
-                                                    easing="ease-in-out"
-                                                    iterationCount="infinite" style={styles.likeHeart} source={require('../assets/likeOutline.png')} />
+                        {loading ?
+                            <>
+                                <LinearGradient
+                                    colors={['#b0bec5', '#e1e1e1', '#b0bec5']}
+                                    style={[styles.gradient, , { marginTop: 10 }]}>
+                                    <View style={{ width: '40%', height: 70, marginTop: 10 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '75%', height: 25, marginTop: 10 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '65%', height: 15, marginTop: 5 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '50%', height: 15, marginTop: 15 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+
+                                    <View style={{ width: '100%', flexDirection: 'row' }}>
+                                        <View style={{ width: '40%', height: 125, marginTop: 15 }}>
+                                            <ShimmerPlaceholder
+                                                style={styles.shimmer}
+                                                shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                            >
+                                            </ShimmerPlaceholder>
+                                        </View>
+                                        <View style={{ width: '40%', height: 125, marginTop: 15, marginLeft: 10 }}>
+                                            <ShimmerPlaceholder
+                                                style={styles.shimmer}
+                                                shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                            >
+                                            </ShimmerPlaceholder>
+                                        </View>
+                                    </View>
+                                </LinearGradient>
+
+                                <LinearGradient
+                                    colors={['#b0bec5', '#e1e1e1', '#b0bec5']}
+                                    style={[styles.gradient, { marginTop: 10 }]}>
+                                    <View style={{ width: '40%', height: 70, marginTop: 10 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '75%', height: 25, marginTop: 10 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '65%', height: 15, marginTop: 5 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+                                    <View style={{ width: '50%', height: 15, marginTop: 15 }}>
+                                        <ShimmerPlaceholder
+                                            style={styles.shimmer}
+                                            shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                        >
+                                        </ShimmerPlaceholder>
+                                    </View>
+
+                                    <View style={{ width: '100%', flexDirection: 'row' }}>
+                                        <View style={{ width: '40%', height: 125, marginTop: 15 }}>
+                                            <ShimmerPlaceholder
+                                                style={styles.shimmer}
+                                                shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                            >
+                                            </ShimmerPlaceholder>
+                                        </View>
+                                        <View style={{ width: '40%', height: 125, marginTop: 15, marginLeft: 10 }}>
+                                            <ShimmerPlaceholder
+                                                style={styles.shimmer}
+                                                shimmerColors={['#f3f3f3', '#e1e1e1', '#f3f3f3']}
+                                            >
+                                            </ShimmerPlaceholder>
+                                        </View>
+                                    </View>
+                                </LinearGradient>
+                            </>
+                            :
+                            <View style={styles.wishlistView}>
+                                {wishList && wishList.map((item, index) => (
+                                    <View key={index} style={[styles.listView, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '',
+                                    isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
+                                        <Image source={{ uri: Globals.Root_URL + item.logoPath }} style={styles.logoBusiness} />
+                                        <View style={{ position: 'absolute', right: '1%', flexDirection: 'row' }}>
+                                            {item.isLiked && <Image source={require('../assets/likeFill.png')} style={styles.likeHeart} />}
+                                            {!item.isLiked &&
+                                                <TouchableOpacity activeOpacity={.7} onPress={() => likeProfile(item)}>
+                                                    <Animatable.Image
+                                                        animation={pulse}
+                                                        easing="ease-in-out"
+                                                        iterationCount="infinite" style={styles.likeHeart} source={require('../assets/likeOutline.png')} />
+                                                </TouchableOpacity>
+                                            }
+                                            <Text style={styles.totalLikes}> {item.likeCount} Likes </Text>
+                                        </View>
+
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <TouchableOpacity activeOpacity={.7} style={styles.ViewBtn} onPress={() => navigation.navigate('BusinessDetailView', { id: item.businessId })}>
+                                                <Text style={styles.businessName}>{item.businessName}</Text>
                                             </TouchableOpacity>
-                                        }
-                                        <Text style={styles.totalLikes}> {item.likeCount} Likes </Text>
-                                    </View>
+                                        </View>
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Text style={styles.industry}>{item.industry} | </Text>
+                                            <Text style={{ color: '#73a5bc', fontWeight: 600, fontSize: 15 }}>{item.distance} mi </Text>
+                                        </View>
 
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <TouchableOpacity activeOpacity={.7} style={styles.ViewBtn} onPress={() => navigation.navigate('BusinessDetailView', { id: item.businessId })}>
-                                            <Text style={styles.businessName}>{item.businessName}</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <Text style={styles.industry}>{item.industry} | </Text>
-                                        <Text style={{ color: '#73a5bc', fontWeight: 600, fontSize: 15 }}>{item.distance} mi </Text>
-                                    </View>
-                                    {/* <Text style={styles.memberDetails}><Text style={{ color: '#73a5bc' }}>{item.distance} mi </Text> | Member Since - {moment(item.createdDate).format("MM/DD/YYYY")}</Text> */}
-
-                                    <View style={{ flexDirection: 'row', width: '100%', marginTop: 5 }}>
-                                        <Text style={styles.memberDetails}>
-                                            Member Since - {moment(item.createdDate).format("MM/DD/YYYY")}
-                                        </Text>
-                                        <View style={{
-                                            flexDirection: 'row', alignItems: 'center', right: 0, position: 'absolute',
-                                            borderColor: '#d9e7ed', borderWidth: 2, justifyContent: 'center', padding: 5, borderRadius: 25
-                                        }}>
-                                            <View style={{ justifyContent: 'center', paddingHorizontal: 5 }}>
-                                                {(item.badgeName).toString().toLowerCase() == 'bronze' && <Image source={require('../assets/Bronze.png')} style={[styles.trophyImg]} />}
-                                                {(item.badgeName).toString().toLowerCase() == 'silver' && <Image source={require('../assets/Silver.png')} style={[styles.trophyImg]} />}
-                                                {(item.badgeName).toString().toLowerCase() == 'gold' && <Image source={require('../assets/Gold.png')} style={[styles.trophyImg]} />}
-                                                {(item.badgeName).toString().toLowerCase() == 'platinum' && <Image source={require('../assets/platinum.png')} style={[styles.trophyImg]} />}
-                                            </View>
-                                            <View style={{}}>
-                                                <Text style={styles.badge}> {item.badgeName} </Text>
-                                                <Text style={styles.memberPoints}> {item.currentPoints} pt </Text>
+                                        <View style={{ flexDirection: 'row', width: '100%', marginTop: 5 }}>
+                                            <Text style={styles.memberDetails}>
+                                                Member Since - {moment(item.createdDate).format("MM/DD/YYYY")}
+                                            </Text>
+                                            <View style={{
+                                                flexDirection: 'row', alignItems: 'center', right: 0, position: 'absolute',
+                                                borderColor: '#d9e7ed', borderWidth: 2, justifyContent: 'center', padding: 5, borderRadius: 25
+                                            }}>
+                                                <View style={{ justifyContent: 'center', paddingHorizontal: 5 }}>
+                                                    {(item.badgeName).toString().toLowerCase() == 'bronze' && <Image source={require('../assets/Bronze.png')} style={[styles.trophyImg]} />}
+                                                    {(item.badgeName).toString().toLowerCase() == 'silver' && <Image source={require('../assets/Silver.png')} style={[styles.trophyImg]} />}
+                                                    {(item.badgeName).toString().toLowerCase() == 'gold' && <Image source={require('../assets/Gold.png')} style={[styles.trophyImg]} />}
+                                                    {(item.badgeName).toString().toLowerCase() == 'platinum' && <Image source={require('../assets/platinum.png')} style={[styles.trophyImg]} />}
+                                                </View>
+                                                <View style={{}}>
+                                                    <Text style={styles.badge}> {item.badgeName} </Text>
+                                                    <Text style={styles.memberPoints}> {item.currentPoints} pt </Text>
+                                                </View>
                                             </View>
                                         </View>
+                                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                            <View style={styles.cardView}>
+                                                {item.promotionData.map((promotion, earnReward) => (
+                                                    <Card key={earnReward} style={[{ width: 150, borderRadius: 20, paddingHorizontal: 2, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '',
+                                                    isAutoPilotModalVisible ? { opacity: 0.4 } : '', isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
+                                                        <Text style={styles.achievableName}>{promotion.promotionalMessage}</Text>
+                                                        {promotion.expiryDays > 1 && <Text style={styles.achievalbeValue}>Expires in - {promotion.expiryDays} days</Text>}
+                                                        {promotion.expiryDays == 1 && <Text style={styles.achievalbeValue}>Expiring Today</Text>}
+                                                        <TouchableOpacity activeOpacity={.7} onPress={() => openPromoModal(promotion, item)} style={[promotion.isClaimed == false ? styles.frame2vJuClaim : styles.frame2vJuClaimed]}>
+                                                            {promotion.isClaimed == false && <Text style={styles.getStartednru}>Claim</Text>}
+                                                            {promotion.isClaimed == true && <Text style={styles.getStartednru}>Claimed</Text>}
+                                                        </TouchableOpacity>
+                                                    </Card>
+                                                ))}
+
+                                                {item.autopilotData.map((autopilot, earnReward) => (
+                                                    <Card key={earnReward} style={[{ width: 150, borderRadius: 20, paddingHorizontal: 2, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '',
+                                                    isAutoPilotModalVisible ? { opacity: 0.4 } : '', isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
+                                                        <Text style={styles.achievableName}>{autopilot.rewardName}</Text>
+                                                        {autopilot.expiryDays > 1 && <Text style={styles.achievalbeValue}>Expires in - {autopilot.expiryDays} days</Text>}
+                                                        {autopilot.expiryDays == 1 && <Text style={styles.achievalbeValue}>Expiring Today</Text>}
+                                                        <TouchableOpacity activeOpacity={.7} onPress={() => openAPModal(autopilot, item)} style={[autopilot.isClaimed == false ? styles.frame2vJuClaim : styles.frame2vJuClaimed]}>
+                                                            {autopilot.isClaimed == false && <Text style={styles.getStartednru}>Claim</Text>}
+                                                            {autopilot.isClaimed == true && <Text style={styles.getStartednru}>Claimed</Text>}
+                                                        </TouchableOpacity>
+                                                    </Card>
+                                                ))}
+
+                                                {item.announcementData.map((announcement, earnReward) => (
+                                                    <Card key={earnReward} style={[{ width: 150, borderRadius: 20, paddingHorizontal: 2, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '',
+                                                    isAutoPilotModalVisible ? { opacity: 0.4 } : '', isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
+                                                        <Text style={styles.achievableName}>{announcement.subject}</Text>
+                                                        <TouchableOpacity activeOpacity={.7} onPress={() => openAnnouncementModal(announcement, item)} style={styles.ViewAnnouncement}>
+                                                            <Text style={styles.getStartednru}>View</Text>
+                                                        </TouchableOpacity>
+                                                    </Card>
+                                                ))}
+
+                                                {item.rewardData.map((reward, earnReward) => (
+                                                    <Card key={earnReward} style={[{ width: 150, borderRadius: 20, height: 150, paddingHorizontal: 2, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '',
+                                                    isAutoPilotModalVisible ? { opacity: 0.4 } : '', isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
+                                                        <Text style={styles.achievableName}>{reward.rewardName}</Text>
+                                                        <Text style={styles.achievalbeValue}>{reward.achivableTargetValue} pts</Text>
+                                                        <View>
+                                                            <Progress.Bar
+                                                                style={styles.progressBar}
+                                                                progress={1 - ((reward.pendingToAchiveValue) / reward.achivableTargetValue)}
+                                                                width={110}
+                                                                color='#2ac95d' />
+                                                        </View>
+                                                        {(reward.pendingToAchiveValue > 0) && <Text style={styles.pendingpoints}>{reward.pendingToAchiveValue} left</Text>}
+                                                        {(reward.pendingToAchiveValue <= 0) && <Text style={styles.pendingpoints}>0 left</Text>}
+                                                    </Card>
+                                                ))}
+                                            </View>
+                                        </ScrollView>
                                     </View>
-                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                        <View style={styles.cardView}>
-                                            {item.promotionData.map((promotion, earnReward) => (
-                                                <Card key={earnReward} style={[{ width: 150, borderRadius: 20, paddingHorizontal: 2, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '',
-                                                isAutoPilotModalVisible ? { opacity: 0.4 } : '', isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
-                                                    <Text style={styles.achievableName}>{promotion.promotionalMessage}</Text>
-                                                    {promotion.expiryDays > 1 && <Text style={styles.achievalbeValue}>Expires in - {promotion.expiryDays} days</Text>}
-                                                    {promotion.expiryDays == 1 && <Text style={styles.achievalbeValue}>Expiring Today</Text>}
-                                                    <TouchableOpacity activeOpacity={.7} onPress={() => openPromoModal(promotion, item)} style={[promotion.isClaimed == false ? styles.frame2vJuClaim : styles.frame2vJuClaimed]}>
-                                                        {promotion.isClaimed == false && <Text style={styles.getStartednru}>Claim</Text>}
-                                                        {promotion.isClaimed == true && <Text style={styles.getStartednru}>Claimed</Text>}
-                                                    </TouchableOpacity>
-                                                </Card>
-                                            ))}
-
-                                            {item.autopilotData.map((autopilot, earnReward) => (
-                                                <Card key={earnReward} style={[{ width: 150, borderRadius: 20, paddingHorizontal: 2, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '',
-                                                isAutoPilotModalVisible ? { opacity: 0.4 } : '', isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
-                                                    <Text style={styles.achievableName}>{autopilot.rewardName}</Text>
-                                                    {autopilot.expiryDays > 1 && <Text style={styles.achievalbeValue}>Expires in - {autopilot.expiryDays} days</Text>}
-                                                    {autopilot.expiryDays == 1 && <Text style={styles.achievalbeValue}>Expiring Today</Text>}
-                                                    <TouchableOpacity activeOpacity={.7} onPress={() => openAPModal(autopilot, item)} style={[autopilot.isClaimed == false ? styles.frame2vJuClaim : styles.frame2vJuClaimed]}>
-                                                        {autopilot.isClaimed == false && <Text style={styles.getStartednru}>Claim</Text>}
-                                                        {autopilot.isClaimed == true && <Text style={styles.getStartednru}>Claimed</Text>}
-                                                    </TouchableOpacity>
-                                                </Card>
-                                            ))}
-
-                                            {item.announcementData.map((announcement, earnReward) => (
-                                                <Card key={earnReward} style={[{ width: 150, borderRadius: 20, paddingHorizontal: 2, height: 150, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '',
-                                                isAutoPilotModalVisible ? { opacity: 0.4 } : '', isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
-                                                    <Text style={styles.achievableName}>{announcement.subject}</Text>
-                                                    <TouchableOpacity activeOpacity={.7} onPress={() => openAnnouncementModal(announcement, item)} style={styles.ViewAnnouncement}>
-                                                        <Text style={styles.getStartednru}>View</Text>
-                                                    </TouchableOpacity>
-                                                </Card>
-                                            ))}
-
-                                            {item.rewardData.map((reward, earnReward) => (
-                                                <Card key={earnReward} style={[{ width: 150, borderRadius: 20, height: 150, paddingHorizontal: 2, marginRight: 10, marginBottom: 5, backgroundColor: '#f4f5f5' }, isPromoModalVisible ? { opacity: 0.4 } : '',
-                                                isAutoPilotModalVisible ? { opacity: 0.4 } : '', isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
-                                                    <Text style={styles.achievableName}>{reward.rewardName}</Text>
-                                                    <Text style={styles.achievalbeValue}>{reward.achivableTargetValue} pts</Text>
-                                                    <View>
-                                                        <Progress.Bar
-                                                            style={styles.progressBar}
-                                                            progress={1 - ((reward.pendingToAchiveValue) / reward.achivableTargetValue)}
-                                                            width={110}
-                                                            color='#2ac95d' />
-                                                    </View>
-                                                    {(reward.pendingToAchiveValue > 0) && <Text style={styles.pendingpoints}>{reward.pendingToAchiveValue} left</Text>}
-                                                    {(reward.pendingToAchiveValue <= 0) && <Text style={styles.pendingpoints}>0 left</Text>}
-                                                </Card>
-                                            ))}
-                                        </View>
-                                    </ScrollView>
-                                </View>
-                            ))}
-                        </View>
-
-                        <SafeAreaView>
+                                ))}
+                            </View>
+                        }
+                        {/* <SafeAreaView>
                             <View style={styles.container}>
                                 <Spinner
                                     visible={loading}
                                     textContent={''}
                                     textStyle={styles.spinnerStyle} />
                             </View>
-                        </SafeAreaView>
+                        </SafeAreaView> */}
                     </ScrollView >
                 </SafeAreaView>
+
 
             </View>
 
@@ -430,7 +537,7 @@ const Favourite = ({ navigation }) => {
                 <View style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={styles.modal}>
                         <View style={{ flexDirection: 'row', width: '100%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
-                            <Image source={{ uri: logoUrl }} style={styles.logoBusinessInModal} />
+                            <Image source={{ uri: Globals.Root_URL + `${businessClaimData.logoPath}` }} style={styles.logoBusinessInModal} />
 
                             <TouchableOpacity activeOpacity={.7} onPress={closePromoModal} style={styles.cancelImgContainer}>
                                 <Image source={require('../assets/cancelImg.png')} style={styles.cancelImg} />
@@ -469,7 +576,7 @@ const Favourite = ({ navigation }) => {
                 <View style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={styles.modal}>
                         <View style={{ flexDirection: 'row', width: '100%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
-                            <Image source={{ uri: logoUrl }} style={styles.logoBusinessInModal} />
+                            <Image source={{ uri: Globals.Root_URL + `${businessClaimData.logoPath}` }} style={styles.logoBusinessInModal} />
                             <TouchableOpacity activeOpacity={.7} onPress={closeAPModal} style={styles.cancelImgContainer}>
                                 <Image source={require('../assets/cancelImg.png')} style={styles.cancelImg} />
                             </TouchableOpacity>
@@ -503,7 +610,7 @@ const Favourite = ({ navigation }) => {
                 <View style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={styles.modal}>
                         <View style={{ flexDirection: 'row', width: '100%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
-                            <Image source={{ uri: logoUrl }} style={styles.logoBusinessInModal} />
+                            <Image source={{ uri: Globals.Root_URL + `${businessClaimData.logoPath}` }} style={styles.logoBusinessInModal} />
                             <TouchableOpacity activeOpacity={.7} onPress={closeAnnouncementModal} style={styles.cancelImgContainer}>
                                 <Image source={require('../assets/cancelImg.png')} style={styles.cancelImg} />
                             </TouchableOpacity>
@@ -521,6 +628,18 @@ const Favourite = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+    gradient: {
+        width: '95%',
+        height: 350,
+        borderRadius: 10,
+        marginLeft: 7,
+        paddingLeft: 10
+    },
+    shimmer: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 10,
+    },
     cancelImgContainer: {
         alignSelf: 'flex-end',
         position: 'absolute',

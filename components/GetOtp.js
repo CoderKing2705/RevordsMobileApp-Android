@@ -2,6 +2,7 @@ import { StyleSheet, Image, Text, View, ToastAndroid } from 'react-native';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import { useEffect, useRef, useState } from 'react';
 import Globals from './Globals';
+import LinearGradient from 'react-native-linear-gradient';
 
 const GetOtp = ({ route, navigation }) => {
     const [otp, setOtp] = useState(['', '', '', '']);
@@ -91,14 +92,14 @@ const GetOtp = ({ route, navigation }) => {
             handleInputChange(autoFilledValue, index);
         }
     };
-    
+
     useEffect(() => {
         const interval = setInterval(() => {
             setSeconds((prevSeconds) => prevSeconds - 1);
         }, 1000);
 
-        if (seconds === 0) {            
-            clearInterval(interval); 
+        if (seconds === 0) {
+            clearInterval(interval);
         }
 
         return () => clearInterval(interval);
@@ -106,52 +107,64 @@ const GetOtp = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.welcomeText}>Enter Otp</Text>
-            <View style={styles.deviceView}>
-                <Image source={require('../assets/envelopesimple-8N5.png')} style={styles.emaillogo} />
-            </View>
-            <Text style={styles.verifyCodeText}>Verification Code</Text>
-            <Text style={styles.verifyText}>OTP has been sent to your mobile number.</Text>
+            <LinearGradient
+                colors={['#d9e7ed', '#bfdfed', '#d9e7ed']}
+                style={[styles.gradient]}>
+                <Text style={styles.welcomeText}>Enter Otp</Text>
+                <View style={styles.deviceView}>
+                    <Image source={require('../assets/envelopesimple-8N5.png')} style={styles.emaillogo} />
+                </View>
+                <Text style={styles.verifyCodeText}>Verification Code</Text>
+                <Text style={styles.verifyText}>OTP has been sent to your mobile number.</Text>
 
-            <View style={styles.otpContainer}>
-                {[0, 1, 2, 3].map((index) => (
-                    <TextInput
-                        key={index}
-                        ref={refs[index]}
-                        style={styles.otpInput}
-                        keyboardType="numeric"
-                        maxLength={1}
-                        // textContentType='oneTimeCode'
-                        onChangeText={(text) => handleInputChange(text, index)}
-                        onKeyPress={(e) => handleKeyPress(e, index)}
-                        value={otp[index]}
-                        autoComplete="sms-otp"
-                        onTextInput={(e) => handleAutoFill(e, index)}
-                    />
-                ))}
-            </View>
-            <View style={{ 'height': 25 }}>
-                {!isVerified && <Text style={{ 'paddingTop': 4, 'color': 'red' }}>Please Enter Correct OTP</Text>}
-                {otp.join('').length == 0 && <Text style={{ 'paddingTop': 4, 'color': '#203139' }}>Please Enter the OTP</Text>}
-            </View>
-            <TouchableOpacity activeOpacity={.7} onPress={verifyOtp} style={styles.frame2vJu}>
-                <Text style={styles.getStartednru}>Verify</Text>
-            </TouchableOpacity>
+                <View style={styles.otpContainer}>
+                    {[0, 1, 2, 3].map((index) => (
+                        <TextInput
+                            key={index}
+                            ref={refs[index]}
+                            style={styles.otpInput}
+                            keyboardType="numeric"
+                            maxLength={1}
+                            // textContentType='oneTimeCode'
+                            onChangeText={(text) => handleInputChange(text, index)}
+                            onKeyPress={(e) => handleKeyPress(e, index)}
+                            value={otp[index]}
+                            autoComplete="sms-otp"
+                            onTextInput={(e) => handleAutoFill(e, index)}
+                        />
+                    ))}
+                </View>
+                <View style={{ 'height': 25 }}>
+                    {!isVerified && <Text style={{ 'paddingTop': 4, 'color': 'red' }}>Please Enter Correct OTP</Text>}
+                    {otp.join('').length == 0 && <Text style={{ 'paddingTop': 4, 'color': '#203139' }}>Please Enter the OTP</Text>}
+                </View>
+                <TouchableOpacity activeOpacity={.7} onPress={verifyOtp} style={styles.frame2vJu}>
+                    <Text style={styles.getStartednru}>Verify</Text>
+                </TouchableOpacity>
 
-            <Text style={styles.verifyCodeText1}>Didn't receive the code?</Text>
-            {seconds !== 0 && <Text style={styles.timerText}>{`${Math.floor(seconds / 60)}:${(seconds % 60).toLocaleString('en-US', {
-                minimumIntegerDigits: 2,
-                useGrouping: false,
-            })}`}</Text>}
-            {(seconds === 0 && !isResentDisabled) && <TouchableOpacity activeOpacity={.7} onPress={resendOtp} style={styles.resendView}>
-                <Text style={styles.verifyCodeText2}>Resend</Text>
-            </TouchableOpacity>}
-            {(seconds === 0 && isResentDisabled) && <Text style={styles.resentText}>Resent</Text>}
+                <Text style={styles.verifyCodeText1}>Didn't receive the code?</Text>
+                {seconds !== 0 && <Text style={styles.timerText}>{`${Math.floor(seconds / 60)}:${(seconds % 60).toLocaleString('en-US', {
+                    minimumIntegerDigits: 2,
+                    useGrouping: false,
+                })}`}</Text>}
+                {(seconds === 0 && !isResentDisabled) && <TouchableOpacity activeOpacity={.7} onPress={resendOtp} style={styles.resendView}>
+                    <Text style={styles.verifyCodeText2}>Resend</Text>
+                </TouchableOpacity>}
+                {(seconds === 0 && isResentDisabled) && <Text style={styles.resentText}>Resent</Text>}
+            </LinearGradient>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
+    gradient: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 10,
+        // marginLeft: 7,
+        // paddingLeft: 10,
+        alignItems: 'center',
+    },
     resentText: {
         color: '#a3abaf',
         fontSize: 24,

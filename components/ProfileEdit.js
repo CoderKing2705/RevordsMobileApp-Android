@@ -21,6 +21,7 @@ const ProfileEdit = ({ navigation, route }) => {
     const [formatPhone, setFormatPhone] = useState('');
     const [loading, setLoading] = useState(false);
     const [isValid, setIsValid] = useState(true);
+    const [isValidName, setIsValidName] = useState(true);
 
     const [memberProfilePic, setMemberProfilePic] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -93,48 +94,55 @@ const ProfileEdit = ({ navigation, route }) => {
     }, [focus, selectedMonth]);
 
     const putData = () => {
-        setLoading(true);
-        const apiUrl = Globals.API_URL + '/MemberProfiles/PutMemberInMobileApp';
-        let currentDate = (new Date()).toISOString();
-
-        let currentYear = new Date().getFullYear();
-        let bDate;
-        if (!MemberData[0].isBirthDateChange) {
-            bDate = (selectedMonth == '' || selectedDay == '' || selectedMonth == null || selectedDay == null ||
-                selectedMonth == undefined || selectedDay == undefined) ? null
-                : `${currentYear}-${selectedMonth}-${selectedDay}`;
+        if (name == '' || name == null || name == undefined) {
+            setIsValidName(false);
         } else {
-            bDate = null;
+            setIsValidName(true);
+            setLoading(true);
+            const apiUrl = Globals.API_URL + '/MemberProfiles/PutMemberInMobileApp';
+            let currentDate = (new Date()).toISOString();
+
+            let currentYear = new Date().getFullYear();
+            let bDate;
+            if (!MemberData[0].isBirthDateChange) {
+                bDate = (selectedMonth == '' || selectedDay == '' || selectedMonth == null || selectedDay == null ||
+                    selectedMonth == undefined || selectedDay == undefined) ? null
+                    : `${currentYear}-${selectedMonth}-${selectedDay}`;
+            } else {
+                bDate = null;
+            }
+
+            const requestBody = {
+                id: MemberData[0].memberId,
+                memberName: name,
+                emailID: emailId,
+                lastModifiedBy: MemberData[0].memberId,
+                lastModifiedDate: currentDate,
+                birthDate: bDate
+            };
+
+            axios.put(apiUrl, requestBody)
+                .then(async (response) => {
+                    if (selectedImage) {
+                        await uploadImage(imageRes);
+                    }
+                    await getMemberData();
+                    setLoading(false);
+                    ToastAndroid.showWithGravityAndOffset(
+                        'Updated Successfully!',
+                        ToastAndroid.LONG,
+                        ToastAndroid.BOTTOM,
+                        25,
+                        50,
+                    );
+                    navigation.navigate('Profiles');
+                })
+                .catch(error => console.error(error));
         }
-
-        const requestBody = {
-            id: MemberData[0].memberId,
-            memberName: name,
-            emailID: emailId,
-            lastModifiedBy: MemberData[0].memberId,
-            lastModifiedDate: currentDate,
-            birthDate: bDate
-        };
-
-        axios.put(apiUrl, requestBody)
-            .then(async (response) => {
-                if (selectedImage) {
-                    await uploadImage(imageRes);
-                }
-                await getMemberData();
-                setLoading(false);
-                ToastAndroid.showWithGravityAndOffset(
-                    'Updated Successfully!',
-                    ToastAndroid.LONG,
-                    ToastAndroid.BOTTOM,
-                    25,
-                    50,
-                );
-                navigation.navigate('Profiles');
-            })
-            .catch(error => console.error(error));
     }
     const Save = () => {
+        console.log('name', name)
+
         if (emailId !== null && emailId !== undefined && emailId !== '') {
             const isValidEmail = validateEmail(emailId);
             setIsValid(isValidEmail);
@@ -328,9 +336,10 @@ const ProfileEdit = ({ navigation, route }) => {
                                                 height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingLeft: 10,
                                                 marginTop: 5, fontSize: 16, borderRadius: 10, backgroundColor: '#e6edf1', fontWeight: '600'
                                             }}
-                                            onChangeText={(inputText) => { setName(inputText) }}
+                                            onChangeText={(inputText) => { setName(inputText.trim()) }}
                                             value={name}
                                         />
+                                        {!isValidName && <Text style={{ color: 'red' }}>Name shouldn't be empty</Text>}
                                     </View>
                                     <View style={{ borderRadius: 23, padding: 5, width: '100%' }}>
                                         <Text style={{ fontSize: 18, fontWeight: '700', paddingLeft: 5 }}>Email</Text>

@@ -15,7 +15,7 @@ const LandingScreen = ({ navigation }) => {
 
         AsyncStorage.getItem('token')
             .then(async value => {
-                if (value !== null) {                    
+                if (value !== null) {
                     await getMemberData((JSON.parse(value))[0].phone, value);
                 } else {
                     setLoading(false);
@@ -34,8 +34,8 @@ const LandingScreen = ({ navigation }) => {
         AsyncStorage.setItem('token', JSON.stringify(json))
             .then(() => {
                 // setTimeout(() => {
-                    setLoading(false);
-                    navigation.navigate('TabNavigation', { MemberData: JSON.parse(value) });
+                setLoading(false);
+                navigation.navigate('TabNavigation', { MemberData: JSON.parse(value) });
                 // }, 2500);
             })
             .catch(error => {

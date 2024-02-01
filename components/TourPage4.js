@@ -31,15 +31,15 @@ const styles = StyleSheet.create({
         // paddingLeft: 10,
         alignItems: 'center',
         paddingHorizontal: width * 0.05, // Adjust based on your design
-      },
-      container: {
+    },
+    container: {
         width: '100%',
         height: '100%',
         flex: 1,
         backgroundColor: '#d9e7ed',
         alignItems: 'center',
         // paddingTop: height * 0.05, // Adjust based on your design
-      },
+    },
     companylogo: {
         width: '55%',
         aspectRatio: 1, // Maintain aspect ratio

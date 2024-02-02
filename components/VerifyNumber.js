@@ -88,7 +88,9 @@ const VerifyNumber = ({ navigation }) => {
       if (unMaskPhone.length == 10) {
         await fetchAPI();
       }
-      else {
+      else if (unMaskPhone.length === 0 || unMaskPhone.length === null) {
+        setIsValid(false);
+      } else {
         setIsValid(false);
       }
     }

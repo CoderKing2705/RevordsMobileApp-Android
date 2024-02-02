@@ -525,5 +525,4 @@ const styles = StyleSheet.create({
         width: '80%'
     },
 })
-
 export default Location;

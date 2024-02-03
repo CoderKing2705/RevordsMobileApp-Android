@@ -54,6 +54,7 @@
     "react-native-safe-area-context": "4.6.3",
     "react-native-screens": "^3.25.0",
     "react-native-select-dropdown": "^3.4.0",
+    "react-native-shimmer-placeholder": "^2.0.9",
     "react-native-tooltip": "^5.2.0",
     "react-native-video": "^5.2.1",
     "react-navigation": "^5.0.0",

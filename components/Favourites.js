@@ -147,7 +147,7 @@ const Favourite = ({ navigation }) => {
     const getRefreshData = () => {
         AsyncStorage.getItem('token')
             .then(async (value) => {
-                setLoading(true);
+                // setLoading(true);
                 if (value !== null) {
                     await axios({
                         method: 'GET',
@@ -209,7 +209,7 @@ const Favourite = ({ navigation }) => {
     }
 
     const likeProfile = (business) => {
-        setLoading(true);
+        // setLoading(true);
         AsyncStorage.getItem('token')
             .then(async (value) => {
                 if (value !== null) {
@@ -807,8 +807,9 @@ const styles = StyleSheet.create({
         fontSize: 15,
         width: 150,
         height: 85,
-        paddingHorizontal: 5,
-        paddingVertical: 3
+        paddingHorizontal: 2,
+        paddingVertical: 3,
+        textAlign: 'center'
     },
     scrollviewContainer: {
         flex: 1,

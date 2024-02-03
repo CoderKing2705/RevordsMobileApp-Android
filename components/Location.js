@@ -79,7 +79,7 @@ const Location = ({ navigation }) => {
     }
 
     const getData = async () => {
-        setLoadingData(true);
+        // setLoadingData(true);
 
         AsyncStorage.getItem('token')
             .then(async (value) => {
@@ -209,7 +209,7 @@ const Location = ({ navigation }) => {
                                 data1.isLiked = false;
                             }
                         })
-                        setLoading(false);
+                        // setLoadingData(false);
                     });
                     ;
                 } else {
@@ -218,7 +218,7 @@ const Location = ({ navigation }) => {
             })
             .catch(error => {
                 console.error('Error retrieving dataa:', error);
-                setLoading(false);
+                // setLoadingData(false);
             });
     }
 
@@ -525,4 +525,5 @@ const styles = StyleSheet.create({
         width: '80%'
     },
 })
+
 export default Location;

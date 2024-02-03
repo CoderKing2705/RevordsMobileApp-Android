@@ -7,7 +7,7 @@ import LinearGradient from 'react-native-linear-gradient';
 const GetOtp = ({ route, navigation }) => {
     const [otp, setOtp] = useState(['', '', '', '']);
     const refs = [useRef(), useRef(), useRef(), useRef()];
-    const intervalRef = useRef(null);
+
     const [isVerified, setIsVerified] = useState(true);
     let { OTP, CustomerExists, Phone } = route.params;
     const [seconds, setSeconds] = useState(60);
@@ -95,15 +95,14 @@ const GetOtp = ({ route, navigation }) => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setSeconds((prevSeconds) => (prevSeconds > 0 ? prevSeconds - 1 : 0));
+            setSeconds((prevSeconds) => prevSeconds - 1);
         }, 1000);
 
-        intervalRef.current = interval;
         if (seconds === 0) {
             clearInterval(interval);
         }
 
-        return () => clearInterval(intervalRef.current);
+        return () => clearInterval(interval);
     }, [seconds]);
 
     return (

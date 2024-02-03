@@ -111,6 +111,21 @@ const VerifyNumber = ({ navigation }) => {
             <Image source={require('../assets/devicemobile-9n9.png')} style={styles.mobilelogo} />
           </View>
           <Text style={styles.verifyText}>Verify Your Number</Text>
+          {/* <MaskInput
+          value={phone}
+          style={styles.textInput}
+          keyboardType="numeric"
+          maxLength={14}
+          onChangeText={(masked, unmasked) => {
+            if (unmasked.length <= 10) {
+              setPhone(masked); // you can use the unmasked value as well       
+              setunMaskPhone(unmasked);
+            }
+          }}
+          mask={['(', /\d/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+          placeholder="(000) 000-0000"
+        /> */}
+
           <View style={{ flexDirection: 'row', height: 50, alignItems: 'center', justifyContent: 'center', }}>
             <Text style={styles.textInputUS}>+1</Text>
             <MaskInput
@@ -129,7 +144,9 @@ const VerifyNumber = ({ navigation }) => {
               placeholder="Enter Phone Number"
             />
           </View>
-          {!isValid && <Text style={{ color: 'red', marginTop: 4 }}>Invalid Phone Number</Text>}
+          {!isValid &&
+            <Text style={{ color: 'red', marginTop: 4 }}>{unMaskPhone ? 'Invalid Phone Number' : 'Please enter phone number'}</Text>
+          }
 
           <TouchableOpacity activeOpacity={.7} onPress={handleOnPress} style={styles.frame2vJu}>
             <Text style={styles.getStartednru}>Request Otp</Text>

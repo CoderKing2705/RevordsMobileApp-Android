@@ -22,7 +22,7 @@ const GetStarted = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <LinearGradient
-                colors={['#d9e7ed', '#a5becb', '#d9e7ed']}
+                colors={['#d9e7ed','#a5becb', '#d9e7ed']}
                 style={styles.gradient}>
                 <Image source={require('../assets/companylogo.png')} style={styles.companylogo} />
                 <Image source={require('../assets/vector-Ypq.png')} style={styles.vectorP61} />

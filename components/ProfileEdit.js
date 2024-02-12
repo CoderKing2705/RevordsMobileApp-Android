@@ -364,7 +364,7 @@ const ProfileEdit = ({ navigation, route }) => {
                                             editable={false}
                                         />
                                     </View>
-                                    <View style={{ padding: 5, width: '100%' }}>
+                                    <View style={{ borderRadius: 23, padding: 5, width: '100%' }}>
                                         <Text style={{ fontSize: 18, fontWeight: '700', paddingLeft: 5 }}>Birth Date</Text>
                                         {MemberData[0].isBirthDateChange &&
                                             <TouchableOpacity activeOpacity={.7} onPress={alertForBirthDate} >
@@ -402,6 +402,7 @@ const ProfileEdit = ({ navigation, route }) => {
                                             </>
                                         }
                                     </View>
+
                                     <TouchableOpacity activeOpacity={.7} onPress={Save} style={styles.frame2vJu}>
                                         <Text style={styles.getStartednru}>Save</Text>
                                     </TouchableOpacity>

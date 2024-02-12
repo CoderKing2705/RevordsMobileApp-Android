@@ -17,7 +17,8 @@ const GetOtp = ({ route, navigation }) => {
         let newOtp = [...otp];
         newOtp[index] = text;
         setOtp(newOtp);
-
+        setIsVerified(true);
+        
         if (index < 3 && text !== '') {
             refs[index + 1].current.focus();
         }

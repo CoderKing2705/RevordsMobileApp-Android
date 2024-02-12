@@ -33,8 +33,10 @@ const LandingScreen = ({ navigation }) => {
         const json = await response.json();
         AsyncStorage.setItem('token', JSON.stringify(json))
             .then(() => {
+                // setTimeout(() => {
                 setLoading(false);
                 navigation.navigate('TabNavigation', { MemberData: JSON.parse(value) });
+                // }, 2500);
             })
             .catch(error => {
                 console.error('Error saving data:', error);

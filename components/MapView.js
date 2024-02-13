@@ -168,7 +168,12 @@ export default function MapViewing({ navigation }) {
         if (text === '') {
             setFilteredData(businessData);
         } else {
-            let data = businessData.filter(item => item.metaData.toLowerCase().includes(text.toLowerCase()));
+            let data = businessData.filter(item => {
+                if (item.metaData !== null && item.metaData !== undefined && item.metaData !== '') {
+                    return
+                    item.metaData.toLowerCase().includes(text.toLowerCase())
+                }
+            });
             setFilteredData(data);
         }
     }
@@ -185,7 +190,7 @@ export default function MapViewing({ navigation }) {
 
             <View style={{ flexDirection: 'row', width: '100%', height: 75, marginTop: 20, }}>
                 <View style={{ width: '82%', paddingHorizontal: '2%', height: '70%' }}>
-                    <TextInput style={styles.searchInput} placeholder='Search..'  onChangeText={text => handleInputChange(text)} />
+                    <TextInput style={styles.searchInput} placeholder='Search..' onChangeText={text => handleInputChange(text)} />
                     <Image style={styles.magnifyingGlass} source={require('../assets/magnifyingglass-qQV.png')} />
                 </View>
                 <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('Locations')}

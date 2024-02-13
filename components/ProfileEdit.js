@@ -22,7 +22,6 @@ const ProfileEdit = ({ navigation, route }) => {
     const [loading, setLoading] = useState(false);
     const [isValid, setIsValid] = useState(true);
     const [isValidName, setIsValidName] = useState(true);
-
     const [memberProfilePic, setMemberProfilePic] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const [imageRes, setImageRes] = useState(null);

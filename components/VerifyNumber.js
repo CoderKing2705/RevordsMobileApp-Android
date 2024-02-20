@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { StyleSheet, Image, Text, View, Button, SafeAreaView, ToastAndroid } from 'react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Image, Text, View, Button, SafeAreaView, ToastAndroid, Linking, PermissionsAndroid } from 'react-native';
 import MaskInput from 'react-native-mask-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Globals from '../components/Globals';
@@ -97,6 +97,21 @@ const VerifyNumber = ({ navigation }) => {
     }
   }
 
+  const checkApplicationPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+        );
+      } catch (error) {
+      }
+    }
+  }
+
+  useEffect(() => {
+    checkApplicationPermission();
+  }, []);
+
   return (
     <KeyboardAwareScrollView style={{ backgroundColor: '#d9e7ed' }}>
       <View style={styles.container}>
@@ -150,6 +165,18 @@ const VerifyNumber = ({ navigation }) => {
             <Text style={styles.getStartednru}>Request Otp</Text>
             <Image source={require('../assets/arrowcircleright-R8m.png')} style={styles.arrowcirclerightTy3} />
           </TouchableOpacity>
+
+          <View style={{ width: '100%', marginBottom: 5, paddingHorizontal: 7 }}>
+            <Text style={{ textAlign: 'center' }}>
+              By participating, you consent to receive auto text and email messages and to our&nbsp;
+              <TouchableOpacity activeOpacity={.7} onPress={() => Linking.openURL('https://revords.com/t&c.html')} style={{ top: 5, flexDirection: 'row' }}>
+                <Text style={{ color: '#646369' }}>Terms</Text>
+              </TouchableOpacity>&nbsp;and&nbsp;
+              <TouchableOpacity activeOpacity={.7} onPress={() => Linking.openURL('https://revords.com/privacy.html')} style={{ top: 5, flexDirection: 'row' }}>
+                <Text style={{ color: '#646369' }}>Privacy Policy</Text>
+              </TouchableOpacity>. Message and data rates may apply. Reply STOP to any messages to unsubscribe.
+            </Text>            
+          </View>
           <SafeAreaView style={{ flex: 1 }}>
             <View style={styles.container}>
               <Spinner

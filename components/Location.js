@@ -147,9 +147,8 @@ const Location = ({ navigation }) => {
             setFilteredData(userData);
         } else {
             let data = userData.filter(item => {
-                if (item.metaData !== null && item.metaData !== undefined && item.metaData !== '') {
-                    return
-                    item.metaData.toLowerCase().includes(text.toLowerCase())
+                if (item.metaData !== null && item.metaData !== undefined && item.metaData !== "") {
+                    return item.metaData.toLowerCase().includes(text.toLowerCase());
                 }
             });
             setFilteredData(data);

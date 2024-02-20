@@ -73,7 +73,7 @@ const Profile = ({ route, navigation }) => {
                     <View style={{ flexDirection: 'row', width: '95%', height: '10%', alignItems: 'center', justifyContent: 'center' }}>
                         <Text style={styles.welcomeText}>User Profile</Text>
                         <TouchableOpacity activeOpacity={.7} onPress={() => navigation.navigate('ProfileEdit', { MemberData: MemberData })}>
-                            <Image source={require('../assets/more-button.png')} style={styles.setimg1} />
+                            <Image source={require('../assets/editImg.png')} style={styles.setimg1} />
                         </TouchableOpacity>
                     </View>
 
@@ -93,15 +93,14 @@ const Profile = ({ route, navigation }) => {
                             <View style={{ backgroundColor: '#f2f5f6', width: '95%', marginTop: 16, borderRadius: 23 }}>
                                 <View style={{
                                     flexDirection: 'row', width: '90%', alignItems: 'left', justifyContent: 'left',
-                                    marginTop: 16, marginLeft: 16
+                                    marginTop: 16, marginLeft: 8
                                 }}>
                                     <Image source={require('../assets/auto-group-m9hk.png')} style={styles.iconimg1} />
                                     <Text style={styles.innerDText}>{phone}</Text>
-
                                 </View>
                                 <View style={{
                                     flexDirection: 'row', width: '90%', alignItems: 'left', justifyContent: 'left',
-                                    marginLeft: 16, paddingVertical: 10
+                                    marginLeft: 8, paddingVertical: 10
                                 }}>
                                     <Image source={require('../assets/auto-group-edy5.png')} style={styles.iconimg1} />
                                     {(emailId != null && emailId != '' && emailId != undefined) && <Text style={styles.innerDText}>{emailId}</Text>}
@@ -112,11 +111,11 @@ const Profile = ({ route, navigation }) => {
                                         marginTop: '2%',
                                         marginLeft: '5%',
                                         width: '80%',
-                                    }}>No Email</Text>}
+                                    }}>Email</Text>}
                                 </View>
                                 <View style={{
                                     flexDirection: 'row', width: '90%', alignItems: 'left', justifyContent: 'left',
-                                    marginLeft: 16, paddingBottom: 10
+                                    marginLeft: 8, paddingBottom: 10
                                 }}>
                                     <Image source={require('../assets/birthday.png')} style={styles.iconimg1} />
                                     {(birthDay != null && birthDay != '' && birthDay != undefined) && <Text style={styles.innerDText}>{birthDay}</Text>}
@@ -127,13 +126,40 @@ const Profile = ({ route, navigation }) => {
                                         marginTop: '2%',
                                         marginLeft: '5%',
                                         width: '80%',
-                                    }}>No BirthDate Given</Text>}
+                                    }}>Birth Date</Text>}
 
                                 </View>
                             </View>
+
                             <View style={{ backgroundColor: 'white', width: '100%', marginTop: 16, borderRadius: 23 }}>
                                 <View style={{
                                     flexDirection: 'row', width: '95%', alignItems: 'left', justifyContent: 'left', marginLeft: 16
+                                }}>
+                                    <TouchableOpacity activeOpacity={.7}
+                                        onPress={() => Linking.openURL('https://revords.com/t&c.html')}
+                                        style={{
+                                            flexDirection: 'row', alignItems: 'left', justifyContent: 'left',
+                                        }}>
+                                        <Image source={require('../assets/termsImg.jpeg')} style={styles.iconimg1} />
+                                        <Text style={styles.innerDText}>Terms & Conditions</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={{
+                                    flexDirection: 'row', width: '95%', alignItems: 'left', justifyContent: 'left',
+                                    marginTop: 16, marginLeft: 16
+                                }}>
+                                    <TouchableOpacity activeOpacity={.7}
+                                        onPress={() => Linking.openURL('https://revords.com/privacy.html')}
+                                        style={{
+                                            flexDirection: 'row', alignItems: 'left', justifyContent: 'left',
+                                        }}>
+                                        <Image source={require('../assets/privacyImg.jpeg')} style={styles.iconimg1} />
+                                        <Text style={styles.innerDText}>Privacy Policy</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={{
+                                    flexDirection: 'row', width: '95%', alignItems: 'left', justifyContent: 'left',
+                                    marginTop: 16, marginLeft: 16
                                 }}>
                                     <TouchableOpacity activeOpacity={.7}
                                         onPress={() => Linking.openURL('mailto:info@revords.com')}
@@ -141,30 +167,15 @@ const Profile = ({ route, navigation }) => {
                                             flexDirection: 'row', alignItems: 'left', justifyContent: 'left',
                                         }}>
                                         <Image source={require('../assets/group-6.png')} style={styles.iconimg1} />
-                                        <Text style={styles.innerDText}>Help Center</Text>
+                                        <Text style={styles.innerDText}>Contact Us</Text>
                                     </TouchableOpacity>
-                                </View>
-                                <View style={{
-                                    flexDirection: 'row', width: '95%', alignItems: 'left', justifyContent: 'left',
-                                    marginTop: 16, marginLeft: 16
-                                }}>
-                                    <Image source={require('../assets/group-7.png')} style={styles.iconimg1} />
-                                    <Text style={styles.innerDText}>Refer & Earn</Text>
-                                </View>
-                                <View style={{
-                                    flexDirection: 'row', width: '95%', alignItems: 'left', justifyContent: 'left',
-                                    marginTop: 16, marginLeft: 16
-                                }}>
-                                    <Image source={require('../assets/group-8.png')} style={styles.iconimg1} />
-                                    <Text style={styles.innerDText}>About Revord App</Text>
                                 </View>
                                 <View style={{
                                     flexDirection: 'row', width: '95%', alignItems: 'left', justifyContent: 'left',
                                     marginLeft: 16, paddingVertical: 16
                                 }}>
                                     <TouchableOpacity activeOpacity={.7} onPress={createTwoButtonAlert} style={{
-                                        flexDirection: 'row', alignItems: 'left', justifyContent: 'left',
-
+                                        flexDirection: 'row', alignItems: 'left', justifyContent: 'left'
                                     }}>
                                         <Image source={require('../assets/group-9.png')} style={styles.iconimg1} />
                                         <Text style={styles.innerDText}>Logout</Text>
@@ -198,11 +209,13 @@ const styles = StyleSheet.create({
         marginTop: -16,
         position: 'absolute',
         alignSelf: 'flex-end',
-        right: -30
+        right: -30,
+        borderRadius: 8
     },
     iconimg1: {
         width: 35,
-        height: 35
+        height: 35,
+        borderRadius: 15
     },
     welcomeText: {
         color: 'black',

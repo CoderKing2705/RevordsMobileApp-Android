@@ -9,12 +9,12 @@ const TourPage4 = () => {
                 style={[styles.gradient]}>
                 <Image source={require('../assets/companylogo.png')} style={styles.companylogo} />
                 <Image source={require('../assets/04TourImage.png')} style={styles.img1} />
-                <Text style={styles.txt1}>Thank You!</Text>
+                {/* <Text style={styles.txt1}>Thank You!</Text> */}
                 <Text style={styles.txt2}>
                     Ready to
-                    <Text style={{ color: '#8D5A25' }}> Explore</Text>
+                    <Text style={{ color: '#8D5A25' }}> Explore?</Text>
                 </Text>
-                <Text style={styles.txt5}>Best of Luck for your Revords journey.</Text>
+                {/* <Text style={styles.txt5}>Best of Luck for your Revords journey.</Text> */}
             </LinearGradient>
         </View>
     );
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     txt2: {
         fontSize: 24,
         fontWeight: '900',
-        marginTop: height * 0.03, // Adjust based on your design
+        marginTop: height * 0.05, // Adjust based on your design
         color: '#140D05',
     },
     txt5: {

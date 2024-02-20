@@ -22,6 +22,7 @@ const ProfileEdit = ({ navigation, route }) => {
     const [loading, setLoading] = useState(false);
     const [isValid, setIsValid] = useState(true);
     const [isValidName, setIsValidName] = useState(true);
+
     const [memberProfilePic, setMemberProfilePic] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const [imageRes, setImageRes] = useState(null);
@@ -68,18 +69,18 @@ const ProfileEdit = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        if (selectedMonth) {
-            const daysArray = [];
-            const daysInSelectedMonth = moment(`2024-${selectedMonth}`, 'YYYY-MM').daysInMonth();
+        // if (selectedMonth) {
+        //     const daysArray = [];
+        //     const daysInSelectedMonth = moment(`2024-${selectedMonth}`, 'YYYY-MM').daysInMonth();
 
-            for (let i = 1; i <= daysInSelectedMonth; i++) {
-                const formattedDay = i < 10 ? `0${i}` : `${i}`;
-                daysArray.push({ label: formattedDay, value: formattedDay });
-            }
+        //     for (let i = 1; i <= daysInSelectedMonth; i++) {
+        //         const formattedDay = i < 10 ? `0${i}` : `${i}`;
+        //         daysArray.push({ label: formattedDay, value: formattedDay });
+        //     }
 
-            setDaysInMonth(daysArray);
-            setSelectedDay('');
-        }
+        //     setDaysInMonth(daysArray);
+        //     setSelectedDay('');
+        // }
 
         AsyncStorage.getItem('token')
             .then(async (value) => {
@@ -90,7 +91,7 @@ const ProfileEdit = ({ navigation, route }) => {
             .catch(error => {
                 console.error('Error retrieving dataa:', error);
             });
-    }, [focus, selectedMonth]);
+    }, [focus]);
 
     const putData = () => {
         if (name == '' || name == null || name == undefined) {
@@ -293,6 +294,20 @@ const ProfileEdit = ({ navigation, route }) => {
         );
     }
 
+    const selectMonthFn = (value) => {
+        setSelectedMonth(value)
+        if (selectedMonth) {
+            const daysArray = [];
+            const daysInSelectedMonth = moment(`2024-${selectedMonth}`, 'YYYY-MM').daysInMonth();
+
+            for (let i = 1; i <= daysInSelectedMonth; i++) {
+                const formattedDay = i < 10 ? `0${i}` : `${i}`;
+                daysArray.push({ label: formattedDay, value: formattedDay });
+            }
+            setDaysInMonth(daysArray);
+            setSelectedDay('');
+        }
+    }
     return (
         <>
             <View style={styles.container}>
@@ -383,7 +398,7 @@ const ProfileEdit = ({ navigation, route }) => {
                                                         allowFontScaling={false}
                                                         placeholder={{ label: 'Select Birth Month', value: null }}
                                                         items={months}
-                                                        onValueChange={(value) => setSelectedMonth(value)}
+                                                        onValueChange={(value) => selectMonthFn(value)}
                                                         style={pickerSelectStyles}
                                                         value={selectedMonth}
                                                     />

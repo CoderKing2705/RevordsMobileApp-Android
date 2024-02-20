@@ -10,13 +10,13 @@ const TourPage2 = () => {
                 <Image source={require('../assets/companylogo.png')} style={styles.companylogo} />
                 <Image source={require('../assets/02TourImage.png')} style={styles.img1} />
                 <Text style={styles.txt1}>Revords!!!</Text>
-                <Text style={styles.txt2}>What is
-                    <Text style={{ color: '#8D5A25' }}> Revords?</Text>
+                <Text style={styles.txt2}>How does it
+                    <Text style={{ color: '#8D5A25' }}> work?</Text>
                 </Text>
 
-                <Text style={styles.txt4}>How it works.</Text>
-                <Text style={styles.txt5}>Revords App is an connection between customer and business owners,
-                    where customer can earn rewards from business owners for their loyalty.</Text>
+                {/* <Text style={styles.txt4}>How it works.</Text> */}
+                <Text style={styles.txt5}>Each time you visit the Revords business, you earn point(s). Accumulated points can be redeemed 
+                for amazing rewards.</Text>
             </LinearGradient>
         </View>
     );

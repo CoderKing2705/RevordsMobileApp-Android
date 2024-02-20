@@ -50,7 +50,7 @@ export default function MapViewing({ navigation }) {
     useEffect(() => {
         setLoading(true);
         requestLocationPermission();
-        checkApplicationPermission();
+        // checkApplicationPermission();
 
         AsyncStorage.getItem('token')
             .then(async (value) => {
@@ -121,16 +121,16 @@ export default function MapViewing({ navigation }) {
         }
     }
 
-    const checkApplicationPermission = async () => {
-        if (Platform.OS === 'android') {
-            try {
-                await PermissionsAndroid.request(
-                    PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-                );
-            } catch (error) {
-            }
-        }
-    }
+    // const checkApplicationPermission = async () => {
+    //     if (Platform.OS === 'android') {
+    //         try {
+    //             await PermissionsAndroid.request(
+    //                 PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    //             );
+    //         } catch (error) {
+    //         }
+    //     }
+    // }
 
     const requestLocationPermission = async () => {
         try {
@@ -169,9 +169,8 @@ export default function MapViewing({ navigation }) {
             setFilteredData(businessData);
         } else {
             let data = businessData.filter(item => {
-                if (item.metaData !== null && item.metaData !== undefined && item.metaData !== '') {
-                    return
-                    item.metaData.toLowerCase().includes(text.toLowerCase())
+                if (item.metaData !== null && item.metaData !== undefined && item.metaData !== "") {
+                    return item.metaData.toLowerCase().includes(text.toLowerCase());
                 }
             });
             setFilteredData(data);

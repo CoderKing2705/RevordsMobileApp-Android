@@ -34,18 +34,18 @@ export default function MapViewing({ navigation }) {
         }
     }
 
-    const backPressed = () => {
-        BackHandler.exitApp();
-        navigation.navigate('LandingScreen');
-    };
+    // const backPressed = () => {
+    //     BackHandler.exitApp();
+    //     navigation.navigate('LandingScreen');
+    // };
 
-    useFocusEffect(
-        useCallback(() => {
-            BackHandler.addEventListener('hardwareBackPress', backPressed);
-            return () => {
-                BackHandler.removeEventListener('hardwareBackPress', backPressed);
-            };
-        }, []));
+    // useFocusEffect(
+    //     useCallback(() => {
+    //         BackHandler.addEventListener('hardwareBackPress', backPressed);
+    //         return () => {
+    //             BackHandler.removeEventListener('hardwareBackPress', backPressed);
+    //         };
+    //     }, []));
 
     useEffect(() => {
         setLoading(true);
@@ -60,6 +60,7 @@ export default function MapViewing({ navigation }) {
                         url: `${baseUrl}/${(JSON.parse(value))[0].memberId}`
                     })
                         .then(async response => {
+                            console.log(response.data)
                             await setBusinessDataWhole(response.data);
                             setLoading(false);
                         })
@@ -271,7 +272,7 @@ export default function MapViewing({ navigation }) {
                             coordinate={{ latitude: parseFloat(business.latitude), longitude: parseFloat(business.longitude) }}>
                             <Image
                                 source={{ uri: Globals.Root_URL + business.mapIconPath }}
-                                style={{ width: 32, height: 32, }}
+                                style={{ width: 48, height: 48, }}
                                 resizeMode="contain"
                             />
                             <Callout onPress={() => navigation.navigate('BusinessDetailView', { id: business.id })}

@@ -8,7 +8,7 @@ const LocationStack = ({ route, navigation }) => {
     const locationStack = createNativeStackNavigator();
     return (
         <>
-            <locationStack.Navigator initialRouteName='MapViewing' >
+            <locationStack.Navigator initialRouteName='Locations' >
                 <locationStack.Screen name="Locations" component={Location} options={{
                     headerShown: false,
                 }} />                

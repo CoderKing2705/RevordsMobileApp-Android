@@ -805,8 +805,9 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: '#000000',
         fontSize: 15,
-        width: 150,
+        width: 140,
         height: 85,
+        alignSelf: 'center',
         paddingHorizontal: 2,
         paddingVertical: 3,
         textAlign: 'center'

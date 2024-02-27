@@ -510,7 +510,7 @@ export default function BusinessDetailsView({ route }) {
                                                 >
                                                     <Image
                                                         source={{ uri: Globals.Root_URL + businessDetails.mapIconPath }}
-                                                        style={{ width: 32, height: 32 }}
+                                                        style={{ width: 48, height: 48 }}
                                                         resizeMode="contain"
                                                     />
                                                 </Marker>

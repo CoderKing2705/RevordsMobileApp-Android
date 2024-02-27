@@ -1,14 +1,14 @@
-import { TextInput, ToastAndroid, TouchableOpacity } from 'react-native';
+import { BackHandler, TextInput, ToastAndroid, TouchableOpacity } from 'react-native';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { Card, Title } from 'react-native-paper';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FlatList } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Globals from './Globals';
 import Geolocation from '@react-native-community/geolocation';
-import { useIsFocused } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -16,6 +16,7 @@ import * as Animatable from 'react-native-animatable';
 import LinearGradient from 'react-native-linear-gradient';
 import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
 import { ScrollView } from 'react-native-gesture-handler';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
 const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 
@@ -40,6 +41,19 @@ const Location = ({ navigation }) => {
             scale: 1
         }
     }
+
+    const backPressed = () => {
+        BackHandler.exitApp();
+        navigation.navigate('LandingScreen');
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            BackHandler.addEventListener('hardwareBackPress', backPressed);
+            return () => {
+                BackHandler.removeEventListener('hardwareBackPress', backPressed);
+            };
+        }, []));
 
     async function handleCheckPressed() {
         if (Platform.OS === 'android') {
@@ -139,8 +153,39 @@ const Location = ({ navigation }) => {
     }
 
     useEffect(() => {
-        handleCheckPressed();
+        // handleCheckPressed();
+        requestLocationPermission();
     }, [focus]);
+
+    const requestLocationPermission = async () => {
+        try {
+            let permissionStatus;
+
+            if (Platform.OS === 'ios') {
+                permissionStatus = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+            } else if (Platform.OS === 'android') {
+                permissionStatus = await check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+            }
+
+            if (permissionStatus === RESULTS.GRANTED) {
+                await handleCheckPressed();
+            } else if (permissionStatus === RESULTS.DENIED) {
+                const newPermissionStatus = await request(
+                    Platform.OS === 'ios'
+                        ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+                        : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
+                );
+
+                if (newPermissionStatus === RESULTS.GRANTED) {
+                    await handleCheckPressed();
+                } else {
+                    console.log('Location permission denied');
+                }
+            }
+        } catch (error) {
+            console.error('Error checking/requesting location permission: ', error);
+        }
+    };
 
     const handleInputChange = (text) => {
         if (text === '') {

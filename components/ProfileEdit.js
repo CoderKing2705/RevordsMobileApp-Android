@@ -10,6 +10,7 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useIsFocused } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
 import moment from 'moment';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 const ProfileEdit = ({ navigation, route }) => {
     const focus = useIsFocused();
@@ -22,8 +23,11 @@ const ProfileEdit = ({ navigation, route }) => {
     const [loading, setLoading] = useState(false);
     const [isValid, setIsValid] = useState(true);
     const [isValidName, setIsValidName] = useState(true);
+    const [modalVisible, setModalVisible] = useState(false);
 
+    // const galleryImagePath1 = value[0].memberImageFile ? value[0].memberImageFile : null;
     const [memberProfilePic, setMemberProfilePic] = useState(null);
+
     const [selectedImage, setSelectedImage] = useState(null);
     const [imageRes, setImageRes] = useState(null);
     const [optionModalVisible, setOptionModalVisible] = useState(false);
@@ -46,6 +50,10 @@ const ProfileEdit = ({ navigation, route }) => {
         { label: 'November', value: '11' },
         { label: 'December', value: '12' },
     ];
+
+    const images = [
+        { url: memberProfilePic }
+    ]
 
     const validateEmail = (email) => {
         const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -123,9 +131,9 @@ const ProfileEdit = ({ navigation, route }) => {
 
             axios.put(apiUrl, requestBody)
                 .then(async (response) => {
-                    if (selectedImage) {
-                        await uploadImage(imageRes);
-                    }
+                    // if (selectedImage) {
+                    await uploadImage(imageRes);
+                    // }
                     await getMemberData();
                     setLoading(false);
                     ToastAndroid.showWithGravityAndOffset(
@@ -141,8 +149,6 @@ const ProfileEdit = ({ navigation, route }) => {
         }
     }
     const Save = () => {
-        console.log('name', name)
-
         if (emailId !== null && emailId !== undefined && emailId !== '') {
             const isValidEmail = validateEmail(emailId);
             setIsValid(isValidEmail);
@@ -227,6 +233,7 @@ const ProfileEdit = ({ navigation, route }) => {
                         maxHeight: 2000,
                         maxWidth: 2000,
                     };
+
                     const launchCallback = (response) => {
                         if (response.didCancel) {
                             console.log('User cancelled image picker');
@@ -262,19 +269,34 @@ const ProfileEdit = ({ navigation, route }) => {
         }
     };
 
+    const removeImage = () => {
+        setOptionModalVisible(false);
+        setMemberProfilePic(null);
+        setSelectedImage(null);
+        setImageRes(null);
+    }
+
     const uploadImage = async (response) => {
         const formData = new FormData();
-        formData.append('file', {
-            uri: response.uri || response.assets?.[0]?.uri,
-            type: response.type || response.assets?.[0]?.type,
-            name: response.fileName || response.assets?.[0]?.fileName,
-        });
+        console.log('formDataaaaaa', formData)
+        console.log('responseeeee', response)
+        if (response == null) {
+            formData.append('file', null);
+        } else {
+            formData.append('file', {
+                uri: response.uri || response.assets?.[0]?.uri,
+                type: response.type || response.assets?.[0]?.type,
+                name: response.fileName || response.assets?.[0]?.fileName,
+            });
+        }
         try {
+            console.log('formData in try', formData)
             const response = await axios.post(Globals.API_URL + `/MemberProfiles/UpdateMemberImageInMobileApp/${MemberData[0].memberId}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
+            console.log(response)
         } catch (error) {
             console.error('Image upload failed', error);
         }
@@ -308,6 +330,11 @@ const ProfileEdit = ({ navigation, route }) => {
             setSelectedDay('');
         }
     }
+
+    const handleGalleryImagePress = () => {
+        setModalVisible(true);
+    }
+
     return (
         <>
             <View style={styles.container}>
@@ -350,7 +377,7 @@ const ProfileEdit = ({ navigation, route }) => {
                                                 height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingLeft: 10,
                                                 marginTop: 5, fontSize: 16, borderRadius: 10, backgroundColor: '#e6edf1', fontWeight: '600'
                                             }}
-                                            onChangeText={(inputText) => { setName(inputText.trim()) }}
+                                            onChangeText={(inputText) => { setName(inputText) }}
                                             value={name}
                                         />
                                         {!isValidName && <Text style={{ color: 'red' }}>Name shouldn't be empty</Text>}
@@ -436,20 +463,40 @@ const ProfileEdit = ({ navigation, route }) => {
                             </TouchableWithoutFeedback>
                             <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: 300 }}>
                                 <TouchableWithoutFeedback style={{ flex: 1 }}>
-                                    <Pressable style={{ zIndex: 1000 }} onPress={() => openImagePicker('library')}>
-                                        <Text style={{ fontSize: 18, marginBottom: 10 }}>Choose from Library</Text>
+                                    <Pressable style={{ zIndex: 1000, display: 'flex', flexDirection: 'row' }} onPress={() => openImagePicker('library')} >
+                                        <Image source={require('../assets/galleryImg.png')} style={{ width: 30, height: 25 }} />
+                                        <Text style={{ fontSize: 18, marginBottom: 15, marginLeft: 10 }}>Choose from Library</Text>
                                     </Pressable>
                                 </TouchableWithoutFeedback>
                                 <TouchableWithoutFeedback>
-                                    <Pressable onPress={() => openImagePicker('camera')}>
-                                        <Text style={{ fontSize: 18 }}>Take Photo</Text>
+                                    <Pressable onPress={() => openImagePicker('camera')} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                        <Image source={require('../assets/cameraImg.png')} style={{ width: 30, height: 25 }} />
+                                        <Text style={{ fontSize: 18, marginLeft: 10 }}>Take Photo</Text>
                                     </Pressable>
                                 </TouchableWithoutFeedback>
+                                {memberProfilePic && <TouchableWithoutFeedback>
+                                    <Pressable onPress={() => removeImage('remove')} style={{ display: 'flex', flexDirection: 'row', marginTop: 12, alignItems: 'center' }}>
+                                    <Image source={require('../assets/trashImg.png')} style={{ width: 30, height: 30 }} />
+                                        <Text style={{ fontSize: 18, color: '#7b3d3dde', marginLeft: 10 }}>Remove Photo</Text>
+                                    </Pressable>
+                                </TouchableWithoutFeedback>}
                             </View>
                         </View>
                     </Modal>
 
                 </View >
+
+                <Modal visible={modalVisible} transparent={true}>
+                    <ImageViewer
+                        imageUrls={images}
+                        enableImageZoom={true}
+                        enableSwipeDown={true}
+                        scrollEnabled={true}
+                        onCancel={() => setModalVisible(false)}
+                        onClick={() => setModalVisible(false)}
+                    />
+                </Modal>
+
                 <SafeAreaView style={{ flex: 1 }}>
                     <View style={styles.container}>
                         <Spinner

@@ -1,10 +1,11 @@
-import { StyleSheet, Image, Text, View, Alert, ScrollView, Linking } from 'react-native';
+import { StyleSheet, Image, Text, View, Alert, ScrollView, Linking, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { useIsFocused } from "@react-navigation/native";
 import Globals from './Globals';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 const Profile = ({ route, navigation }) => {
     const focus = useIsFocused();
@@ -15,6 +16,15 @@ const Profile = ({ route, navigation }) => {
     const [memberProfilePic, setMemberProfilePic] = useState('');
     const [MemberData, setMemberData] = useState([{}]);
     const appVersion = require('../package.json').version;
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const images = [
+        { url: memberProfilePic }
+    ]
+
+    const handleGalleryImagePress = () => {
+        setModalVisible(true);
+    }
 
     const createTwoButtonAlert = () =>
         Alert.alert('Log Out', 'Do you want to logout?', [
@@ -86,8 +96,10 @@ const Profile = ({ route, navigation }) => {
                         }}>
                             {(memberProfilePic == null || memberProfilePic == '' || memberProfilePic == undefined) &&
                                 <Image source={require('../assets/defaultUser1.png')} style={styles.img1} />}
-                            {(memberProfilePic != null && memberProfilePic != '' && memberProfilePic != undefined) &&
-                                <Image source={{ uri: memberProfilePic }} style={styles.img1} />}
+                            <TouchableOpacity onPress={handleGalleryImagePress}>
+                                {(memberProfilePic != null && memberProfilePic != '' && memberProfilePic != undefined) &&
+                                    <Image source={{ uri: memberProfilePic }} style={styles.img1} />}
+                            </TouchableOpacity>
                             <Text style={styles.welcomeText}>{name}</Text>
 
                             <View style={{ backgroundColor: '#f2f5f6', width: '95%', marginTop: 16, borderRadius: 23 }}>
@@ -185,6 +197,17 @@ const Profile = ({ route, navigation }) => {
                             <Text style={{ fontWeight: '600', color: '#c2c3c5' }}>App Version: {appVersion}</Text>
                         </View>
                     </ScrollView>
+
+                    <Modal visible={modalVisible} transparent={true}>
+                        <ImageViewer
+                            imageUrls={images}
+                            enableImageZoom={true}
+                            enableSwipeDown={true}
+                            scrollEnabled={true}
+                            onCancel={() => setModalVisible(false)}
+                            onClick={() => setModalVisible(false)}
+                        />
+                    </Modal>
                 </View>
             </View>
         </>

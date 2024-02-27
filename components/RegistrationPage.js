@@ -116,7 +116,7 @@ export default function RegistrationPage({ route }) {
     return (
         <View style={styles.screen93X}>
             <Text style={styles.createYourAccount}> Create your Account! </Text>
-            <TextInput style={styles.nameInput} onChangeText={(t) => setName(t.trim())} placeholder='Enter your Name'></TextInput>
+            <TextInput style={styles.nameInput} onChangeText={(t) => setName(t)} placeholder='Enter your Name'></TextInput>
             <View style={styles.lineOne}></View>
             <TextInput style={styles.emailInput} onChangeText={(t) => setEmail(t)} placeholder='Enter your Email' />
             <View style={styles.lineTwo}></View>

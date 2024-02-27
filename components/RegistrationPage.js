@@ -105,7 +105,6 @@ export default function RegistrationPage({ route }) {
             Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + Phone)
         const json = await response.json();
         navigation.navigate('TabNavigation', { MemberData: json, Phone: Phone });
-
     }
 
     const validateEmail = (email) => {

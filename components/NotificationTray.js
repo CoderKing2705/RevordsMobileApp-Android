@@ -62,24 +62,24 @@ const NotificationTray = ({ navigation }) => {
         await getData();
         setLoading(false);
     }
-    const closeAutoPilotRedeemModal = async (type, ID) => {
-        setLoading(true)
-        await axios({
-            method: 'GET',
-            url: `${Globals.API_URL}/Promotions/GetRewardsByActivityTypeAndIDInMobile/${type}/${ID}`
-        }).then(async (response) => {
-            ToastAndroid.showWithGravityAndOffset(
-                'Claimed Successfully!',
-                ToastAndroid.LONG,
-                ToastAndroid.BOTTOM,
-                25,
-                50,
-            );
-        }).catch(error => {
-            console.error('Error retrieving dataa:', error);
-            setLoading(false);
-        });
-    }
+    // const closeAutoPilotRedeemModal = async (type, ID) => {
+    //     setLoading(true)
+    //     await axios({
+    //         method: 'GET',
+    //         url: `${Globals.API_URL}/Promotions/GetRewardsByActivityTypeAndIDInMobile/${type}/${ID}`
+    //     }).then(async (response) => {
+    //         ToastAndroid.showWithGravityAndOffset(
+    //             'Claimed Successfully!',
+    //             ToastAndroid.LONG,
+    //             ToastAndroid.BOTTOM,
+    //             25,
+    //             50,
+    //         );
+    //     }).catch(error => {
+    //         console.error('Error retrieving dataa:', error);
+    //         setLoading(false);
+    //     });
+    // }
 
     const ToastForClaimed = () => {
         ToastAndroid.showWithGravityAndOffset(
@@ -159,8 +159,8 @@ const NotificationTray = ({ navigation }) => {
                                         <TouchableOpacity style={{ paddingVertical: 10 }} activeOpacity={.9} onPress={() => openPromoModal(item)}>
                                             <Card style={[styles.card, isPromoModalVisible ? { opacity: 0.4 } : '']}>
                                                 <Card.Content style={[styles.cardContent, isPromoModalVisible ? { opacity: 0.4 } : '']}>
-                                                    <View style={{ width: '20%', height: '100%', alignItems: 'center' }}>
-                                                        <Image source={require('../assets/giftImg1.png')} style={[styles.giftIcon]} />
+                                                    <View style={{ width: '20%',  alignItems: 'center' }}>
+                                                        <Image source={{ uri: `${Globals.Root_URL}${item.businessGroupImage}` }} style={[styles.giftIcon]} resizeMode="contain"/>
                                                     </View>
                                                     <View style={{ width: '80%', height: '100%' }}>
                                                         <Title style={{ fontSize: 16, fontWeight: '800', color: '#3380a3' }}>{item.message}</Title>
@@ -193,7 +193,7 @@ const NotificationTray = ({ navigation }) => {
                     <View style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                         <View style={styles.modal}>
                             <View style={{ flexDirection: 'row', width: '100%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
-                                <Image source={{ uri: `${Globals.Root_URL}${notificationData.businessGroupImage}` }} style={styles.logoBusinessInModal} />
+                                <Image source={{ uri: `${Globals.Root_URL}${notificationData.businessGroupImage}` }} style={styles.logoBusinessInModal} resizeMode='stretch' />
 
                                 <TouchableOpacity activeOpacity={.7} onPress={closePromoModal} style={styles.cancelImgContainer}>
                                     <Image source={require('../assets/cancelImg.png')} style={styles.cancelImg} />
@@ -218,7 +218,7 @@ const NotificationTray = ({ navigation }) => {
                             {(notificationData.offerEndDate && notificationData.type == 3) && <Text style={[styles.modaltext, { textAlign: 'center' }]}><Text style={{ fontWeight: '700' }}>Expire Date:</Text>{moment(notificationData.offerEndDate).format("MM/DD/YYYY")}</Text>}
 
                             {/* for image */}
-                            {(notificationData.filePath != '' && notificationData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + notificationData.filePath }} ></Image>}
+                            {(notificationData.filePath != '' && notificationData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + notificationData.filePath }} resizeMode="stretch"></Image>}
 
                             {/* for redeem location */}
                             {(notificationData.type != 3) && <Text style={styles.modaltext}>Redeemable at -<Text style={{ fontWeight: '700' }}> {notificationData.redeemableAt}</Text></Text>}
@@ -366,9 +366,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10
     },
     giftIcon: {
-        width: 40,
-        height: 40,
-        top: '17%',
+        width: '100%',
+        height: 50,
+        left: -5
+        // top: '17%',
     },
     cardContent: {
         flexDirection: 'row',

@@ -14,6 +14,7 @@ import moment from 'moment/moment';
 import * as Animatable from 'react-native-animatable';
 import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
 import LinearGradient from 'react-native-linear-gradient';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 const Favourite = ({ navigation }) => {
@@ -32,6 +33,18 @@ const Favourite = ({ navigation }) => {
     const [isPromoModalVisible, setIsPromoModalVisible] = useState(false);
     const [isAutoPilotModalVisible, setIsAutoPilotModalVisible] = useState(false);
     const [isAnnouncementModalVisible, setIsAnnouncementModalVisible] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [announcementImage, setAnnouncementImage] = useState(null);
+
+    const images = [
+        { url: Globals.Root_URL + announcementImage }
+    ]
+
+    const handleGalleryImagePress = (img) => {
+        setAnnouncementImage(img)
+        console.log(img);
+        setModalVisible(true);
+    }
 
     const pulse = {
         0: {
@@ -102,13 +115,12 @@ const Favourite = ({ navigation }) => {
         setLoading(false);
     }
 
-    const closePromoRedeemModal = async (type, ID) => {
+    const closeRedeemModal = async (type, ID) => {
         setLoading(true)
         await axios({
             method: 'GET',
             url: `${Globals.API_URL}/Promotions/GetRewardsByActivityTypeAndIDInMobile/${type}/${ID}`
         }).then(async (response) => {
-            setIsPromoModalVisible(false);
             ToastAndroid.showWithGravityAndOffset(
                 'Claimed Successfully!',
                 ToastAndroid.LONG,
@@ -116,33 +128,38 @@ const Favourite = ({ navigation }) => {
                 25,
                 50,
             );
+            if (type == 'promo') {
+                setIsPromoModalVisible(false);
+            } else if (type == 'ap') {
+                setIsAutoPilotModalVisible(false);
+            }
             await getRefreshData();
         }).catch(error => {
             console.error('Error retrieving dataa:', error);
             setLoading(false);
         });
     }
-    const closeAutoPilotRedeemModal = async (type, ID) => {
-        setLoading(true)
-        await axios({
-            method: 'GET',
-            url: `${Globals.API_URL}/Promotions/GetRewardsByActivityTypeAndIDInMobile/${type}/${ID}`
-        }).then(async (response) => {
-            ToastAndroid.showWithGravityAndOffset(
-                'Claimed Successfully!',
-                ToastAndroid.LONG,
-                ToastAndroid.BOTTOM,
-                25,
-                50,
-            );
-            await getRefreshData();
+    // const closeAutoPilotRedeemModal = async (type, ID) => {
+    //     setLoading(true)
+    //     await axios({
+    //         method: 'GET',
+    //         url: `${Globals.API_URL}/Promotions/GetRewardsByActivityTypeAndIDInMobile/${type}/${ID}`
+    //     }).then(async (response) => {
+    //         ToastAndroid.showWithGravityAndOffset(
+    //             'Claimed Successfully!',
+    //             ToastAndroid.LONG,
+    //             ToastAndroid.BOTTOM,
+    //             25,
+    //             50,
+    //         );
+    //         await getRefreshData();
 
-            setIsAutoPilotModalVisible(false);
-        }).catch(error => {
-            console.error('Error retrieving dataa:', error);
-            setLoading(false);
-        });
-    }
+    //         setIsAutoPilotModalVisible(false);
+    //     }).catch(error => {
+    //         console.error('Error retrieving dataa:', error);
+    //         setLoading(false);
+    //     });
+    // }
 
     const getRefreshData = () => {
         AsyncStorage.getItem('token')
@@ -409,7 +426,7 @@ const Favourite = ({ navigation }) => {
                                 {wishList && wishList.map((item, index) => (
                                     <View key={index} style={[styles.listView, isPromoModalVisible ? { opacity: 0.4 } : '', isAutoPilotModalVisible ? { opacity: 0.4 } : '',
                                     isAnnouncementModalVisible ? { opacity: 0.4 } : '']}>
-                                        <Image source={{ uri: Globals.Root_URL + item.logoPath }} style={styles.logoBusiness} />
+                                        <Image source={{ uri: Globals.Root_URL + item.logoPath }} style={styles.logoBusiness} resizeMode='contain' />
                                         <View style={{ position: 'absolute', right: '1%', flexDirection: 'row' }}>
                                             {item.isLiked && <Image source={require('../assets/likeFill.png')} style={styles.likeHeart} />}
                                             {!item.isLiked &&
@@ -442,10 +459,10 @@ const Favourite = ({ navigation }) => {
                                                 borderColor: '#d9e7ed', borderWidth: 2, justifyContent: 'center', padding: 5, borderRadius: 25
                                             }}>
                                                 <View style={{ justifyContent: 'center', paddingHorizontal: 5 }}>
-                                                    {(item.badgeName).toString().toLowerCase() == 'bronze' && <Image source={require('../assets/Bronze.png')} style={[styles.trophyImg]} />}
-                                                    {(item.badgeName).toString().toLowerCase() == 'silver' && <Image source={require('../assets/Silver.png')} style={[styles.trophyImg]} />}
-                                                    {(item.badgeName).toString().toLowerCase() == 'gold' && <Image source={require('../assets/Gold.png')} style={[styles.trophyImg]} />}
-                                                    {(item.badgeName).toString().toLowerCase() == 'platinum' && <Image source={require('../assets/platinum.png')} style={[styles.trophyImg]} />}
+                                                    {(item.badgeName).toString().toLowerCase() == 'bronze' && <Image source={require('../assets/Bronze.png')} style={[styles.trophyImg]} resizeMode='contain' />}
+                                                    {(item.badgeName).toString().toLowerCase() == 'silver' && <Image source={require('../assets/Silver.png')} style={[styles.trophyImg]} resizeMode='contain' />}
+                                                    {(item.badgeName).toString().toLowerCase() == 'gold' && <Image source={require('../assets/Gold.png')} style={[styles.trophyImg]} resizeMode='contain' />}
+                                                    {(item.badgeName).toString().toLowerCase() == 'platinum' && <Image source={require('../assets/platinum.png')} style={[styles.trophyImg]} resizeMode='contain' />}
                                                 </View>
                                                 <View style={{}}>
                                                     <Text style={styles.badge}> {item.badgeName} </Text>
@@ -537,7 +554,7 @@ const Favourite = ({ navigation }) => {
                 <View style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={styles.modal}>
                         <View style={{ flexDirection: 'row', width: '100%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
-                            <Image source={{ uri: Globals.Root_URL + `${businessClaimData.logoPath}` }} style={styles.logoBusinessInModal} />
+                            <Image source={{ uri: Globals.Root_URL + `${businessClaimData.logoPath}` }} style={styles.logoBusinessInModal} resizeMode='contain' />
 
                             <TouchableOpacity activeOpacity={.7} onPress={closePromoModal} style={styles.cancelImgContainer}>
                                 <Image source={require('../assets/cancelImg.png')} style={styles.cancelImg} />
@@ -552,9 +569,9 @@ const Favourite = ({ navigation }) => {
 
                         {promotionClaimData.isSpinWheel && <Text style={styles.modaltext}>Spin the wheel and get rewards at store</Text>}
 
-                        {(promotionClaimData.filePath != '' && promotionClaimData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + promotionClaimData.filePath }} ></Image>}
+                        {(promotionClaimData.filePath != '' && promotionClaimData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + promotionClaimData.filePath }} resizeMode="stretch"></Image>}
                         <Text style={styles.modaltext}>Redeemable at -<Text style={{ fontWeight: '700' }}> {promotionClaimData.redeemableAt}</Text></Text>
-                        {promotionClaimData.isClaimed == false && <TouchableOpacity activeOpacity={.7} onPress={() => closePromoRedeemModal('promo', promotionClaimData.id)} style={styles.frame2vJu1ModalClaim}>
+                        {promotionClaimData.isClaimed == false && <TouchableOpacity activeOpacity={.7} onPress={() => closeRedeemModal('promo', promotionClaimData.id)} style={styles.frame2vJu1ModalClaim}>
                             <Text style={styles.getStartednru1}>Claim</Text>
                         </TouchableOpacity>}
                         {promotionClaimData.isClaimed == true &&
@@ -576,7 +593,7 @@ const Favourite = ({ navigation }) => {
                 <View style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={styles.modal}>
                         <View style={{ flexDirection: 'row', width: '100%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
-                            <Image source={{ uri: Globals.Root_URL + `${businessClaimData.logoPath}` }} style={styles.logoBusinessInModal} />
+                            <Image source={{ uri: Globals.Root_URL + `${businessClaimData.logoPath}` }} style={styles.logoBusinessInModal} resizeMode='contain' />
                             <TouchableOpacity activeOpacity={.7} onPress={closeAPModal} style={styles.cancelImgContainer}>
                                 <Image source={require('../assets/cancelImg.png')} style={styles.cancelImg} />
                             </TouchableOpacity>
@@ -586,9 +603,9 @@ const Favourite = ({ navigation }) => {
                         {autoPilotClaimData.expiryDays > 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expires in </Text>- {autoPilotClaimData.expiryDays} days</Text>}
                         {autoPilotClaimData.expiryDays == 1 && <Text style={styles.modaltext}><Text style={{ fontWeight: '700' }}>Expiring Today</Text></Text>}
 
-                        {(autoPilotClaimData.filePath != '' && autoPilotClaimData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + autoPilotClaimData.filePath }} ></Image>}
+                        {(autoPilotClaimData.filePath != '' && autoPilotClaimData.filePath != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + autoPilotClaimData.filePath }} resizeMode="stretch"></Image>}
                         <Text style={styles.modaltext}>Redeemable at -<Text style={{ fontWeight: '700' }}> Any Locations</Text></Text>
-                        {autoPilotClaimData.isClaimed == false && <TouchableOpacity activeOpacity={.7} onPress={() => closeAutoPilotRedeemModal('ap', autoPilotClaimData.historyId)} style={styles.frame2vJu1ModalClaim}>
+                        {autoPilotClaimData.isClaimed == false && <TouchableOpacity activeOpacity={.7} onPress={() => closeRedeemModal('ap', autoPilotClaimData.historyId)} style={styles.frame2vJu1ModalClaim}>
                             <Text style={styles.getStartednru1}>Claim</Text>
                         </TouchableOpacity>}
                         {autoPilotClaimData.isClaimed == true &&
@@ -610,7 +627,7 @@ const Favourite = ({ navigation }) => {
                 <View style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={styles.modal}>
                         <View style={{ flexDirection: 'row', width: '100%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
-                            <Image source={{ uri: Globals.Root_URL + `${businessClaimData.logoPath}` }} style={styles.logoBusinessInModal} />
+                            <Image source={{ uri: Globals.Root_URL + `${businessClaimData.logoPath}` }} style={styles.logoBusinessInModal} resizeMode='stretch' />
                             <TouchableOpacity activeOpacity={.7} onPress={closeAnnouncementModal} style={styles.cancelImgContainer}>
                                 <Image source={require('../assets/cancelImg.png')} style={styles.cancelImg} />
                             </TouchableOpacity>
@@ -619,9 +636,23 @@ const Favourite = ({ navigation }) => {
                         <Text style={styles.modalPromoMsg}>{announcementClaimData.subject}</Text>
                         {announcementClaimData.validDate && <Text style={[styles.modaltext, { textAlign: 'center' }]}><Text style={{ fontWeight: '700' }}>Expiry Date: </Text>{moment(announcementClaimData.validDate).format("MM/DD/YYYY")}</Text>}
 
-                        {(announcementClaimData.fileName != '' && announcementClaimData.fileName != null) && <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + announcementClaimData.fileName }} ></Image>}
+                        {(announcementClaimData.fileName != '' && announcementClaimData.fileName != null) &&
+                            <TouchableOpacity onPress={() => handleGalleryImagePress(announcementClaimData.fileName)}>
+                                <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + announcementClaimData.fileName }} resizeMode="stretch" ></Image>
+                            </TouchableOpacity>}
                     </View>
                 </View>
+            </Modal>
+
+            <Modal visible={modalVisible} transparent={true}>
+                <ImageViewer
+                    imageUrls={images}
+                    enableImageZoom={true}
+                    enableSwipeDown={true}
+                    scrollEnabled={true}
+                    onCancel={() => setModalVisible(false)}
+                    onClick={() => setModalVisible(false)}
+                />
             </Modal>
         </View >
     );

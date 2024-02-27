@@ -98,7 +98,7 @@ const Profile = ({ route, navigation }) => {
                                 <Image source={require('../assets/defaultUser1.png')} style={styles.img1} />}
                             <TouchableOpacity onPress={handleGalleryImagePress}>
                                 {(memberProfilePic != null && memberProfilePic != '' && memberProfilePic != undefined) &&
-                                    <Image source={{ uri: memberProfilePic }} style={styles.img1} />}
+                                    <Image source={{ uri: memberProfilePic }} style={styles.img1} resizeMode='contain' />}
                             </TouchableOpacity>
                             <Text style={styles.welcomeText}>{name}</Text>
 

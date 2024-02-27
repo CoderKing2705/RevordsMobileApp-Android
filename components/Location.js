@@ -385,11 +385,11 @@ const Location = ({ navigation }) => {
                                     renderItem={({ item }) => {
                                         return (
                                             <Card style={styles.card} onPress={() => this.NavigateToBusinessDetails(item.id)}>
-                                                <Card.Cover source={{ uri: Globals.Root_URL + item.imagePath }} style={styles.cardCover} />
+                                                <Card.Cover source={{ uri: Globals.Root_URL + item.imagePath }} style={styles.cardCover} resizeMode='contain' />
 
                                                 <Card.Content style={styles.cardContent}>
                                                     <View style={{ width: '30%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                                                        <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + item.logoPath }}></Image>
+                                                        <Image style={styles.avatarImg} source={{ uri: Globals.Root_URL + item.logoPath }} resizeMode='stretch'></Image>
                                                     </View>
                                                     <View style={{ width: '70%', height: '100%' }}>
                                                         {(item.businessName).toString().length < 22 && <Title style={{ fontSize: 16, fontWeight: '800', color: '#3b3939' }}> {item.businessName}</Title>}

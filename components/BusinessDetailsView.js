@@ -309,7 +309,7 @@ export default function BusinessDetailsView({ route }) {
                             </>
                             :
                             <View style={styles.detailView}>
-                                <Image source={{ uri: imageUrl }} style={styles.imageBusiness} />
+                                <Image source={{ uri: imageUrl }} style={styles.imageBusiness} resizeMode='contain' />
                                 <Text style={{ fontWeight: '800', paddingHorizontal: '3%', fontSize: 18, top: 5 }}>{businessDetails.businessName}</Text>
 
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -318,7 +318,7 @@ export default function BusinessDetailsView({ route }) {
                                 </View>
                                 {businessDetails.memberString == 'Member' && <Text style={{ fontWeight: '800', paddingHorizontal: '3%', fontSize: 14, top: 15, color: '#7d5513' }}>{businessDetails.memberString}</Text>}
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Image source={{ uri: logoUrl }} style={styles.logoBusiness} />
+                                    <Image source={{ uri: logoUrl }} style={styles.logoBusiness} resizeMode='contain' />
                                 </View>
                                 {(businessDetails.promotionData || businessDetails.autopilotData) && (businessDetails.promotionData.length > 0 || businessDetails.autopilotData.length > 0) &&
                                     <View style={{ paddingHorizontal: '3%' }}>
@@ -659,7 +659,8 @@ const styles = StyleSheet.create({
         width: 100,
         height: 50,
         top: 20,
-        marginHorizontal: '4%'
+        marginHorizontal: '4%',
+        borderRadius: 7
     },
     imageBusiness: {
         width: '100%',

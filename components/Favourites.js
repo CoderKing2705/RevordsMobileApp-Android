@@ -41,8 +41,7 @@ const Favourite = ({ navigation }) => {
     ]
 
     const handleGalleryImagePress = (img) => {
-        setAnnouncementImage(img)
-        console.log(img);
+        setAnnouncementImage(img);
         setModalVisible(true);
     }
 
@@ -226,7 +225,6 @@ const Favourite = ({ navigation }) => {
     }
 
     const likeProfile = (business) => {
-        // setLoading(true);
         AsyncStorage.getItem('token')
             .then(async (value) => {
                 if (value !== null) {

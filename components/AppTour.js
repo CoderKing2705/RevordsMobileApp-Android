@@ -12,7 +12,7 @@ const AppTourGuide = ({ route, navigation }) => {
     const { MemberData, Phone } = route.params;
     let tokenid = "";
     let platformOS;
-    
+
     const getDeviceToken = async () => {
         platformOS = (Platform.OS == "android" ? 1 : 2);
         tokenid = await messaging().getToken();

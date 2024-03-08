@@ -158,6 +158,7 @@ const Location = ({ navigation }) => {
     }, [focus]);
 
     const requestLocationPermission = async () => {
+                
         try {
             let permissionStatus;
 

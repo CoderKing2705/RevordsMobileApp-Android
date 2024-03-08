@@ -1,4 +1,4 @@
-package com.kiran.myapp;
+package com.revordsMobile.app;
 
 import android.app.Application;
 import android.content.res.Configuration;

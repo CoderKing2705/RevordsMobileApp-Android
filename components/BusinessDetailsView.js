@@ -427,14 +427,14 @@ export default function BusinessDetailsView({ route }) {
                                             <View style={{ flexDirection: 'row', width: 350, height: 100, marginTop: 15 }}>
                                                 {images.map((image, index) => (
                                                     <TouchableOpacity key={index} onPress={() => handleGalleryImagePress(index)}>
-                                                        <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={{ uri: image.url }} />
+                                                        <Image style={{ width: 80, height: 80, borderRadius: 10, marginTop: '2%', marginLeft: '2%' }} source={{ uri: image.url }} resizeMode='contain' />
                                                     </TouchableOpacity>
                                                 ))}
                                             </View>
                                         </ScrollView>
                                     </View>}
                                 {businessDetails.businesswiseWorkingDays && <View style={{ paddingHorizontal: '3%' }} >
-                                    <Text style={{ marginTop: '3%', fontWeight: '700', fontSize: 18 }}>Hours</Text>
+                                    <Text style={{ marginTop: '5%', fontWeight: '700', fontSize: 18 }}>Hours</Text>
                                     {businessDetails.businesswiseWorkingDays && businessDetails.businesswiseWorkingDays.map((day, index) => (
                                         <Text key={index} style={{ marginTop: '1%', fontWeight: '700', color: '#717679', paddingHorizontal: '2%', fontSize: 12 }}>
                                             {`${day.dayName}: ${day.fromTime} - ${day.toTime}`}

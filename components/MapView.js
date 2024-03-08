@@ -60,7 +60,6 @@ export default function MapViewing({ navigation }) {
                         url: `${baseUrl}/${(JSON.parse(value))[0].memberId}`
                     })
                         .then(async response => {
-                            console.log(response.data)
                             await setBusinessDataWhole(response.data);
                             setLoading(false);
                         })

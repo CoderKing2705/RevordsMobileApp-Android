@@ -277,8 +277,7 @@ const ProfileEdit = ({ navigation, route }) => {
 
     const uploadImage = async (response) => {
         const formData = new FormData();
-        console.log('formDataaaaaa', formData)
-        console.log('responseeeee', response)
+
         if (response == null) {
             formData.append('file', null);
         } else {
@@ -289,13 +288,11 @@ const ProfileEdit = ({ navigation, route }) => {
             });
         }
         try {
-            console.log('formData in try', formData)
             const response = await axios.post(Globals.API_URL + `/MemberProfiles/UpdateMemberImageInMobileApp/${MemberData[0].memberId}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log(response)
         } catch (error) {
             console.error('Image upload failed', error);
         }

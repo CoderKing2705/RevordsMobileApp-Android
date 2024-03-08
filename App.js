@@ -7,18 +7,18 @@ import AppTour from "./components/AppTour";
 import RegistrationPage from "./components/RegistrationPage";
 import TabNavigation from "./components/TabNavigation";
 import ProfileEdit from "./components/ProfileEdit";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import LandingScreen from "./components/LandingScreen";
 import messaging from '@react-native-firebase/messaging';
 import BusinessDetailsView from "./components/BusinessDetailsView";
 import NotificationTray from "./components/NotificationTray";
 import Globals from "./components/Globals";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Platform } from "react-native";
-import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { Platform, TextInput } from "react-native";
 import Geolocation from '@react-native-community/geolocation';
 import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
+import { Text } from "react-native";
 
 
 export default function App() {
@@ -42,10 +42,10 @@ export default function App() {
   };
 
   const postData = async (memberId) => {
-
     let currentDate = (new Date()).toISOString();
     platformOS = (Platform.OS == "android" ? 1 : 2);
     await getDeviceToken();
+
     await fetch(Globals.API_URL + '/MobileAppVisitersLogs/PostMobileAppVisitersLog', {
       method: 'POST',
       headers: {
@@ -74,7 +74,7 @@ export default function App() {
   async function handleCheckPressed(memberId) {
     if (Platform.OS === 'android') {
       const checkEnabled = await isLocationEnabled();
-      console.log('checkEnabled', checkEnabled)
+
       if (!checkEnabled) {
         await handleEnabledPressed(memberId);
       }
@@ -88,9 +88,7 @@ export default function App() {
     if (Platform.OS === 'android') {
       try {
         const enableResult = await promptForEnableLocationIfNeeded();
-        console.log('enableResult', enableResult)
         if (enableResult == 'enabled') {
-          console.log('nhjdjnhjifvdbnjfn')
           await getCurrentLocation(memberId);
         }
       } catch (error) {
@@ -133,9 +131,14 @@ export default function App() {
         <Stack.Screen name="TabNavigation" component={TabNavigation} options={{ headerShown: false }} />
         <Stack.Screen name="ProfileEdit" component={ProfileEdit} options={{ headerShown: false }} />
         <Stack.Screen name="BusinessDetailView" component={BusinessDetailsView} options={{ headerShown: false }} />
-        {/* <Stack.Screen name="Locations" component={Location} options={{ headerShown: false }} /> */}
         <Stack.Screen name="NotificationTray" component={NotificationTray} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+
+Text.defaultProps = Text.defaultProps || {};
+Text.defaultProps.allowFontScaling = false;
+
+TextInput.defaultProps = TextInput.defaultProps || {};
+TextInput.defaultProps.allowFontScaling = false;

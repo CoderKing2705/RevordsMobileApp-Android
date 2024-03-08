@@ -34,9 +34,8 @@ const VerifyNumber = ({ navigation }) => {
       const json = await response.json();
       CustomerExists = json != undefined && json.length > 0 ? json : null;
 
-      const randomOtp = await generateRandomNumber();
+      const randomOtp = await generateRandomNumber();      
       console.log(randomOtp)
-
       if (unMaskPhone == '2245203575' || unMaskPhone == '8780886712') {
         navigation.navigate('GetOtp', { OTP: 1242, CustomerExists: CustomerExists, Phone: unMaskPhone })
         setLoading(false);

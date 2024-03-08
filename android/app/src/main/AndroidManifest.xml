@@ -8,6 +8,8 @@
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
   <uses-permission android:name="android.permission.CAMERA" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
   <queries>
     <intent>
       <action android:name="android.intent.action.VIEW"/>
@@ -34,7 +36,7 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="com.kiran.myapp"/>
+        <data android:scheme="com.revordsMobile.app"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>

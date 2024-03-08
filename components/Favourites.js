@@ -225,6 +225,10 @@ const Favourite = ({ navigation }) => {
     }
 
     const likeProfile = (business) => {
+<<<<<<< HEAD
+=======
+        // setLoading(true);
+>>>>>>> 1052eac88a7cc0b884d2cb93a3ab61e90a52ea7b
         AsyncStorage.getItem('token')
             .then(async (value) => {
                 if (value !== null) {

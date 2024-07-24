@@ -6,6 +6,7 @@ import TourPage3 from './TourPage3';
 import TourPage4 from './TourPage4';
 import Globals from './Globals';
 import messaging from '@react-native-firebase/messaging';
+import { useErrorHandler } from './ErrorHandler';
 
 const AppTourGuide = ({ route, navigation }) => {
     const [step, setStep] = useState(1);
@@ -14,8 +15,12 @@ const AppTourGuide = ({ route, navigation }) => {
     let platformOS;
 
     const getDeviceToken = async () => {
-        platformOS = (Platform.OS == "android" ? 1 : 2);
-        tokenid = await messaging().getToken();
+        try {
+            platformOS = (Platform.OS == "android" ? 1 : 2);
+            tokenid = await messaging().getToken();
+        } catch (error) {
+            await useErrorHandler(error);
+        }
     };
 
     const nextStep = () => {
@@ -24,30 +29,38 @@ const AppTourGuide = ({ route, navigation }) => {
 
     const closeTour = async () => {
         setStep(null);
-        if (MemberData) {
-            // let platformOS = (Platform.OS == "android" ? 1 : 2);
-            await getDeviceToken();
-            fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}`, {
-                method: 'PUT'
-            }).then((res) => {
-                navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
-            });
-        } else {
-            navigation.navigate('RegistrationPage', { Phone: Phone });
+        try {
+            if (MemberData) {
+                await getDeviceToken();
+                fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}`, {
+                    method: 'PUT'
+                }).then((res) => {
+                    navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
+                });
+            } else {
+                navigation.navigate('RegistrationPage', { Phone: Phone });
+            }
+        } catch (error) {
+            await useErrorHandler(error);
         }
+
     };
 
     const GotoRegistration = async () => {
-        if (MemberData) {
-            // let platformOS = (Platform.OS == "android" ? 1 : 2);
-            await getDeviceToken();
-            fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}`, {
-                method: 'PUT'
-            }).then((res) => {
-                navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
-            });
-        } else {
-            navigation.navigate('RegistrationPage', { Phone: Phone });
+        try {
+            if (MemberData) {
+                // let platformOS = (Platform.OS == "android" ? 1 : 2);
+                await getDeviceToken();
+                fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}`, {
+                    method: 'PUT'
+                }).then((res) => {
+                    navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
+                });
+            } else {
+                navigation.navigate('RegistrationPage', { Phone: Phone });
+            }
+        } catch (error) {
+            await useErrorHandler(error);
         }
 
     }

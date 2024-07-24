@@ -15,6 +15,7 @@ import * as Animatable from 'react-native-animatable';
 import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
 import LinearGradient from 'react-native-linear-gradient';
 import ImageViewer from 'react-native-image-zoom-viewer';
+import { useErrorHandler } from './ErrorHandler';
 
 const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 const Favourite = ({ navigation }) => {
@@ -115,103 +116,96 @@ const Favourite = ({ navigation }) => {
     }
 
     const closeRedeemModal = async (type, ID) => {
-        setLoading(true)
-        await axios({
-            method: 'GET',
-            url: `${Globals.API_URL}/Promotions/GetRewardsByActivityTypeAndIDInMobile/${type}/${ID}`
-        }).then(async (response) => {
-            ToastAndroid.showWithGravityAndOffset(
-                'Claimed Successfully!',
-                ToastAndroid.LONG,
-                ToastAndroid.BOTTOM,
-                25,
-                50,
-            );
-            if (type == 'promo') {
-                setIsPromoModalVisible(false);
-            } else if (type == 'ap') {
-                setIsAutoPilotModalVisible(false);
-            }
-            await getRefreshData();
-        }).catch(error => {
-            console.error('Error retrieving dataa:', error);
-            setLoading(false);
-        });
-    }
-    // const closeAutoPilotRedeemModal = async (type, ID) => {
-    //     setLoading(true)
-    //     await axios({
-    //         method: 'GET',
-    //         url: `${Globals.API_URL}/Promotions/GetRewardsByActivityTypeAndIDInMobile/${type}/${ID}`
-    //     }).then(async (response) => {
-    //         ToastAndroid.showWithGravityAndOffset(
-    //             'Claimed Successfully!',
-    //             ToastAndroid.LONG,
-    //             ToastAndroid.BOTTOM,
-    //             25,
-    //             50,
-    //         );
-    //         await getRefreshData();
-
-    //         setIsAutoPilotModalVisible(false);
-    //     }).catch(error => {
-    //         console.error('Error retrieving dataa:', error);
-    //         setLoading(false);
-    //     });
-    // }
-
-    const getRefreshData = () => {
-        AsyncStorage.getItem('token')
-            .then(async (value) => {
-                // setLoading(true);
-                if (value !== null) {
-                    await axios({
-                        method: 'GET',
-                        url: `${wishListUrl}/${(JSON.parse(value))[0].memberId}`
-                    }).then(async (response) => {
-                        await Geolocation.getCurrentPosition(
-                            async position => {
-                                const { latitude, longitude } = position.coords;
-
-                                await setLangandLat(latitude, longitude);
-                                await response.data.map((data1, index) => {
-
-                                    const toRadian = n => (n * Math.PI) / 180
-                                    let lat2 = data1.latitude
-                                    let lon2 = data1.longitude
-                                    let lat1 = lat
-                                    let lon1 = lang
-
-                                    let R = 6371  // km
-                                    let x1 = lat2 - lat1
-                                    let dLat = toRadian(x1)
-                                    let x2 = lon2 - lon1
-                                    let dLon = toRadian(x2)
-                                    let a =
-                                        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                                        Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
-                                    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-                                    let d = R * c
-
-                                    data1.distance = parseInt(d * 0.621371);
-                                })
-
-                                response.data = response.data.sort((a, b) => { return a.distance - b.distance });
-                                await setWishListData(response.data);
-                                setLoading(false)
-                            },
-                            error => {
-                                console.error('Error getting current location: ', error);
-                            },
-                            { enableHighAccuracy: false, timeout: 5000 }
-                        );
-                    });
+        try {
+            setLoading(true)
+            await axios({
+                method: 'GET',
+                url: `${Globals.API_URL}/Promotions/GetRewardsByActivityTypeAndIDInMobile/${type}/${ID}`
+            }).then(async (response) => {
+                ToastAndroid.showWithGravityAndOffset(
+                    'Claimed Successfully!',
+                    ToastAndroid.LONG,
+                    ToastAndroid.BOTTOM,
+                    25,
+                    50,
+                );
+                if (type == 'promo') {
+                    setIsPromoModalVisible(false);
+                } else if (type == 'ap') {
+                    setIsAutoPilotModalVisible(false);
                 }
-            })
-            .catch(error => {
+                await getRefreshData();
+            }).catch(async error => {
+                await useErrorHandler("Error occured while closing redeem modal API: " + error);
                 console.error('Error retrieving dataa:', error);
                 setLoading(false);
             });
+        } catch (error) {
+            await useErrorHandler("Exception caught while closing redeem modal: " + error);
+        }
+    }
+
+    const getRefreshData = async () => {
+
+        try {
+            AsyncStorage.getItem('token')
+                .then(async (value) => {
+                    // setLoading(true);
+                    if (value !== null) {
+                        await axios({
+                            method: 'GET',
+                            url: `${wishListUrl}/${(JSON.parse(value))[0].memberId}`
+                        }).then(async (response) => {
+                            await Geolocation.getCurrentPosition(
+                                async position => {
+                                    const { latitude, longitude } = position.coords;
+
+                                    await setLangandLat(latitude, longitude);
+                                    await response.data.map((data1, index) => {
+
+                                        const toRadian = n => (n * Math.PI) / 180
+                                        let lat2 = data1.latitude
+                                        let lon2 = data1.longitude
+                                        let lat1 = lat
+                                        let lon1 = lang
+
+                                        let R = 6371  // km
+                                        let x1 = lat2 - lat1
+                                        let dLat = toRadian(x1)
+                                        let x2 = lon2 - lon1
+                                        let dLon = toRadian(x2)
+                                        let a =
+                                            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                                            Math.cos(toRadian(lat1)) * Math.cos(toRadian(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+                                        let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+                                        let d = R * c
+
+                                        data1.distance = parseInt(d * 0.621371);
+                                    })
+
+                                    response.data = response.data.sort((a, b) => { return a.distance - b.distance });
+                                    await setWishListData(response.data);
+                                    setLoading(false)
+                                },
+                                async (error) => {
+                                    await useErrorHandler("Error getting current location into getlocation method in business detail view: " + error);
+                                    console.error('Error getting current location: ', error);
+                                },
+                                { enableHighAccuracy: false, timeout: 5000 }
+                            );
+                        });
+                    }
+                })
+                .catch(async (error) => {
+                    console.error('Error retrieving data:', error);
+                    await useErrorHandler("Geolocation exception caught while retrieving data based on current location:- " + error);
+                    setLoading(false);
+                });
+        } catch (error) {
+            await useErrorHandler("Geolocation exception caught while getting current location:- " + error);
+            console.error("This is geolocation error exception", error);
+        }
+
     }
 
     const ToastForClaimed = () => {
@@ -224,79 +218,82 @@ const Favourite = ({ navigation }) => {
         );
     }
 
-    const likeProfile = (business) => {
-<<<<<<< HEAD
-=======
-        // setLoading(true);
->>>>>>> 1052eac88a7cc0b884d2cb93a3ab61e90a52ea7b
-        AsyncStorage.getItem('token')
-            .then(async (value) => {
-                if (value !== null) {
-                    await wishList.map((data1, index) => {
-                        if (business.businessId == data1.businessId) {
-                            data1.isLiked = true;
-                        }
-                    })
-                    let currentDate = (new Date()).toISOString();
-                    await fetch(Globals.API_URL + '/MembersWishLists/PostMemberWishlistInMobile', {
-                        method: 'POST',
-                        headers: {
-                            Accept: 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            "uniqueId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                            "id": 0,
-                            "memberId": (JSON.parse(value))[0].memberId,
-                            "notes": null,
-                            "badgeId": 1,
-                            "tagId": null,
-                            "businessGroupId": business.businessGroupId,
-                            "lastVisitDate": null,
-                            "lifeTimePoints": 0,
-                            "lifeTimeVisits": 0,
-                            "smsoptIn": false,
-                            "emailOptIn": ((JSON.parse(value))[0].emailId == '' || (JSON.parse(value))[0].emailId == null ||
-                                (JSON.parse(value))[0].emailId == undefined) ? false : true,
-                            "notificationOptIn": true,
-                            "isHighroller": false,
-                            "currentPoints": 0,
-                            "sourceId": 14,
-                            "stateId": 3,
-                            "isActive": true,
-                            "createdBy": (JSON.parse(value))[0].memberId,
-                            "createdDate": currentDate,
-                            "lastModifiedBy": (JSON.parse(value))[0].memberId,
-                            "lastModifiedDate": currentDate,
-                            "businessLocationID": business.businessId,
-                            "baseLocationID": business.businessId
-                        }),
-                    }).then(async (res) => {
-                        ToastAndroid.showWithGravityAndOffset(
-                            'Liked!',
-                            ToastAndroid.LONG,
-                            ToastAndroid.BOTTOM,
-                            25,
-                            50,
-                        );
-                        await getRefreshData();
-                    }).catch(async (error) => {
+    const likeProfile = async (business) => {
+        try {
+            AsyncStorage.getItem('token')
+                .then(async (value) => {
+                    if (value !== null) {
                         await wishList.map((data1, index) => {
                             if (business.businessId == data1.businessId) {
                                 data1.isLiked = true;
                             }
                         })
-                        setLoading(false);
-                    });
-                    ;
-                } else {
-                    console.log('not available')
-                }
-            })
-            .catch(error => {
-                console.error('Error retrieving dataa:', error);
-                setLoading(false);
-            });
+                        let currentDate = (new Date()).toISOString();
+                        await fetch(Globals.API_URL + '/MembersWishLists/PostMemberWishlistInMobile', {
+                            method: 'POST',
+                            headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                "uniqueId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                "id": 0,
+                                "memberId": (JSON.parse(value))[0].memberId,
+                                "notes": null,
+                                "badgeId": 1,
+                                "tagId": null,
+                                "businessGroupId": business.businessGroupId,
+                                "lastVisitDate": null,
+                                "lifeTimePoints": 0,
+                                "lifeTimeVisits": 0,
+                                "smsoptIn": false,
+                                "emailOptIn": ((JSON.parse(value))[0].emailId == '' || (JSON.parse(value))[0].emailId == null ||
+                                    (JSON.parse(value))[0].emailId == undefined) ? false : true,
+                                "notificationOptIn": true,
+                                "isHighroller": false,
+                                "currentPoints": 0,
+                                "sourceId": 14,
+                                "stateId": 3,
+                                "isActive": true,
+                                "createdBy": (JSON.parse(value))[0].memberId,
+                                "createdDate": currentDate,
+                                "lastModifiedBy": (JSON.parse(value))[0].memberId,
+                                "lastModifiedDate": currentDate,
+                                "businessLocationID": business.businessId,
+                                "baseLocationID": business.businessId
+                            }),
+                        }).then(async (res) => {
+                            ToastAndroid.showWithGravityAndOffset(
+                                'Liked!',
+                                ToastAndroid.LONG,
+                                ToastAndroid.BOTTOM,
+                                25,
+                                50,
+                            );
+                            await getRefreshData();
+                        }).catch(async (error) => {
+                            await wishList.map((data1, index) => {
+                                if (business.businessId == data1.businessId) {
+                                    data1.isLiked = true;
+                                }
+                            })
+
+                            await useErrorHandler("An exception occured while getting member wish list into like profile in favorite: " + error);
+                            setLoading(false);
+                        });
+                        ;
+                    } else {
+                        console.log('not available')
+                    }
+                })
+                .catch(async (error) => {
+                    console.error('Error retrieving dataa:', error);
+                    await useErrorHandler("Exception occured while retreiving data for the member wish list for like profile: " + error);
+                    setLoading(false);
+                });
+        } catch (error) {
+            await useErrorHandler("Exception occured while retreiving data for the member wish list for like profile: " + error);
+        }
     }
 
     useEffect(() => {

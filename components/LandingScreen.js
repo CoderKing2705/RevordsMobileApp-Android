@@ -5,42 +5,51 @@ import { StyleSheet, Image, View } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Globals from './Globals';
+import { useErrorHandler } from './ErrorHandler';
 
 const LandingScreen = ({ navigation }) => {
     const focus = useIsFocused();
 
     const [loading, setLoading] = useState(true);
+
+    // This hook will get the member data...
     useEffect(() => {
         setLoading(true);
 
         AsyncStorage.getItem('token')
             .then(async value => {
-                if (value !== null) {                    
+                if (value !== null) {
                     await getMemberData((JSON.parse(value))[0].phone, value);
                 } else {
                     setLoading(false);
                     navigation.navigate('GetStarted');
                 }
             })
-            .catch(error => {
+            .catch(async error => {
+                await useErrorHandler("(Android): LandingScreen > useEffect()" + error);
                 console.error('Error retrieving data:', error);
             });
     }, [focus]);
 
     const getMemberData = async (phone, value) => {
-        const response = await fetch(
-            Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + phone)
-        const json = await response.json();
-        AsyncStorage.setItem('token', JSON.stringify(json))
-            .then(() => {
-                // setTimeout(() => {
+        try {
+            const response = await fetch(
+                Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + phone)
+            const json = await response.json();
+            AsyncStorage.setItem('token', JSON.stringify(json))
+                .then(() => {
+                    // setTimeout(() => {
                     setLoading(false);
                     navigation.navigate('TabNavigation', { MemberData: JSON.parse(value) });
-                // }, 2500);
-            })
-            .catch(error => {
-                console.error('Error saving data:', error);
-            });
+                    // }, 2500);
+                })
+                .catch(async error => {
+                    console.error('Error saving data:', error);
+                    await useErrorHandler("(Android): LandingScreen > getMemberData()" + error);
+                });
+        } catch (error) {
+            await useErrorHandler("(Android): LandingScreen > getMemberData()" + error);
+        }
     }
     return (
         <View style={styles.container}>

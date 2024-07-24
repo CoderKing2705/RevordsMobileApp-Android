@@ -10,6 +10,7 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useIsFocused } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
 import moment from 'moment';
+import { useErrorHandler } from './ErrorHandler';
 
 const ProfileEdit = ({ navigation, route }) => {
     const focus = useIsFocused();
@@ -60,19 +61,25 @@ const ProfileEdit = ({ navigation, route }) => {
     }
 
     async function setMemData(value) {
-        await setMemberData(value);
-        setName(value[0].name);
-        setEmail(value[0].emailId);
-        let bDay = (value[0].birthDay == '' || value[0].birthDay == null || value[0].birthDay == undefined ||
-            value[0].birthMonth == '' || value[0].birthMonth == null || value[0].birthMonth == undefined) ?
-            null : value[0].birthDay + ' ' + value[0].birthMonth;
-        setBirthDate(bDay);
-        setMemberProfilePic(value[0].memberImageFile);
-        let numP1 = String(value[0].phone).toString().substring(0, 3);
-        let numP2 = String(value[0].phone).toString().substring(3, 6);
-        let numP3 = String(value[0].phone).toString().substring(6,);
-        setFormatPhone('(' + numP1 + ') ' + numP2 + '-' + numP3);
-        setPhone(String(value[0].phone));
+
+        try {
+            await setMemberData(value);
+            setName(value[0].name);
+            setEmail(value[0].emailId);
+            let bDay = (value[0].birthDay == '' || value[0].birthDay == null || value[0].birthDay == undefined ||
+                value[0].birthMonth == '' || value[0].birthMonth == null || value[0].birthMonth == undefined) ?
+                null : value[0].birthDay + ' ' + value[0].birthMonth;
+            setBirthDate(bDay);
+            setMemberProfilePic(value[0].memberImageFile);
+            let numP1 = String(value[0].phone).toString().substring(0, 3);
+            let numP2 = String(value[0].phone).toString().substring(3, 6);
+            let numP3 = String(value[0].phone).toString().substring(6,);
+            setFormatPhone('(' + numP1 + ') ' + numP2 + '-' + numP3);
+            setPhone(String(value[0].phone));
+        } catch (error) {
+            await useErrorHandler("(Android): ProfileEdit > setMemberData() " + error);
+        }
+
     }
 
     useEffect(() => {
@@ -95,81 +102,102 @@ const ProfileEdit = ({ navigation, route }) => {
                     await setMemData(JSON.parse(value));
                 }
             })
-            .catch(error => {
+            .catch(async error => {
+                await useErrorHandler("(Android): ProfileEdit > useEffect() " + error);
                 console.error('Error retrieving dataa:', error);
             });
     }, [focus]);
 
-    const putData = () => {
-        if (name == '' || name == null || name == undefined) {
-            setIsValidName(false);
-        } else {
-            setIsValidName(true);
-            setLoading(true);
-            const apiUrl = Globals.API_URL + '/MemberProfiles/PutMemberInMobileApp';
-            let currentDate = (new Date()).toISOString();
-
-            let currentYear = new Date().getFullYear();
-            let bDate;
-            if (!MemberData[0].isBirthDateChange) {
-                bDate = (selectedMonth == '' || selectedDay == '' || selectedMonth == null || selectedDay == null ||
-                    selectedMonth == undefined || selectedDay == undefined) ? null
-                    : `${currentYear}-${selectedMonth}-${selectedDay}`;
+    const putData = async () => {
+        try {
+            if (name == '' || name == null || name == undefined) {
+                setIsValidName(false);
             } else {
-                bDate = null;
+                setIsValidName(true);
+                setLoading(true);
+                const apiUrl = Globals.API_URL + '/MemberProfiles/PutMemberInMobileApp';
+                let currentDate = (new Date()).toISOString();
+
+                let currentYear = new Date().getFullYear();
+                let bDate;
+                if (!MemberData[0].isBirthDateChange) {
+                    bDate = (selectedMonth == '' || selectedDay == '' || selectedMonth == null || selectedDay == null ||
+                        selectedMonth == undefined || selectedDay == undefined) ? null
+                        : `${currentYear}-${selectedMonth}-${selectedDay}`;
+                } else {
+                    bDate = null;
+                }
+
+                const requestBody = {
+                    id: MemberData[0].memberId,
+                    memberName: name,
+                    emailID: emailId,
+                    lastModifiedBy: MemberData[0].memberId,
+                    lastModifiedDate: currentDate,
+                    birthDate: bDate
+                };
+
+                axios.put(apiUrl, requestBody)
+                    .then(async (response) => {
+                        // if (selectedImage) {
+                        await uploadImage(imageRes);
+                        // }
+                        await getMemberData();
+                        setLoading(false);
+                        ToastAndroid.showWithGravityAndOffset(
+                            'Updated Successfully!',
+                            ToastAndroid.LONG,
+                            ToastAndroid.BOTTOM,
+                            25,
+                            50,
+                        );
+                        navigation.navigate('Profiles');
+                    })
+                    .catch(async (error) => {
+                        await useErrorHandler("(Android): ProfileEdit > putData() " + error);
+                        console.error(error)
+                    });
             }
-
-            const requestBody = {
-                id: MemberData[0].memberId,
-                memberName: name,
-                emailID: emailId,
-                lastModifiedBy: MemberData[0].memberId,
-                lastModifiedDate: currentDate,
-                birthDate: bDate
-            };
-
-            axios.put(apiUrl, requestBody)
-                .then(async (response) => {
-                    // if (selectedImage) {
-                    await uploadImage(imageRes);
-                    // }
-                    await getMemberData();
-                    setLoading(false);
-                    ToastAndroid.showWithGravityAndOffset(
-                        'Updated Successfully!',
-                        ToastAndroid.LONG,
-                        ToastAndroid.BOTTOM,
-                        25,
-                        50,
-                    );
-                    navigation.navigate('Profiles');
-                })
-                .catch(error => console.error(error));
+        } catch (error) {
+            await useErrorHandler("(Android): ProfileEdit > putData() " + error);
         }
+
     }
-    const Save = () => {
-        if (emailId !== null && emailId !== undefined && emailId !== '') {
-            const isValidEmail = validateEmail(emailId);
-            setIsValid(isValidEmail);
-            if (isValidEmail) {
+    const Save = async () => {
+        try {
+            if (emailId !== null && emailId !== undefined && emailId !== '') {
+                const isValidEmail = validateEmail(emailId);
+                setIsValid(isValidEmail);
+                if (isValidEmail) {
+                    putData();
+                }
+            } else {
                 putData();
             }
-        } else {
-            putData();
+        } catch (error) {
+            await useErrorHandler("(Android): ProfileEdit > Save() " + error);
         }
+
     }
 
     const getMemberData = async () => {
-        const response = await fetch(
-            Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + phone)
-        const json = await response.json();
-        AsyncStorage.setItem('token', JSON.stringify(json))
-            .then(() => {
-                console.log('Data saved successfully!');
-            })
-            .catch(error => {
-                console.error('Error saving data:', error);
-            });
+
+        try {
+            const response = await fetch(
+                Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + phone)
+            const json = await response.json();
+            AsyncStorage.setItem('token', JSON.stringify(json))
+                .then(() => {
+                    console.log('Data saved successfully!');
+                })
+                .catch(async error => {
+                    await useErrorHandler("(Android): ProfileEdit > getMemberData() " + error);
+                    console.error('Error saving data:', error);
+                });
+        } catch (error) {
+            await useErrorHandler("(Android): ProfileEdit > getMemberData() " + error);
+        }
+
     }
 
     const requestCameraPermission = async () => {
@@ -213,6 +241,7 @@ const ProfileEdit = ({ navigation, route }) => {
                 }
             }
         } catch (error) {
+            await useErrorHandler("(Android): ProfileEdit > requestCameraPermission() " + error);
             console.error('Error requesting camera permission:', error);
         }
     };
@@ -264,6 +293,7 @@ const ProfileEdit = ({ navigation, route }) => {
                 }
             }
         } catch (error) {
+            await useErrorHandler("(Android): ProfileEdit > openImagePicker() " + error);
             console.error('Error checking camera permission:', error);
         }
     };
@@ -276,25 +306,30 @@ const ProfileEdit = ({ navigation, route }) => {
     }
 
     const uploadImage = async (response) => {
-        const formData = new FormData();
-
-        if (response == null) {
-            formData.append('file', null);
-        } else {
-            formData.append('file', {
-                uri: response.uri || response.assets?.[0]?.uri,
-                type: response.type || response.assets?.[0]?.type,
-                name: response.fileName || response.assets?.[0]?.fileName,
-            });
-        }
         try {
-            const response = await axios.post(Globals.API_URL + `/MemberProfiles/UpdateMemberImageInMobileApp/${MemberData[0].memberId}`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            const formData = new FormData();
+
+            if (response == null) {
+                formData.append('file', null);
+            } else {
+                formData.append('file', {
+                    uri: response.uri || response.assets?.[0]?.uri,
+                    type: response.type || response.assets?.[0]?.type,
+                    name: response.fileName || response.assets?.[0]?.fileName,
+                });
+            }
+            try {
+                const response = await axios.post(Globals.API_URL + `/MemberProfiles/UpdateMemberImageInMobileApp/${MemberData[0].memberId}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+            } catch (error) {
+                await useErrorHandler("(Android): ProfileEdit > uploadImage() " + error);
+                console.error('Image upload failed', error);
+            }
         } catch (error) {
-            console.error('Image upload failed', error);
+            await useErrorHandler("(Android): ProfileEdit > uploadImage() " + error);
         }
     };
 
@@ -472,14 +507,14 @@ const ProfileEdit = ({ navigation, route }) => {
                                 </TouchableWithoutFeedback>
                                 {memberProfilePic && <TouchableWithoutFeedback>
                                     <Pressable onPress={() => removeImage('remove')} style={{ display: 'flex', flexDirection: 'row', marginTop: 12, alignItems: 'center' }}>
-                                    <Image source={require('../assets/trashImg.png')} style={{ width: 30, height: 30 }} />
+                                        <Image source={require('../assets/trashImg.png')} style={{ width: 30, height: 30 }} />
                                         <Text style={{ fontSize: 18, color: '#7b3d3dde', marginLeft: 10 }}>Remove Photo</Text>
                                     </Pressable>
                                 </TouchableWithoutFeedback>}
                             </View>
                         </View>
                     </Modal>
-                </View >                
+                </View >
 
                 <SafeAreaView style={{ flex: 1 }}>
                     <View style={styles.container}>

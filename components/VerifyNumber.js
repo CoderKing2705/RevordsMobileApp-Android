@@ -6,6 +6,7 @@ import Globals from '../components/Globals';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import LinearGradient from 'react-native-linear-gradient';
+import { useErrorHandler } from './ErrorHandler';
 
 const VerifyNumber = ({ navigation }) => {
   const [phone, setPhone] = useState('');
@@ -34,7 +35,7 @@ const VerifyNumber = ({ navigation }) => {
       const json = await response.json();
       CustomerExists = json != undefined && json.length > 0 ? json : null;
 
-      const randomOtp = await generateRandomNumber();      
+      const randomOtp = await generateRandomNumber();
       console.log(randomOtp)
       if (unMaskPhone == '2245203575' || unMaskPhone == '8780886712') {
         navigation.navigate('GetOtp', { OTP: 1242, CustomerExists: CustomerExists, Phone: unMaskPhone })
@@ -76,6 +77,7 @@ const VerifyNumber = ({ navigation }) => {
         }
       }
     } catch (error) {
+      useErrorHandler("VerifyNumber > fetchAPI() " + error);
       setLoading(false);
       alert(error)
       return error;
@@ -97,14 +99,21 @@ const VerifyNumber = ({ navigation }) => {
   }
 
   const checkApplicationPermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-        );
-      } catch (error) {
+
+    try {
+      if (Platform.OS === 'android') {
+        try {
+          await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+          );
+        } catch (error) {
+          await useErrorHandler("(Android): VerifyNumber > checkApplicationPermission()" + error);
+        }
       }
+    } catch (error) {
+      await useErrorHandler("(Android): VerifyNumber > checkApplicationPermission()" + error);
     }
+
   }
 
   useEffect(() => {
@@ -123,21 +132,6 @@ const VerifyNumber = ({ navigation }) => {
             <Image source={require('../assets/devicemobile-9n9.png')} style={styles.mobilelogo} />
           </View>
           <Text style={styles.verifyText}>Verify Your Number</Text>
-          {/* <MaskInput
-          value={phone}
-          style={styles.textInput}
-          keyboardType="numeric"
-          maxLength={14}
-          onChangeText={(masked, unmasked) => {
-            if (unmasked.length <= 10) {
-              setPhone(masked); // you can use the unmasked value as well       
-              setunMaskPhone(unmasked);
-            }
-          }}
-          mask={['(', /\d/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
-          placeholder="(000) 000-0000"
-        /> */}
-
           <View style={{ flexDirection: 'row', height: 50, alignItems: 'center', justifyContent: 'center', }}>
             <Text style={styles.textInputUS}>+1</Text>
             <MaskInput
@@ -174,7 +168,7 @@ const VerifyNumber = ({ navigation }) => {
               <TouchableOpacity activeOpacity={.7} onPress={() => Linking.openURL('https://revords.com/privacy.html')} style={{ top: 5, flexDirection: 'row' }}>
                 <Text style={{ color: '#646369' }}>Privacy Policy</Text>
               </TouchableOpacity>. Message and data rates may apply. Reply STOP to any messages to unsubscribe.
-            </Text>            
+            </Text>
           </View>
           <SafeAreaView style={{ flex: 1 }}>
             <View style={styles.container}>

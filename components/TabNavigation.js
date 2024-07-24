@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ProfileStack from './ProfileStack';
 import LocationStack from './LocationStack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useErrorHandler } from './ErrorHandler';
 
 export default function TabNavigation({ route, navigation }) {
     const Tab = createBottomTabNavigator();
@@ -23,7 +24,8 @@ export default function TabNavigation({ route, navigation }) {
                     });
             }
         })
-        .catch(error => {
+        .catch(async error => {
+            await useErrorHandler("(Android): TabNavigation > AsyncStorage" + error);
             console.error('Error retrieving data:', error);
         });
 

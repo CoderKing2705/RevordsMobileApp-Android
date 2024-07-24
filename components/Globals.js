@@ -1,6 +1,10 @@
 export default {
-  API_URL: 'https://dashboard.revords.com/liveapi/api',
-  Root_URL: 'https://dashboard.revords.com/liveapi/wwwroot/',
+  // API_URL: 'https://dashboard.revords.com/testapi/api',
+  // Root_URL: 'https://dashboard.revords.com/testapi/wwwroot/',
+  // API_URL: 'http://ho.hitechprojects.co.in:8101/api',
+  // Root_URL: 'http://ho.hitechprojects.co.in:8101/wwwroot/',
+  API_URL: 'https://api.dev.revords.com/api',
+  Root_URL: 'https://s3-us-west-1.amazonaws.com/revords.live.files/',
   MemberProfile_URL:'/MemberProfiles/',
   BASE_URL: 'http://someurl.com',
   COLOR: {

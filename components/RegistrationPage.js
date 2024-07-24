@@ -8,6 +8,7 @@ import Globals from '../components/Globals';
 import messaging from '@react-native-firebase/messaging';
 import moment from 'moment';
 import RNPickerSelect from 'react-native-picker-select';
+import { useErrorHandler } from './ErrorHandler';
 
 export default function RegistrationPage({ route }) {
     const [name, setName] = useState('');
@@ -55,37 +56,43 @@ export default function RegistrationPage({ route }) {
     };
 
     const postData = async () => {
-        await getDeviceToken();
-        let currentDate = (new Date()).toISOString();
-        let currentYear = new Date().getFullYear();
-        let platformOS = Platform.OS;
 
-        fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileByPhone', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "uniqueID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                "id": 0,
-                "memberName": (name == '' || name == null || name == undefined) ? 'USER ' + Phone.substring(5,) : name,
-                "birthDate": (selectedMonth == '' || selectedDay == '' || selectedMonth == null || selectedDay == null ||
-                selectedMonth == undefined || selectedDay == undefined ) ? null : `${currentYear}-${selectedMonth}-${selectedDay}`,
-                "emailID": (email == '' || email == null || email == undefined) ? null : email,
-                "phoneNo": Phone,
-                "isActive": true,
-                "createdBy": 1,
-                "createdDate": currentDate,
-                "lastModifiedBy": 1,
-                "lastModifiedDate": currentDate,
-                "appToken": tokenid,
-                "deviceOS": platformOS == "android" ? 1 : 2,
-                "memberProfile": []
-            }),
-        }).then((res) => {
-            getMemberData();
-        });
+        try {
+            await getDeviceToken();
+            let currentDate = (new Date()).toISOString();
+            let currentYear = new Date().getFullYear();
+            let platformOS = Platform.OS;
+
+            fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileByPhone', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "uniqueID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "id": 0,
+                    "memberName": (name == '' || name == null || name == undefined) ? 'USER ' + Phone.substring(5,) : name,
+                    "birthDate": (selectedMonth == '' || selectedDay == '' || selectedMonth == null || selectedDay == null ||
+                        selectedMonth == undefined || selectedDay == undefined) ? null : `${currentYear}-${selectedMonth}-${selectedDay}`,
+                    "emailID": (email == '' || email == null || email == undefined) ? null : email,
+                    "phoneNo": Phone,
+                    "isActive": true,
+                    "createdBy": 1,
+                    "createdDate": currentDate,
+                    "lastModifiedBy": 1,
+                    "lastModifiedDate": currentDate,
+                    "appToken": tokenid,
+                    "deviceOS": platformOS == "android" ? 1 : 2,
+                    "memberProfile": []
+                }),
+            }).then((res) => {
+                getMemberData();
+            });
+        } catch (error) {
+            await useErrorHandler("(Android): Registrationpage > postData()" + error);
+        }
+
     }
 
     const start = async () => {
@@ -101,10 +108,16 @@ export default function RegistrationPage({ route }) {
         }
     }
     const getMemberData = async () => {
-        const response = await fetch(
-            Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + Phone)
-        const json = await response.json();
-        navigation.navigate('TabNavigation', { MemberData: json, Phone: Phone });
+
+        try {
+            const response = await fetch(
+                Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + Phone)
+            const json = await response.json();
+            navigation.navigate('TabNavigation', { MemberData: json, Phone: Phone });
+        } catch (error) {
+            await useErrorHandler("(Android): Registrationpage > getMemberData()" + error);
+        }
+
     }
 
     const validateEmail = (email) => {

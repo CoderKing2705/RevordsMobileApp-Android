@@ -10,6 +10,7 @@ import Globals from './Globals';
 import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment/moment';
+import { useErrorHandler } from './ErrorHandler';
 
 
 const NotificationTray = ({ navigation }) => {
@@ -38,22 +39,28 @@ const NotificationTray = ({ navigation }) => {
     }
 
     const claimData = async (type, ID) => {
-        await axios({
-            method: 'GET',
-            url: `${Globals.API_URL}/Promotions/GetRewardsByActivityTypeAndIDInMobile/${type}/${ID}`
-        }).then(async (response) => {
-            ToastAndroid.showWithGravityAndOffset(
-                'Claimed Successfully!',
-                ToastAndroid.LONG,
-                ToastAndroid.BOTTOM,
-                25,
-                50,
-            );
-            setIsPromoModalVisible(false);
-        }).catch(error => {
-            console.error('Error retrieving dataa:', error);
-            setLoading(false);
-        });
+        try {
+            await axios({
+                method: 'GET',
+                url: `${Globals.API_URL}/Promotions/GetRewardsByActivityTypeAndIDInMobile/${type}/${ID}`
+            }).then(async (response) => {
+                ToastAndroid.showWithGravityAndOffset(
+                    'Claimed Successfully!',
+                    ToastAndroid.LONG,
+                    ToastAndroid.BOTTOM,
+                    25,
+                    50,
+                );
+                setIsPromoModalVisible(false);
+            }).catch(async error => {
+                await useErrorHandler("(Android): NotificationTray > claimData() " + error);
+                console.error('Error retrieving dataa:', error);
+                setLoading(false);
+            });
+        } catch (error) {
+            await useErrorHandler("(Android): NotificationTray > claimData() " + error);
+        }
+
     }
 
     const closePromoRedeemModal = async (type, ID) => {
@@ -110,23 +117,30 @@ const NotificationTray = ({ navigation }) => {
     }
 
     const getData = async () => {
-        AsyncStorage.getItem('token')
-            .then(async (value) => {
-                setLoading(true);
 
-                if (value !== null) {
-                    await axios({
-                        method: 'GET',
-                        url: `${baseUrl}/${(JSON.parse(value))[0].memberId}`
-                    }).then(async response => {
-                        await setUserData(response.data);
-                        setLoading(false)
-                    }).catch((error) => {
-                        console.error("Error fetching data", error)
-                        setLoading(false);
-                    });
-                }
-            })
+        try {
+            AsyncStorage.getItem('token')
+                .then(async (value) => {
+                    setLoading(true);
+
+                    if (value !== null) {
+                        await axios({
+                            method: 'GET',
+                            url: `${baseUrl}/${(JSON.parse(value))[0].memberId}`
+                        }).then(async response => {
+                            await setUserData(response.data);
+                            setLoading(false)
+                        }).catch(async (error) => {
+                            await useErrorHandler("(Android): NotificationTray > getData() " + error);
+                            console.error("Error fetching data", error)
+                            setLoading(false);
+                        });
+                    }
+                })
+        } catch (error) {
+            await useErrorHandler("(Android): NotificationTray > getData() " + error);
+        }
+
     }
     useEffect(() => {
         getData();
@@ -159,8 +173,8 @@ const NotificationTray = ({ navigation }) => {
                                         <TouchableOpacity style={{ paddingVertical: 10 }} activeOpacity={.9} onPress={() => openPromoModal(item)}>
                                             <Card style={[styles.card, isPromoModalVisible ? { opacity: 0.4 } : '']}>
                                                 <Card.Content style={[styles.cardContent, isPromoModalVisible ? { opacity: 0.4 } : '']}>
-                                                    <View style={{ width: '20%',  alignItems: 'center' }}>
-                                                        <Image source={{ uri: `${Globals.Root_URL}${item.businessGroupImage}` }} style={[styles.giftIcon]} resizeMode="contain"/>
+                                                    <View style={{ width: '20%', alignItems: 'center' }}>
+                                                        <Image source={{ uri: `${Globals.Root_URL}${item.businessGroupImage}` }} style={[styles.giftIcon]} resizeMode="contain" />
                                                     </View>
                                                     <View style={{ width: '80%', height: '100%' }}>
                                                         <Title style={{ fontSize: 16, fontWeight: '800', color: '#3380a3' }}>{item.message}</Title>
@@ -320,7 +334,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderTopColor: 'black',
         borderTopWidth: StyleSheet.hairlineWidth,
-        paddingVertical: 5        
+        paddingVertical: 5
     },
     modalPromoMsg: {
         fontWeight: '600',

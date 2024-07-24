@@ -12,6 +12,7 @@ import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import Spinner from 'react-native-loading-spinner-overlay';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useErrorHandler } from './ErrorHandler';
 
 
 export default function MapViewing({ navigation }) {
@@ -63,13 +64,15 @@ export default function MapViewing({ navigation }) {
                             await setBusinessDataWhole(response.data);
                             setLoading(false);
                         })
-                        .catch((error) => {
+                        .catch(async (error) => {
+                            await useErrorHandler("(Android): MapView > useEffect() " + error);
                             console.error("Error fetching data", error);
                             setLoading(false);
                         });
                 }
             })
-            .catch(error => {
+            .catch(async error => {
+                await useErrorHandler("(Android): MapView > useEffect() " + error);
                 console.error('Error retrieving dataa:', error);
             });
 
@@ -94,16 +97,22 @@ export default function MapViewing({ navigation }) {
         });
     }
     const getCurrentLocation = async () => {
-        Geolocation.getCurrentPosition(
-            async position => {
-                await setLangandLat(position.coords.latitude, position.coords.longitude);
-                await setMarkers(position.coords.latitude, position.coords.longitude);
-            },
-            error => {
-                console.error('Error getting current location: ', error);
-            },
-            { enableHighAccuracy: false, timeout: 10000 }
-        );
+        try {
+            Geolocation.getCurrentPosition(
+                async position => {
+                    await setLangandLat(position.coords.latitude, position.coords.longitude);
+                    await setMarkers(position.coords.latitude, position.coords.longitude);
+                },
+                async error => {
+                    await useErrorHandler("(Android): MapView > getCurrentLocation() " + error);
+                    console.error('Error getting current location: ', error);
+                },
+                { enableHighAccuracy: false, timeout: 10000 }
+            );
+        } catch (error) {
+            await useErrorHandler("(Android): MapView > getCurrentLocation() " + error);
+        }
+
     };
 
     async function handleEnabledPressed() {
@@ -115,6 +124,7 @@ export default function MapViewing({ navigation }) {
                 // }
             } catch (error) {
                 if (error instanceof Error) {
+                    await useErrorHandler("(Android): MapView > handleEnabledPressed() " + error);
                     console.error(error.message);
                 }
             }
@@ -160,6 +170,7 @@ export default function MapViewing({ navigation }) {
                 }
             }
         } catch (error) {
+            await useErrorHandler("(Android): MapView > requestLocationPremission() " + error);
             console.error('Error checking/requesting location permission: ', error);
         }
     };

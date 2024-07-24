@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { useIsFocused } from "@react-navigation/native";
 import Globals from './Globals';
 import ImageViewer from 'react-native-image-zoom-viewer';
+import { useErrorHandler } from './ErrorHandler';
 
 const Profile = ({ route, navigation }) => {
     const focus = useIsFocused();
@@ -26,42 +27,56 @@ const Profile = ({ route, navigation }) => {
         setModalVisible(true);
     }
 
-    const createTwoButtonAlert = () =>
-        Alert.alert('Log Out', 'Do you want to logout?', [
-            {
-                text: 'Cancel',
-                onPress: () => console.log('Cancel Pressed'),
-                style: 'cancel',
-            },
-            {
-                text: 'Yes', onPress: async () => {
-                    try {
-                        fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/NULL`, {
-                            method: 'PUT'
-                        }).then(async (res) => {
-                            await AsyncStorage.removeItem('token');
-                            navigation.navigate('LandingScreen')
-                        });
-                    } catch (error) {
-                        console.error('Error removing token:', error);
+    const createTwoButtonAlert = async () => {
+
+        try {
+            Alert.alert('Log Out', 'Do you want to logout?', [
+                {
+                    text: 'Cancel',
+                    onPress: () => console.log('Cancel Pressed'),
+                    style: 'cancel',
+                },
+                {
+                    text: 'Yes', onPress: async () => {
+                        try {
+                            fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/NULL`, {
+                                method: 'PUT'
+                            }).then(async (res) => {
+                                await AsyncStorage.removeItem('token');
+                                navigation.navigate('LandingScreen')
+                            });
+                        } catch (error) {
+                            await useErrorHandler("(Android): Profile > createTwoButtonAlert() " + error);
+                            console.error('Error removing token:', error);
+                        }
                     }
-                }
-            },
-        ]);
+                },
+            ]);
+        } catch (error) {
+            await useErrorHandler("(Android): Profile > createTwoButtonAlert() " + error);
+        }
+
+    }
 
     async function setMemData(value) {
-        await setMemberData(value);
-        setName(value[0].name);
-        setEmail(value[0].emailId);
-        let bDay = (value[0].birthDay == '' || value[0].birthDay == null || value[0].birthDay == undefined ||
-            value[0].birthMonth == '' || value[0].birthMonth == null || value[0].birthMonth == undefined) ?
-            null : value[0].birthDay + ' ' + value[0].birthMonth;
-        setBirthDay(bDay);
-        setMemberProfilePic(value[0].memberImageFile);
-        let numP1 = String(value[0].phone).toString().substring(0, 3);
-        let numP2 = String(value[0].phone).toString().substring(3, 6);
-        let numP3 = String(value[0].phone).toString().substring(6,);
-        setPhone('(' + numP1 + ') ' + numP2 + '-' + numP3);
+
+        try {
+            await setMemberData(value);
+            setName(value[0].name);
+            setEmail(value[0].emailId);
+            let bDay = (value[0].birthDay == '' || value[0].birthDay == null || value[0].birthDay == undefined ||
+                value[0].birthMonth == '' || value[0].birthMonth == null || value[0].birthMonth == undefined) ?
+                null : value[0].birthDay + ' ' + value[0].birthMonth;
+            setBirthDay(bDay);
+            setMemberProfilePic(value[0].memberImageFile);
+            let numP1 = String(value[0].phone).toString().substring(0, 3);
+            let numP2 = String(value[0].phone).toString().substring(3, 6);
+            let numP3 = String(value[0].phone).toString().substring(6,);
+            setPhone('(' + numP1 + ') ' + numP2 + '-' + numP3);
+        } catch (error) {
+            await useErrorHandler("(Android): Profile > setMemberData() " + error);
+        }
+
     }
     useEffect(() => {
         AsyncStorage.getItem('token')
@@ -71,7 +86,8 @@ const Profile = ({ route, navigation }) => {
                     await setMemData(JSON.parse(value));
                 }
             })
-            .catch(error => {
+            .catch(async error => {
+                await useErrorHandler("(Android): Profile > setMemberData() " + error);
                 console.error('Error retrieving dataa:', error);
             });
     }, [focus]);

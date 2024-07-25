@@ -56,7 +56,7 @@ export default function RegistrationPage({ route }) {
             tokenid = await messaging().getToken();
             console.log("This is a token id", tokenid);
         } catch (error) {
-            await useErrorHandler("(Android) RegistrationPage > getDeviceToken()" + error);
+            await useErrorHandler("(Android): RegistrationPage > getDeviceToken()" + error);
         }
 
     };

@@ -14,15 +14,21 @@ const GetOtp = ({ route, navigation }) => {
     const [seconds, setSeconds] = useState(60);
     const [isResentDisabled, setResentDisabled] = useState(false);
 
-    const handleInputChange = (text, index) => {
-        let newOtp = [...otp];
-        newOtp[index] = text;
-        setOtp(newOtp);
-        setIsVerified(true);
+    const handleInputChange = async (text, index) => {
 
-        if (index < 3 && text !== '') {
-            refs[index + 1].current.focus();
+        try {
+            let newOtp = [...otp];
+            newOtp[index] = text;
+            setOtp(newOtp);
+            setIsVerified(true);
+
+            if (index < 3 && text !== '') {
+                refs[index + 1].current.focus();
+            }
+        } catch (error) {
+            await useErrorHandler("(Android): GetOtp > handleInputChange() " + error);
         }
+
     };
 
     const handleBackspace = (index) => {
@@ -69,6 +75,7 @@ const GetOtp = ({ route, navigation }) => {
                     25,
                     50,
                 );
+                await useErrorHandler("(Android) : GetOtp > resendOtp() " + error);
             }
         } catch (error) {
             await useErrorHandler("(Android) : GetOtp > resendOtp() " + error);

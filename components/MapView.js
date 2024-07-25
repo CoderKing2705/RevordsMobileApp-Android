@@ -35,19 +35,6 @@ export default function MapViewing({ navigation }) {
         }
     }
 
-    // const backPressed = () => {
-    //     BackHandler.exitApp();
-    //     navigation.navigate('LandingScreen');
-    // };
-
-    // useFocusEffect(
-    //     useCallback(() => {
-    //         BackHandler.addEventListener('hardwareBackPress', backPressed);
-    //         return () => {
-    //             BackHandler.removeEventListener('hardwareBackPress', backPressed);
-    //         };
-    //     }, []));
-
     useEffect(() => {
         setLoading(true);
         requestLocationPermission();
@@ -100,8 +87,12 @@ export default function MapViewing({ navigation }) {
         try {
             Geolocation.getCurrentPosition(
                 async position => {
-                    await setLangandLat(position.coords.latitude, position.coords.longitude);
-                    await setMarkers(position.coords.latitude, position.coords.longitude);
+                    try {
+                        await setLangandLat(position.coords.latitude, position.coords.longitude);
+                        await setMarkers(position.coords.latitude, position.coords.longitude);
+                    } catch (error) {
+                        await useErrorHandler("(Android): MapView > getCurrentLocation() " + error);
+                    }
                 },
                 async error => {
                     await useErrorHandler("(Android): MapView > getCurrentLocation() " + error);
@@ -116,31 +107,22 @@ export default function MapViewing({ navigation }) {
     };
 
     async function handleEnabledPressed() {
-        if (Platform.OS === 'android') {
-            try {
-                const enableResult = await promptForEnableLocationIfNeeded();
-                // if (enableResult) {
-                // await getCurrentLocation();
-                // }
-            } catch (error) {
-                if (error instanceof Error) {
-                    await useErrorHandler("(Android): MapView > handleEnabledPressed() " + error);
-                    console.error(error.message);
+        try {
+            if (Platform.OS === 'android') {
+                try {
+                    const enableResult = await promptForEnableLocationIfNeeded();
+                } catch (error) {
+                    if (error instanceof Error) {
+                        await useErrorHandler("(Android): MapView > handleEnabledPressed() " + error);
+                        console.error(error.message);
+                    }
                 }
             }
+        } catch (error) {
+            await useErrorHandler("(Android): MapView > handleEnabledPressed() " + error);
         }
-    }
 
-    // const checkApplicationPermission = async () => {
-    //     if (Platform.OS === 'android') {
-    //         try {
-    //             await PermissionsAndroid.request(
-    //                 PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-    //             );
-    //         } catch (error) {
-    //         }
-    //     }
-    // }
+    }
 
     const requestLocationPermission = async () => {
         try {
@@ -175,17 +157,22 @@ export default function MapViewing({ navigation }) {
         }
     };
 
-    const handleInputChange = (text) => {
-        if (text === '') {
-            setFilteredData(businessData);
-        } else {
-            let data = businessData.filter(item => {
-                if (item.metaData !== null && item.metaData !== undefined && item.metaData !== "") {
-                    return item.metaData.toLowerCase().includes(text.toLowerCase());
-                }
-            });
-            setFilteredData(data);
+    const handleInputChange = async (text) => {
+        try {
+            if (text === '') {
+                setFilteredData(businessData);
+            } else {
+                let data = businessData.filter(item => {
+                    if (item.metaData !== null && item.metaData !== undefined && item.metaData !== "") {
+                        return item.metaData.toLowerCase().includes(text.toLowerCase());
+                    }
+                });
+                setFilteredData(data);
+            }
+        } catch (error) {
+            await useErrorHandler("(Android): MapView > handleInputChange() " + error);
         }
+
     }
 
     return (

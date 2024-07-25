@@ -64,14 +64,18 @@ const Location = ({ navigation }) => {
   );
 
   async function handleCheckPressed() {
-    if (Platform.OS === "android") {
-      const checkEnabled = await isLocationEnabled();
+    try {
+      if (Platform.OS === "android") {
+        const checkEnabled = await isLocationEnabled();
 
-      if (!checkEnabled) {
-        await handleEnabledPressed();
-      } else {
-        await getData();
+        if (!checkEnabled) {
+          await handleEnabledPressed();
+        } else {
+          await getData();
+        }
       }
+    } catch (error) {
+      await useErrorHandler("(Android): Location > handleCheckPresses() " + error);
     }
   }
 
@@ -110,38 +114,43 @@ const Location = ({ navigation }) => {
               .then(async (response) => {
                 await Geolocation.getCurrentPosition(
                   async (position) => {
-                    const { latitude, longitude } = position.coords;
 
-                    await setLangandLat(latitude, longitude);
-                    await response.data.map((data1, index) => {
-                      const toRadian = (n) => (n * Math.PI) / 180;
-                      let lat2 = data1.latitude;
-                      let lon2 = data1.longitude;
-                      let lat1 = lat;
-                      let lon1 = lang;
+                    try {
+                      const { latitude, longitude } = position.coords;
 
-                      let R = 6371; // km
-                      let x1 = lat2 - lat1;
-                      let dLat = toRadian(x1);
-                      let x2 = lon2 - lon1;
-                      let dLon = toRadian(x2);
-                      let a =
-                        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                        Math.cos(toRadian(lat1)) *
-                        Math.cos(toRadian(lat2)) *
-                        Math.sin(dLon / 2) *
-                        Math.sin(dLon / 2);
-                      let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                      let d = R * c;
-                      data1.distance = parseInt(d * 0.621371);
-                    });
+                      await setLangandLat(latitude, longitude);
+                      await response.data.map((data1, index) => {
+                        const toRadian = (n) => (n * Math.PI) / 180;
+                        let lat2 = data1.latitude;
+                        let lon2 = data1.longitude;
+                        let lat1 = lat;
+                        let lon1 = lang;
 
-                    response.data = response.data.sort((a, b) => {
-                      return a.distance - b.distance;
-                    });
-                    await setUserData(response.data);
-                    await setFilteredData(response.data);
-                    setLoadingData(false);
+                        let R = 6371; // km
+                        let x1 = lat2 - lat1;
+                        let dLat = toRadian(x1);
+                        let x2 = lon2 - lon1;
+                        let dLon = toRadian(x2);
+                        let a =
+                          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                          Math.cos(toRadian(lat1)) *
+                          Math.cos(toRadian(lat2)) *
+                          Math.sin(dLon / 2) *
+                          Math.sin(dLon / 2);
+                        let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                        let d = R * c;
+                        data1.distance = parseInt(d * 0.621371);
+                      });
+
+                      response.data = response.data.sort((a, b) => {
+                        return a.distance - b.distance;
+                      });
+                      await setUserData(response.data);
+                      await setFilteredData(response.data);
+                      setLoadingData(false);
+                    } catch (error) {
+                      await useErrorHandler("(Android): Location > getData() " + error);
+                    }
                   },
                   async (error) => {
                     await useErrorHandler("(Android): Location > getData() " + error);
@@ -204,21 +213,26 @@ const Location = ({ navigation }) => {
     }
   };
 
-  const handleInputChange = (text) => {
-    if (text === "") {
-      setFilteredData(userData);
-    } else {
-      let data = userData.filter((item) => {
-        if (
-          item.metaData !== null &&
-          item.metaData !== undefined &&
-          item.metaData !== ""
-        ) {
-          return item.metaData.toLowerCase().includes(text.toLowerCase());
-        }
-      });
-      setFilteredData(data);
+  const handleInputChange = async (text) => {
+    try {
+      if (text === "") {
+        setFilteredData(userData);
+      } else {
+        let data = userData.filter((item) => {
+          if (
+            item.metaData !== null &&
+            item.metaData !== undefined &&
+            item.metaData !== ""
+          ) {
+            return item.metaData.toLowerCase().includes(text.toLowerCase());
+          }
+        });
+        setFilteredData(data);
+      }
+    } catch (error) {
+      await useErrorHandler("(Android): Location > handleInputChange() " + error);
     }
+
   };
 
   const likeProfile = async (business) => {

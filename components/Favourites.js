@@ -278,7 +278,7 @@ const Favourite = ({ navigation }) => {
                                 }
                             })
 
-                            await useErrorHandler("An exception occured while getting member wish list into like profile in favorite: " + error);
+                            await useErrorHandler("(Android): Favourites > likeProfile() " + error);
                             setLoading(false);
                         });
                         ;
@@ -288,11 +288,11 @@ const Favourite = ({ navigation }) => {
                 })
                 .catch(async (error) => {
                     console.error('Error retrieving dataa:', error);
-                    await useErrorHandler("Exception occured while retreiving data for the member wish list for like profile: " + error);
+                    await useErrorHandler("(Android): Favourites > likeProfile() " + error);
                     setLoading(false);
                 });
         } catch (error) {
-            await useErrorHandler("Exception occured while retreiving data for the member wish list for like profile: " + error);
+            await useErrorHandler("(Android): Favourites > likeProfile() " + error);
         }
     }
 

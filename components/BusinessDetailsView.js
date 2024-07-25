@@ -82,45 +82,50 @@ export default function BusinessDetailsView({ route }) {
     try {
       Geolocation.getCurrentPosition(
         async (position) => {
-          const { latitude, longitude } = position.coords;
 
-          const toRadian = (n) => (n * Math.PI) / 180;
-          let lat2 = response.data[0].latitude;
-          let lon2 = response.data[0].longitude;
-          let lat1 = latitude;
-          let lon1 = longitude;
+          try {
+            const { latitude, longitude } = position.coords;
 
-          let R = 6371; // km
-          let x1 = lat2 - lat1;
-          let dLat = toRadian(x1);
-          let x2 = lon2 - lon1;
-          let dLon = toRadian(x2);
-          let a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(toRadian(lat1)) *
-            Math.cos(toRadian(lat2)) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
-          let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-          let d = R * c;
-          response.data[0].distance = parseInt(d * 0.621371);
+            const toRadian = (n) => (n * Math.PI) / 180;
+            let lat2 = response.data[0].latitude;
+            let lon2 = response.data[0].longitude;
+            let lat1 = latitude;
+            let lon1 = longitude;
 
-          await setBusinessDetailsAwait(response.data[0]);
-          await setMarkers(
-            parseFloat(response.data[0].latitude),
-            parseFloat(response.data[0].longitude)
-          );
+            let R = 6371; // km
+            let x1 = lat2 - lat1;
+            let dLat = toRadian(x1);
+            let x2 = lon2 - lon1;
+            let dLon = toRadian(x2);
+            let a =
+              Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(toRadian(lat1)) *
+              Math.cos(toRadian(lat2)) *
+              Math.sin(dLon / 2) *
+              Math.sin(dLon / 2);
+            let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            let d = R * c;
+            response.data[0].distance = parseInt(d * 0.621371);
 
-          setLoading(false);
+            await setBusinessDetailsAwait(response.data[0]);
+            await setMarkers(
+              parseFloat(response.data[0].latitude),
+              parseFloat(response.data[0].longitude)
+            );
+
+            setLoading(false);
+          } catch (error) {
+            await useErrorHandler("(Android): BusinessDetailsView > getLocation() " + error);
+          }
         },
         async (error) => {
-          await useErrorHandler("Error getting current location into getlocation method in business detail view: " + error);
+          await useErrorHandler("(Android): BusinessDetailsView > getLocation() " + error);
           console.error("Error getting current location: ", error);
         },
         { enableHighAccuracy: false, timeout: 500 }
       );
     } catch (error) {
-      await useErrorHandler("Geolocation exception caught while getting current location:- " + error);
+      await useErrorHandler("(Android): BusinessDetailsView > getLocation() " + error);
       console.log("This is geolocation error:");
     }
   };
@@ -140,7 +145,7 @@ export default function BusinessDetailsView({ route }) {
                 await getLocation(response);
               })
               .catch(async (error) => {
-                await useErrorHandler("API is not working - BusinessDetailsView - LoadData:- " + error);
+                await useErrorHandler("(Android): BusinessDetailsView > LoadData() " + error);
                 setLoading(false);
               });
           } else {
@@ -149,11 +154,11 @@ export default function BusinessDetailsView({ route }) {
         })
         .catch(async (error) => {
           console.error("Error retrieving dataa:", error);
-          await useErrorHandler(" Data is not getting while loading into BusinessDetailsView - LoadData:- " + error);
+          await useErrorHandler("(Android): BusinessDetailsView > LoadData() " + error);
           setLoading(false);
         });
     } catch (error) {
-      await useErrorHandler("This is LoadData Error into Business Detail view:- " + error);
+      await useErrorHandler("(Android): BusinessDetailsView > LoadData() " + error);
       console.log("This is LoadData Error into Business Detail view:- ");
     }
   }
@@ -166,78 +171,82 @@ export default function BusinessDetailsView({ route }) {
         setLoading(true);
         AsyncStorage.getItem("token")
           .then(async (value) => {
-            if (value !== null) {
-              let currentDate = new Date().toISOString();
-              await fetch(
-                Globals.API_URL +
-                "/MemberProfiles/PostMemberProfileInMobileBySave",
-                {
-                  method: "POST",
-                  headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    uniqueId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                    id: 0,
-                    memberId: JSON.parse(value)[0].memberId,
-                    notes: null,
-                    badgeId: 1,
-                    tagId: null,
-                    businessGroupId: businessDetails.businessGroupId,
-                    lastVisitDate: null,
-                    lifeTimePoints: 0,
-                    lifeTimeVisits: 0,
-                    smsoptIn: false,
-                    emailOptIn:
-                      JSON.parse(value)[0].emailId == "" ||
-                        JSON.parse(value)[0].emailId == null ||
-                        JSON.parse(value)[0].emailId == undefined
-                        ? false
-                        : true,
-                    notificationOptIn: true,
-                    isHighroller: false,
-                    currentPoints: 0,
-                    sourceId: 14,
-                    stateId: 3,
-                    isActive: true,
-                    createdBy: JSON.parse(value)[0].memberId,
-                    createdDate: currentDate,
-                    lastModifiedBy: JSON.parse(value)[0].memberId,
-                    lastModifiedDate: currentDate,
-                    businessLocationID: businessDetails.businessId,
-                    baseLocationID: businessDetails.businessId,
-                  }),
-                }
-              )
-                .then(async (res) => {
-                  ToastAndroid.showWithGravityAndOffset(
-                    "Claimed Successfully!",
-                    ToastAndroid.LONG,
-                    ToastAndroid.BOTTOM,
-                    25,
-                    50
-                  );
-                  await LoadData();
-                })
-                .catch(async (error) => {
-                  await useErrorHandler("This is not working at the time of saveProfile into BusinessDetailsView " + error);
-                  setLoading(false);
-                  setButtonClicked(false);
-                });
-            } else {
-              console.log("not available");
+            try {
+              if (value !== null) {
+                let currentDate = new Date().toISOString();
+                await fetch(
+                  Globals.API_URL +
+                  "/MemberProfiles/PostMemberProfileInMobileBySave",
+                  {
+                    method: "POST",
+                    headers: {
+                      Accept: "application/json",
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      uniqueId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                      id: 0,
+                      memberId: JSON.parse(value)[0].memberId,
+                      notes: null,
+                      badgeId: 1,
+                      tagId: null,
+                      businessGroupId: businessDetails.businessGroupId,
+                      lastVisitDate: null,
+                      lifeTimePoints: 0,
+                      lifeTimeVisits: 0,
+                      smsoptIn: false,
+                      emailOptIn:
+                        JSON.parse(value)[0].emailId == "" ||
+                          JSON.parse(value)[0].emailId == null ||
+                          JSON.parse(value)[0].emailId == undefined
+                          ? false
+                          : true,
+                      notificationOptIn: true,
+                      isHighroller: false,
+                      currentPoints: 0,
+                      sourceId: 14,
+                      stateId: 3,
+                      isActive: true,
+                      createdBy: JSON.parse(value)[0].memberId,
+                      createdDate: currentDate,
+                      lastModifiedBy: JSON.parse(value)[0].memberId,
+                      lastModifiedDate: currentDate,
+                      businessLocationID: businessDetails.businessId,
+                      baseLocationID: businessDetails.businessId,
+                    }),
+                  }
+                )
+                  .then(async (res) => {
+                    ToastAndroid.showWithGravityAndOffset(
+                      "Claimed Successfully!",
+                      ToastAndroid.LONG,
+                      ToastAndroid.BOTTOM,
+                      25,
+                      50
+                    );
+                    await LoadData();
+                  })
+                  .catch(async (error) => {
+                    await useErrorHandler("(Android): BusinessDetailsView > saveProfile() " + error);
+                    setLoading(false);
+                    setButtonClicked(false);
+                  });
+              } else {
+                console.log("not available");
+              }
+            } catch (error) {
+
             }
           })
           .catch(async (error) => {
             console.error("Error retrieving dataa:", error);
-            await useErrorHandler("Error retrieving data at the time of Save profile into Business Detail View:- " + error);
+            await useErrorHandler("(Android): BusinessDetailsView > saveProfile() " + error);
             setLoading(false);
             setButtonClicked(false);
           });
       }
     } catch (error) {
-      await useErrorHandler("This occures while saving profile: " + error);
+      await useErrorHandler("(Android): BusinessDetailsView > saveProfile() " + error);
       console.error("This is save profile")
     }
   };
@@ -251,24 +260,30 @@ export default function BusinessDetailsView({ route }) {
     setModalVisible(true);
   };
 
-  const convertTo12HourFormat = (time24) => {
-    // Split the time string into hours and minutes
-    const [hours, minutes] = time24.split(':');
+  const convertTo12HourFormat = async (time24) => {
 
-    // Convert hours from string to number
-    let hoursNum = parseInt(hours, 10);
+    try {
+      // Split the time string into hours and minutes
+      const [hours, minutes] = time24.split(':');
 
-    // Determine the period (AM or PM)
-    const period = hoursNum >= 12 ? 'PM' : 'AM';
+      // Convert hours from string to number
+      let hoursNum = parseInt(hours, 10);
 
-    // Convert hours to 12-hour format
-    hoursNum = hoursNum % 12;
-    hoursNum = hoursNum ? hoursNum : 12; // Handle midnight (0 hours) as 12 AM
+      // Determine the period (AM or PM)
+      const period = hoursNum >= 12 ? 'PM' : 'AM';
 
-    // Format the time in 12-hour format
-    const time12 = `${hoursNum}:${minutes} ${period}`;
+      // Convert hours to 12-hour format
+      hoursNum = hoursNum % 12;
+      hoursNum = hoursNum ? hoursNum : 12; // Handle midnight (0 hours) as 12 AM
 
-    return time12;
+      // Format the time in 12-hour format
+      const time12 = `${hoursNum}:${minutes} ${period}`;
+
+      return time12;
+    } catch (error) {
+      await useErrorHandler("(Android): BusinessDetailsView > convertTo12HourFormat() " + error);
+    }
+
   }
 
   return (

@@ -19,7 +19,8 @@ export default function TabNavigation({ route, navigation }) {
                     .then(() => {
                         console.log('Data saved successfully!');
                     })
-                    .catch(error => {
+                    .catch(async (error) => {
+                        await useErrorHandler("(Android): TabNavigation > AsyncStorage" + error);
                         console.error('Error saving data:', error);
                     });
             }

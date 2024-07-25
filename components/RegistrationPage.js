@@ -52,7 +52,13 @@ export default function RegistrationPage({ route }) {
     const navigation = useNavigation();
 
     const getDeviceToken = async () => {
-        tokenid = await messaging().getToken();
+        try {
+            tokenid = await messaging().getToken();
+            console.log("This is a token id", tokenid);
+        } catch (error) {
+            await useErrorHandler("(Android) RegistrationPage > getDeviceToken()" + error);
+        }
+
     };
 
     const postData = async () => {

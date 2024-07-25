@@ -67,6 +67,7 @@ const VerifyNumber = ({ navigation }) => {
             }
           });
         } catch (error) {
+          await useErrorHandler("(Android): VerifyNumber > fetchAPI()" + error);
           ToastAndroid.showWithGravityAndOffset(
             'There is some issue! TRY Again!',
             ToastAndroid.LONG,

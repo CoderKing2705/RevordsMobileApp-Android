@@ -136,12 +136,12 @@ const Favourite = ({ navigation }) => {
                 }
                 await getRefreshData();
             }).catch(async error => {
-                await useErrorHandler("Error occured while closing redeem modal API: " + error);
+                await useErrorHandler("(Android): Favourites > closeRedeemModal(): " + error);
                 console.error('Error retrieving dataa:', error);
                 setLoading(false);
             });
         } catch (error) {
-            await useErrorHandler("Exception caught while closing redeem modal: " + error);
+            await useErrorHandler("(Android): Favourites > closeRedeemModal(): " + error);
         }
     }
 
@@ -188,7 +188,7 @@ const Favourite = ({ navigation }) => {
                                     setLoading(false)
                                 },
                                 async (error) => {
-                                    await useErrorHandler("Error getting current location into getlocation method in business detail view: " + error);
+                                    await useErrorHandler("(Android): Favourites > refreshedData(): " + error);
                                     console.error('Error getting current location: ', error);
                                 },
                                 { enableHighAccuracy: false, timeout: 5000 }
@@ -198,11 +198,11 @@ const Favourite = ({ navigation }) => {
                 })
                 .catch(async (error) => {
                     console.error('Error retrieving data:', error);
-                    await useErrorHandler("Geolocation exception caught while retrieving data based on current location:- " + error);
+                    await useErrorHandler("(Android): Favourites > getRefreshedData(): " + error);
                     setLoading(false);
                 });
         } catch (error) {
-            await useErrorHandler("Geolocation exception caught while getting current location:- " + error);
+            await useErrorHandler("(Android): Favourites > getRefreshedData(): " + error);
             console.error("This is geolocation error exception", error);
         }
 

@@ -19,6 +19,7 @@ import Geolocation from '@react-native-community/geolocation';
 import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import { Text } from "react-native";
+import { useErrorHandler } from "./components/ErrorHandler";
 
 
 export default function App() {
@@ -42,46 +43,58 @@ export default function App() {
   };
 
   const postData = async (memberId) => {
-    let currentDate = (new Date()).toISOString();
-    platformOS = (Platform.OS == "android" ? 1 : 2);
-    await getDeviceToken();
+    try {
+      let currentDate = (new Date()).toISOString();
+      platformOS = (Platform.OS == "android" ? 1 : 2);
+      await getDeviceToken();
 
-    await fetch(Globals.API_URL + '/MobileAppVisitersLogs/PostMobileAppVisitersLog', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "uniqueID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "id": 0,
-        "memberId": memberId,
-        "createdDate": currentDate,
-        "deviceOS": platformOS,
-        "appToken": token,
-        "longitude": long,
-        "latitude": lat
+      await fetch(Globals.API_URL + '/MobileAppVisitersLogs/PostMobileAppVisitersLog', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "uniqueID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "id": 0,
+          "memberId": memberId,
+          "createdDate": currentDate,
+          "deviceOS": platformOS,
+          "appToken": token,
+          "longitude": long,
+          "latitude": lat
+        })
       })
-    })
-      .then((response) => {
-        console.log('JSON.stringify(res)', JSON.stringify(response));
-      })
-      .catch((error) => {
-        console.log("Error Saving Logs:- ", error)
-      })
+        .then((response) => {
+          console.log('JSON.stringify(res)', JSON.stringify(response));
+        })
+        .catch(async (error) => {
+          await useErrorHandler("(Android): App > postData(): " + error);
+          console.log("Error Saving Logs:- ", error)
+        })
+    } catch (error) {
+      await useErrorHandler("(Android): App > postData(): " + error);
+    }
+
   }
 
   async function handleCheckPressed(memberId) {
-    if (Platform.OS === 'android') {
-      const checkEnabled = await isLocationEnabled();
 
-      if (!checkEnabled) {
-        await handleEnabledPressed(memberId);
+    try {
+      if (Platform.OS === 'android') {
+        const checkEnabled = await isLocationEnabled();
+
+        if (!checkEnabled) {
+          await handleEnabledPressed(memberId);
+        }
+        else {
+          await getCurrentLocation(memberId);
+        }
       }
-      else {
-        await getCurrentLocation(memberId);
-      }
+    } catch (error) {
+      await useErrorHandler("(Android): App > handleCheckPressed(): " + error);
     }
+
   }
 
   async function handleEnabledPressed(memberId) {
@@ -107,16 +120,21 @@ export default function App() {
   }
 
   const getCurrentLocation = async (memberId) => {
-    await Geolocation.getCurrentPosition(
-      async position => {
-        await setLangandLat(position.coords.latitude, position.coords.longitude, memberId);
+    try {
+      Geolocation.getCurrentPosition(
+        async (position) => {
+          await setLangandLat(position.coords.latitude, position.coords.longitude, memberId);
 
-      },
-      error => {
-        console.error('Error getting current location: ', error);
-      },
-      { enableHighAccuracy: false, timeout: 10000 }
-    );
+        },
+        error => {
+          console.error('Error getting current location: ', error);
+        },
+        { enableHighAccuracy: false, timeout: 10000 }
+      );
+    } catch (error) {
+      await useErrorHandler("(Android): App > getCurrentLocation(): " + error);
+    }
+
   };
 
   return (

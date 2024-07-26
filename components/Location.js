@@ -219,13 +219,10 @@ const Location = ({ navigation }) => {
         setFilteredData(userData);
       } else {
         let data = userData.filter((item) => {
-          if (
-            item.metaData !== null &&
-            item.metaData !== undefined &&
-            item.metaData !== ""
-          ) {
+          if (item.metaData && typeof item.metaData === "string") {
             return item.metaData.toLowerCase().includes(text.toLowerCase());
           }
+          return false; // Explicitly return false if the condition is not met
         });
         setFilteredData(data);
       }

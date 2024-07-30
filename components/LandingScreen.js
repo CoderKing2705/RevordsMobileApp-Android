@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Image, View } from 'react-native';
+import { StyleSheet, Image, View, Modal, Text, Platform, Linking } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Globals from './Globals';
@@ -9,8 +9,8 @@ import { useErrorHandler } from './ErrorHandler';
 
 const LandingScreen = ({ navigation }) => {
     const focus = useIsFocused();
-
     const [loading, setLoading] = useState(true);
+
 
     // This hook will get the member data...
     useEffect(() => {
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
         left: 20,
         top: 170,
         resizeMode: 'contain'
-    },
+    }
 });
 
 export default LandingScreen;

@@ -7,26 +7,28 @@ import AppTour from "./components/AppTour";
 import RegistrationPage from "./components/RegistrationPage";
 import TabNavigation from "./components/TabNavigation";
 import ProfileEdit from "./components/ProfileEdit";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import LandingScreen from "./components/LandingScreen";
 import messaging from '@react-native-firebase/messaging';
 import BusinessDetailsView from "./components/BusinessDetailsView";
 import NotificationTray from "./components/NotificationTray";
 import Globals from "./components/Globals";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Platform, TextInput } from "react-native";
+import { Button, Linking, Modal, Platform, TextInput, View } from "react-native";
 import Geolocation from '@react-native-community/geolocation';
 import { isLocationEnabled } from 'react-native-android-location-enabler';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import { Text } from "react-native";
 import { useErrorHandler } from "./components/ErrorHandler";
+import axios from "axios";
 
 
 export default function App() {
   const Stack = createStackNavigator();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const currentVersion = require('./package.json').version;
   let long = 0;
   let lat = 0;
-
   useEffect(() => {
     getDeviceToken();
     AsyncStorage.getItem('token')
@@ -35,7 +37,37 @@ export default function App() {
           await handleCheckPressed((JSON.parse(value))[0].memberId);
         }
       })
+    checkVersion();
   }, []);
+
+  const checkVersion = async () => {
+
+    const osID = Platform.OS === 'android' ? 1 : 2
+
+    const getCurrentVersion = await axios.get(Globals.API_URL + `/DashBoard/GetLatestCustomerMobileAppVersion/${osID}`).
+      catch(async (error) => {
+        await useErrorHandler("App > checkVersion(): " + error);
+      });
+    console.log("This is current version:- ", getCurrentVersion.data.appVersion);
+
+    if (getCurrentVersion.data.appVersion !== currentVersion) {
+      setIsModalVisible(true);
+    }
+  };
+
+  const openStores = () => {
+    console.log("Update Pressed")
+    const url = Platform.OS === 'android' ? 'https://play.google.com/store/apps/details?id=com.revordsMobile.app&pcampaignid=web_share'
+      : 'https://apps.apple.com/in/app/revords/id6474188184';
+
+    Linking.openURL(url).catch(async (error) => {
+      await useErrorHandler("LandingScreen > openStores(): " + error);
+      console.error("Error occur during opening url", error);
+    })
+
+    setIsModalVisible(false);
+  }
+
   let token = "";
   let platformOS;
   const getDeviceToken = async () => {
@@ -151,6 +183,27 @@ export default function App() {
         <Stack.Screen name="BusinessDetailView" component={BusinessDetailsView} options={{ headerShown: false }} />
         <Stack.Screen name="NotificationTray" component={NotificationTray} options={{ headerShown: false }} />
       </Stack.Navigator>
+      <Modal
+        animationType='slide'
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => setIsModalVisible(false)}
+        focusable={true}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>New version available!</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+              <View style={{ marginRight: 10 }}>
+                <Button title="Cancel" onPress={() => setIsModalVisible(false)} />
+              </View>
+              <View style={{ marginRight: 10 }}>
+                <Button title="Update" onPress={openStores} />
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </NavigationContainer>
   );
 }
@@ -160,3 +213,24 @@ Text.defaultProps.allowFontScaling = false;
 
 TextInput.defaultProps = TextInput.defaultProps || {};
 TextInput.defaultProps.allowFontScaling = false;
+
+
+const styles = {
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 310,
+    padding: 25,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+  },
+}

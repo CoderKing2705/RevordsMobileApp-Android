@@ -10,7 +10,7 @@ import { useErrorHandler } from './ErrorHandler';
 
 const AppTourGuide = ({ route, navigation }) => {
     const [step, setStep] = useState(1);
-    const { MemberData, Phone } = route.params;
+    const { MemberData, Phone, isNotificationAllowed } = route.params;
     let tokenid = "";
     let platformOS;
 
@@ -25,14 +25,14 @@ const AppTourGuide = ({ route, navigation }) => {
 
     const nextStep = () => {
         setStep(step + 1);
-    };
+    };    
 
     const closeTour = async () => {
         setStep(null);
         try {
             if (MemberData) {
                 await getDeviceToken();
-                fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}`, {
+                fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}/${isNotificationAllowed}`, {
                     method: 'PUT'
                 }).then((res) => {
                     navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
@@ -51,7 +51,7 @@ const AppTourGuide = ({ route, navigation }) => {
             if (MemberData) {
                 // let platformOS = (Platform.OS == "android" ? 1 : 2);
                 await getDeviceToken();
-                fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}`, {
+                fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}/${isNotificationAllowed}`, {
                     method: 'PUT'
                 }).then((res) => {
                     navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });

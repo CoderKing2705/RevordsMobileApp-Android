@@ -1,9 +1,10 @@
-import { StyleSheet, Image, Text, View, ToastAndroid } from 'react-native';
+import { StyleSheet, Image, Text, View, ToastAndroid, PermissionsAndroid } from 'react-native';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import { useEffect, useRef, useState } from 'react';
 import Globals from './Globals';
 import LinearGradient from 'react-native-linear-gradient';
 import { useErrorHandler } from './ErrorHandler';
+import { check } from 'react-native-permissions';
 
 const GetOtp = ({ route, navigation }) => {
     const [otp, setOtp] = useState(['', '', '', '']);
@@ -13,7 +14,7 @@ const GetOtp = ({ route, navigation }) => {
     let { OTP, CustomerExists, Phone } = route.params;
     const [seconds, setSeconds] = useState(60);
     const [isResentDisabled, setResentDisabled] = useState(false);
-
+    const [isNotificationAllowed, setIsNotificationAllowed] = useState(false);
     const handleInputChange = async (text, index) => {
 
         try {
@@ -89,7 +90,7 @@ const GetOtp = ({ route, navigation }) => {
                 if (otp.join('') == OTP) {
                     setIsVerified(true);
                     setSeconds(0);
-                    navigation.navigate('AppTour', { MemberData: CustomerExists, Phone: Phone });
+                    navigation.navigate('AppTour', { MemberData: CustomerExists, Phone: Phone, isNotificationAllowed: isNotificationAllowed });
                 } else {
                     setIsVerified(false);
                 }
@@ -110,7 +111,31 @@ const GetOtp = ({ route, navigation }) => {
         } catch (error) {
             await useErrorHandler("(Android): GetOtp > handleAutoFill() " + error);
         }
-    };
+    };    
+
+    const checkNotificationPermission = async () => {
+        const RESULTS = await check(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+        );
+    
+        switch (RESULTS) {
+          case "granted":
+            setIsNotificationAllowed(true);
+            break;
+          case "denied":
+            setIsNotificationAllowed(false);        
+            break;
+          case "blocked":
+            setIsNotificationAllowed(false);        
+            break;
+          case "unavailable":
+            setIsNotificationAllowed(false);        
+            break;
+          default:
+            setIsNotificationAllowed(false);        
+            break;        
+        }
+      };
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -125,6 +150,7 @@ const GetOtp = ({ route, navigation }) => {
     }, [seconds]);
 
     useEffect(() => {
+        checkNotificationPermission();
         if (otp.join('').length === 4) {
             verifyOtp();
         }

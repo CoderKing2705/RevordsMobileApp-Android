@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Image, Text, View, TouchableOpacity, Modal, ToastAndroid, Animated } from 'react-native';
+import { StyleSheet, Image, Text, View, TouchableOpacity, Modal, ToastAndroid, Animated, PermissionsAndroid } from 'react-native';
 import Globals from '../components/Globals';
 import { Card } from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -16,6 +16,7 @@ import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
 import LinearGradient from 'react-native-linear-gradient';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { useErrorHandler } from './ErrorHandler';
+import { check } from 'react-native-permissions';
 
 const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 const Favourite = ({ navigation }) => {
@@ -36,6 +37,7 @@ const Favourite = ({ navigation }) => {
     const [isAnnouncementModalVisible, setIsAnnouncementModalVisible] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [announcementImage, setAnnouncementImage] = useState(null);
+    const [isNotificationAllowed, setIsNotificationAllowed] = useState(false);
 
     const images = [
         { url: Globals.Root_URL + announcementImage }
@@ -218,6 +220,30 @@ const Favourite = ({ navigation }) => {
         );
     }
 
+    const checkNotificationPermission = async () => {
+        const RESULTS = await check(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+        );
+    
+        switch (RESULTS) {
+          case "granted":
+            setIsNotificationAllowed(true);
+            break;
+          case "denied":
+            setIsNotificationAllowed(false);        
+            break;
+          case "blocked":
+            setIsNotificationAllowed(false);        
+            break;
+          case "unavailable":
+            setIsNotificationAllowed(false);        
+            break;
+          default:
+            setIsNotificationAllowed(false);        
+            break;        
+        }
+      };
+
     const likeProfile = async (business) => {
         try {
             AsyncStorage.getItem('token')
@@ -249,8 +275,9 @@ const Favourite = ({ navigation }) => {
                                 "smsoptIn": false,
                                 "emailOptIn": ((JSON.parse(value))[0].emailId == '' || (JSON.parse(value))[0].emailId == null ||
                                     (JSON.parse(value))[0].emailId == undefined) ? false : true,
-                                "notificationOptIn": true,
+                                "notificationOptIn": isNotificationAllowed,
                                 "isHighroller": false,
+                                "isFreePlayer": false,
                                 "currentPoints": 0,
                                 "sourceId": 14,
                                 "stateId": 3,
@@ -260,7 +287,8 @@ const Favourite = ({ navigation }) => {
                                 "lastModifiedBy": (JSON.parse(value))[0].memberId,
                                 "lastModifiedDate": currentDate,
                                 "businessLocationID": business.businessId,
-                                "baseLocationID": business.businessId
+                                "baseLocationID": business.businessId,
+
                             }),
                         }).then(async (res) => {
                             ToastAndroid.showWithGravityAndOffset(
@@ -297,6 +325,7 @@ const Favourite = ({ navigation }) => {
     }
 
     useEffect(() => {
+        checkNotificationPermission();
         getRefreshData();
     }, [isFocused]);
 

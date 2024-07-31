@@ -1,5 +1,6 @@
 import {
   BackHandler,
+  PermissionsAndroid,
   TextInput,
   ToastAndroid,
   TouchableOpacity,
@@ -48,6 +49,7 @@ const Location = ({ navigation }) => {
       scale: 1,
     },
   };
+  const [isNotificationAllowed, setIsNotificationAllowed] = useState(false);
 
   const backPressed = () => {
     BackHandler.exitApp();
@@ -177,6 +179,7 @@ const Location = ({ navigation }) => {
 
   useEffect(() => {
     // handleCheckPressed();
+    checkNotificationPermission();
     requestLocationPermission();
   }, [focus]);
 
@@ -232,8 +235,31 @@ const Location = ({ navigation }) => {
 
   };
 
-  const likeProfile = async (business) => {
+  const checkNotificationPermission = async () => {
+    const RESULTS = await check(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+    );
 
+    switch (RESULTS) {
+      case "granted":
+        setIsNotificationAllowed(true);
+        break;
+      case "denied":
+        setIsNotificationAllowed(false);
+        break;
+      case "blocked":
+        setIsNotificationAllowed(false);
+        break;
+      case "unavailable":
+        setIsNotificationAllowed(false);
+        break;
+      default:
+        setIsNotificationAllowed(false);
+        break;
+    }
+  };
+
+  const likeProfile = async (business) => {
     try {
       AsyncStorage.getItem("token")
         .then(async (value) => {
@@ -260,7 +286,7 @@ const Location = ({ navigation }) => {
                   badgeId: 1,
                   tagId: null,
                   businessGroupId: business.businessGroupID,
-                  lastVisitDate: currentDate,
+                  lastVisitDate: null,
                   lifeTimePoints: 0,
                   lifeTimeVisits: 0,
                   smsoptIn: false,
@@ -270,8 +296,9 @@ const Location = ({ navigation }) => {
                       JSON.parse(value)[0].emailId == undefined
                       ? false
                       : true,
-                  notificationOptIn: true,
+                  notificationOptIn: isNotificationAllowed,
                   isHighroller: false,
+                  isFreePlayer: false,
                   currentPoints: 0,
                   sourceId: 14,
                   stateId: 3,

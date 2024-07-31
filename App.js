@@ -192,12 +192,17 @@ export default function App() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalText}>New version available!</Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-              <View style={{ marginRight: 10 }}>
+            <Text style={{
+              fontSize: 20,
+              marginBottom: 20,
+              fontWeight: 'bold'
+            }}>App Update Required!</Text>
+            <Text style={{ textAlign: 'center' }}> We have launched new and improved version. Please update the app for better experience. </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, }}>
+              <View style={{ marginRight: 15 }}>
                 <Button title="Cancel" onPress={() => setIsModalVisible(false)} />
               </View>
-              <View style={{ marginRight: 10 }}>
+              <View style={{ marginRight: 5, }}>
                 <Button title="Update" onPress={openStores} />
               </View>
             </View>
@@ -228,9 +233,5 @@ const styles = {
     backgroundColor: '#fff',
     borderRadius: 10,
     alignItems: 'center',
-  },
-  modalText: {
-    fontSize: 18,
-    marginBottom: 20,
-  },
+  }
 }

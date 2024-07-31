@@ -245,20 +245,20 @@ const Location = ({ navigation }) => {
         setIsNotificationAllowed(true);
         break;
       case "denied":
-        setIsNotificationAllowed(false);
+        setIsNotificationAllowed(false);        
         break;
       case "blocked":
-        setIsNotificationAllowed(false);
+        setIsNotificationAllowed(false);        
         break;
       case "unavailable":
-        setIsNotificationAllowed(false);
+        setIsNotificationAllowed(false);        
         break;
       default:
-        setIsNotificationAllowed(false);
-        break;
+        setIsNotificationAllowed(false);        
+        break;        
     }
   };
-
+  
   const likeProfile = async (business) => {
     try {
       AsyncStorage.getItem("token")
@@ -286,7 +286,7 @@ const Location = ({ navigation }) => {
                   badgeId: 1,
                   tagId: null,
                   businessGroupId: business.businessGroupID,
-                  lastVisitDate: null,
+                  lastVisitDate: currentDate,
                   lifeTimePoints: 0,
                   lifeTimeVisits: 0,
                   smsoptIn: false,
@@ -298,7 +298,6 @@ const Location = ({ navigation }) => {
                       : true,
                   notificationOptIn: isNotificationAllowed,
                   isHighroller: false,
-                  isFreePlayer: false,
                   currentPoints: 0,
                   sourceId: 14,
                   stateId: 3,

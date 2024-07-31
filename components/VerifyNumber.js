@@ -70,7 +70,7 @@ const VerifyNumber = ({ navigation }) => {
             }
           ).then(async (res) => {
             try {
-              if (res.ok) {
+              // if (res.ok) {
                 navigation.navigate("GetOtp", {
                   OTP: randomOtp,
                   CustomerExists: CustomerExists,
@@ -78,16 +78,16 @@ const VerifyNumber = ({ navigation }) => {
                 });
                 setLoading(false);
                 return json;
-              } else {
-                ToastAndroid.showWithGravityAndOffset(
-                  "You can only signin with U.S.A. Number!",
-                  ToastAndroid.LONG,
-                  ToastAndroid.BOTTOM,
-                  25,
-                  50
-                );
-                setLoading(false);
-              }
+              // } else {
+              //   ToastAndroid.showWithGravityAndOffset(
+              //     "You can only signin with U.S.A. Number!",
+              //     ToastAndroid.LONG,
+              //     ToastAndroid.BOTTOM,
+              //     25,
+              //     50
+              //   );
+              //   setLoading(false);
+              // }
             } catch (error) {
               await useErrorHandler(
                 "(Android): VerifyNumber > fetchAPI()" + error
@@ -211,8 +211,8 @@ const VerifyNumber = ({ navigation }) => {
           {!isValid && (
             <Text style={{ color: "red", marginTop: 4 }}>
               {unMaskPhone != "" &&
-                unMaskPhone != null &&
-                unMaskPhone != undefined
+              unMaskPhone != null &&
+              unMaskPhone != undefined
                 ? "Invalid Phone Number"
                 : "Please enter phone number"}
             </Text>

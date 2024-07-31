@@ -277,7 +277,6 @@ const Favourite = ({ navigation }) => {
                                     (JSON.parse(value))[0].emailId == undefined) ? false : true,
                                 "notificationOptIn": isNotificationAllowed,
                                 "isHighroller": false,
-                                "isFreePlayer": false,
                                 "currentPoints": 0,
                                 "sourceId": 14,
                                 "stateId": 3,
@@ -287,8 +286,7 @@ const Favourite = ({ navigation }) => {
                                 "lastModifiedBy": (JSON.parse(value))[0].memberId,
                                 "lastModifiedDate": currentDate,
                                 "businessLocationID": business.businessId,
-                                "baseLocationID": business.businessId,
-
+                                "baseLocationID": business.businessId
                             }),
                         }).then(async (res) => {
                             ToastAndroid.showWithGravityAndOffset(

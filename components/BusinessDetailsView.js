@@ -224,7 +224,6 @@ export default function BusinessDetailsView({ route }) {
                       : true,
                   notificationOptIn: isNotificationAllowed,
                   isHighroller: false,
-                  isFreePlayer: false,
                   currentPoints: 0,
                   sourceId: 14,
                   stateId: 3,

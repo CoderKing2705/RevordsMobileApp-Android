@@ -165,25 +165,32 @@ export default function BusinessDetailsView({ route }) {
   }
 
   const checkNotificationPermission = async () => {
-    const RESULTS = await check(
-      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-    );
-    switch (RESULTS) {
-      case "granted":
-        setIsNotificationAllowed(true);
-        break;
-      case "denied":
-        setIsNotificationAllowed(false);        
-        break;
-      case "blocked":
-        setIsNotificationAllowed(false);        
-        break;
-      case "unavailable":
-        setIsNotificationAllowed(false);        
-        break;
-      default:
-        setIsNotificationAllowed(false);        
-        break;        
+    try {
+      const RESULTS = await check(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+      );
+      switch (RESULTS) {
+        case "granted":
+          setIsNotificationAllowed(true);
+          break;
+        case "denied":
+          setIsNotificationAllowed(false);
+          break;
+        case "blocked":
+          setIsNotificationAllowed(false);
+          break;
+        case "unavailable":
+          setIsNotificationAllowed(false);
+          break;
+        default:
+          setIsNotificationAllowed(false);
+          break;
+      }
+    } catch (error) {
+      await useErrorHandler(
+        "(Android): BusinessDetailsView > checkNotificationPermission(): " +
+          error
+      );
     }
   };
 
@@ -224,6 +231,7 @@ export default function BusinessDetailsView({ route }) {
                       : true,
                   notificationOptIn: isNotificationAllowed,
                   isHighroller: false,
+                  isFreePlayer: false,
                   currentPoints: 0,
                   sourceId: 14,
                   stateId: 3,
@@ -272,7 +280,7 @@ export default function BusinessDetailsView({ route }) {
   useEffect(() => {
     checkNotificationPermission();
     LoadData();
-    console.log("per", isNotificationAllowed);
+    console.log('render')
   }, [isFocused]);
 
   const handleGalleryImagePress = (index) => {
@@ -995,7 +1003,6 @@ export default function BusinessDetailsView({ route }) {
                         provider={PROVIDER_GOOGLE}
                         region={initialRegion}
                         showsMyLocationButton={true}
-                        selected={true}
                         scrollEnabled={false}
                         zoomEnabled={false}
                         customMapStyle={[
@@ -1048,6 +1055,7 @@ export default function BusinessDetailsView({ route }) {
                       >
                         {initialRegion && (
                           <Marker
+                          tracksViewChanges={false}
                             coordinate={initialRegion}
                             title={businessDetails.businessName}
                           >

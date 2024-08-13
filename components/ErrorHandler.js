@@ -10,8 +10,6 @@ export const useErrorHandler = async (error) => {
             "deviceType": "5",
             "message": error
         })
-
-        console.log(data);
     } catch (apiError) {
         console.log("Error running API", apiError);
     }

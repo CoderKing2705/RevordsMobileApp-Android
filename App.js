@@ -58,11 +58,6 @@ export default function App() {
       .catch(async (error) => {
         await useErrorHandler("App > checkVersion(): " + error);
       });
-    console.log(
-      "This is current version:- ",
-      getCurrentVersion.data.appVersion
-    );
-
     if (getCurrentVersion.data.appVersion !== currentVersion) {
       setIsModalVisible(true);
     }
@@ -76,7 +71,7 @@ export default function App() {
         : "https://apps.apple.com/in/app/revords/id6474188184";
 
     Linking.openURL(url).catch(async (error) => {
-      await useErrorHandler("LandingScreen > openStores(): " + error);
+      await useErrorHandler("(Android): AppJS > openStores(): " + error);
       console.error("Error occur during opening url", error);
     });
 
@@ -90,26 +85,30 @@ export default function App() {
   };
 
   const checkNotificationPermission = async () => {
-    const RESULTS = await check(
-      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-    );
-    switch (RESULTS) {
-      case "granted":
-        isNotificationAllowed.current = true;
-        break;
-      case "denied":
-        isNotificationAllowed.current = false;
-        break;
-      case "blocked":
-        isNotificationAllowed.current = false;
-        break;
-      case "unavailable":
-        isNotificationAllowed.current = false;
-        break;
-      default:
-        isNotificationAllowed.current = false;
-        break;
-    }
+    try {
+      const RESULTS = await check(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+      );
+      switch (RESULTS) {
+        case "granted":
+          isNotificationAllowed.current = true;
+          break;
+        case "denied":
+          isNotificationAllowed.current = false;
+          break;
+        case "blocked":
+          isNotificationAllowed.current = false;
+          break;
+        case "unavailable":
+          isNotificationAllowed.current = false;
+          break;
+        default:
+          isNotificationAllowed.current = false;
+          break;
+      }
+    } catch (error) {
+      await useErrorHandler("(Android): AppJS > checkNotificationPermission(): " + error);
+    }    
   };
 
   const postData = async (memberId) => {
@@ -135,24 +134,21 @@ export default function App() {
             appToken: token,
             longitude: long,
             latitude: lat,
+            appVersion: currentVersion
           }),
         }
       )
         .then((response) => {
-          console.log("JSON.stringify(res)", JSON.stringify(response));
           fetch(
             `${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${memberId}/${token}/${platformOS}/${isNotificationAllowed.current}`,
             {
               method: "PUT",
             }
           ).then((res) => {
-            console.log('isNotificationAllowed', isNotificationAllowed.current)
-            console.log('JSON.stringify(res)', JSON.stringify(res));
           });
         })
         .catch(async (error) => {
           await useErrorHandler("(Android): App > postData(): " + error);
-          console.log("Error Saving Logs:- ", error);
         });
     } catch (error) {
       await useErrorHandler("(Android): App > postData(): " + error);

@@ -221,27 +221,31 @@ const Favourite = ({ navigation }) => {
     }
 
     const checkNotificationPermission = async () => {
-        const RESULTS = await check(
-          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-        );
-    
-        switch (RESULTS) {
-          case "granted":
-            setIsNotificationAllowed(true);
-            break;
-          case "denied":
-            setIsNotificationAllowed(false);        
-            break;
-          case "blocked":
-            setIsNotificationAllowed(false);        
-            break;
-          case "unavailable":
-            setIsNotificationAllowed(false);        
-            break;
-          default:
-            setIsNotificationAllowed(false);        
-            break;        
-        }
+        try {
+            const RESULTS = await check(
+                PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+              );
+          
+              switch (RESULTS) {
+                case "granted":
+                  setIsNotificationAllowed(true);
+                  break;
+                case "denied":
+                  setIsNotificationAllowed(false);        
+                  break;
+                case "blocked":
+                  setIsNotificationAllowed(false);        
+                  break;
+                case "unavailable":
+                  setIsNotificationAllowed(false);        
+                  break;
+                default:
+                  setIsNotificationAllowed(false);        
+                  break;        
+              }
+        } catch (error) {
+            await useErrorHandler("(Android): Favourites > checkNotificationPermission(): " + error);
+        }        
       };
 
     const likeProfile = async (business) => {
@@ -277,6 +281,7 @@ const Favourite = ({ navigation }) => {
                                     (JSON.parse(value))[0].emailId == undefined) ? false : true,
                                 "notificationOptIn": isNotificationAllowed,
                                 "isHighroller": false,
+                                "isFreePlayer": false,
                                 "currentPoints": 0,
                                 "sourceId": 14,
                                 "stateId": 3,
@@ -323,8 +328,13 @@ const Favourite = ({ navigation }) => {
     }
 
     useEffect(() => {
+        const controller = new AbortController();
         checkNotificationPermission();
         getRefreshData();
+        return () => {
+            console.log('abort')
+            controller.abort();
+          }
     }, [isFocused]);
 
     return (

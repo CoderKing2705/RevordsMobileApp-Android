@@ -79,6 +79,7 @@ const Profile = ({ route, navigation }) => {
 
     }
     useEffect(() => {
+        const controller = new AbortController();
         AsyncStorage.getItem('token')
             .then(async (value) => {
 
@@ -90,6 +91,10 @@ const Profile = ({ route, navigation }) => {
                 await useErrorHandler("(Android): Profile > setMemberData() " + error);
                 console.error('Error retrieving dataa:', error);
             });
+            return () => {
+                console.log("abort");
+                controller.abort();
+              };
     }, [focus]);
 
     return (

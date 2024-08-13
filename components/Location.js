@@ -77,7 +77,9 @@ const Location = ({ navigation }) => {
         }
       }
     } catch (error) {
-      await useErrorHandler("(Android): Location > handleCheckPresses() " + error);
+      await useErrorHandler(
+        "(Android): Location > handleCheckPresses() " + error
+      );
     }
   }
 
@@ -116,7 +118,6 @@ const Location = ({ navigation }) => {
               .then(async (response) => {
                 await Geolocation.getCurrentPosition(
                   async (position) => {
-
                     try {
                       const { latitude, longitude } = position.coords;
 
@@ -136,9 +137,9 @@ const Location = ({ navigation }) => {
                         let a =
                           Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                           Math.cos(toRadian(lat1)) *
-                          Math.cos(toRadian(lat2)) *
-                          Math.sin(dLon / 2) *
-                          Math.sin(dLon / 2);
+                            Math.cos(toRadian(lat2)) *
+                            Math.sin(dLon / 2) *
+                            Math.sin(dLon / 2);
                         let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
                         let d = R * c;
                         data1.distance = parseInt(d * 0.621371);
@@ -151,11 +152,15 @@ const Location = ({ navigation }) => {
                       await setFilteredData(response.data);
                       setLoadingData(false);
                     } catch (error) {
-                      await useErrorHandler("(Android): Location > getData() " + error);
+                      await useErrorHandler(
+                        "(Android): Location > getData() " + error
+                      );
                     }
                   },
                   async (error) => {
-                    await useErrorHandler("(Android): Location > getData() " + error);
+                    await useErrorHandler(
+                      "(Android): Location > getData() " + error
+                    );
                     console.error("Error getting current location: ", error);
                     setLoadingData(false);
                   },
@@ -163,7 +168,9 @@ const Location = ({ navigation }) => {
                 );
               })
               .catch(async (error) => {
-                await useErrorHandler("(Android): Location > getData() " + error);
+                await useErrorHandler(
+                  "(Android): Location > getData() " + error
+                );
                 console.error("Error fetching data", error);
               });
           }
@@ -178,9 +185,15 @@ const Location = ({ navigation }) => {
   };
 
   useEffect(() => {
+    const controller = new AbortController();
     // handleCheckPressed();
     checkNotificationPermission();
     requestLocationPermission();
+
+    return () => {
+      console.log("abort");
+      controller.abort();
+    };
   }, [focus]);
 
   const requestLocationPermission = async () => {
@@ -211,7 +224,9 @@ const Location = ({ navigation }) => {
         }
       }
     } catch (error) {
-      await useErrorHandler("(Android): Location > requestLocationPermission() " + error);
+      await useErrorHandler(
+        "(Android): Location > requestLocationPermission() " + error
+      );
       console.error("Error checking/requesting location permission: ", error);
     }
   };
@@ -230,35 +245,42 @@ const Location = ({ navigation }) => {
         setFilteredData(data);
       }
     } catch (error) {
-      await useErrorHandler("(Android): Location > handleInputChange() " + error);
+      await useErrorHandler(
+        "(Android): Location > handleInputChange() " + error
+      );
     }
-
   };
 
   const checkNotificationPermission = async () => {
-    const RESULTS = await check(
-      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-    );
+    try {
+      const RESULTS = await check(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+      );
 
-    switch (RESULTS) {
-      case "granted":
-        setIsNotificationAllowed(true);
-        break;
-      case "denied":
-        setIsNotificationAllowed(false);        
-        break;
-      case "blocked":
-        setIsNotificationAllowed(false);        
-        break;
-      case "unavailable":
-        setIsNotificationAllowed(false);        
-        break;
-      default:
-        setIsNotificationAllowed(false);        
-        break;        
+      switch (RESULTS) {
+        case "granted":
+          setIsNotificationAllowed(true);
+          break;
+        case "denied":
+          setIsNotificationAllowed(false);
+          break;
+        case "blocked":
+          setIsNotificationAllowed(false);
+          break;
+        case "unavailable":
+          setIsNotificationAllowed(false);
+          break;
+        default:
+          setIsNotificationAllowed(false);
+          break;
+      }
+    } catch (error) {
+      await useErrorHandler(
+        "(Android): Location > checkNotificationPermission() " + error
+      );
     }
   };
-  
+
   const likeProfile = async (business) => {
     try {
       AsyncStorage.getItem("token")
@@ -286,18 +308,19 @@ const Location = ({ navigation }) => {
                   badgeId: 1,
                   tagId: null,
                   businessGroupId: business.businessGroupID,
-                  lastVisitDate: currentDate,
+                  lastVisitDate: null,
                   lifeTimePoints: 0,
                   lifeTimeVisits: 0,
                   smsoptIn: false,
                   emailOptIn:
                     JSON.parse(value)[0].emailId == "" ||
-                      JSON.parse(value)[0].emailId == null ||
-                      JSON.parse(value)[0].emailId == undefined
+                    JSON.parse(value)[0].emailId == null ||
+                    JSON.parse(value)[0].emailId == undefined
                       ? false
                       : true,
                   notificationOptIn: isNotificationAllowed,
                   isHighroller: false,
+                  isFreePlayer: false,
                   currentPoints: 0,
                   sourceId: 14,
                   stateId: 3,
@@ -322,7 +345,9 @@ const Location = ({ navigation }) => {
                 await handleCheckPressed();
               })
               .catch(async (error) => {
-                await useErrorHandler("(Android): Location > likeProfile() " + error);
+                await useErrorHandler(
+                  "(Android): Location > likeProfile() " + error
+                );
                 await filteredData.map((data1, index) => {
                   if (business.id == data1.id) {
                     data1.isLiked = false;
@@ -342,8 +367,6 @@ const Location = ({ navigation }) => {
     } catch (error) {
       await useErrorHandler("(Android): Location > likeProfile() " + error);
     }
-
-
   };
 
   return (

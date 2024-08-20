@@ -6,6 +6,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Globals from './Globals';
 import { useErrorHandler } from './ErrorHandler';
+import axios from 'axios';
 
 const LandingScreen = ({ navigation }) => {
     const focus = useIsFocused();
@@ -15,10 +16,9 @@ const LandingScreen = ({ navigation }) => {
     // This hook will get the member data...
     useEffect(() => {
         setLoading(true);
-
         AsyncStorage.getItem('token')
-            .then(async value => {
-                if (value !== null) {
+        .then(async value => {
+            if (value !== null) {
                     await getMemberData((JSON.parse(value))[0].phone, value);
                 } else {
                     setLoading(false);
@@ -33,9 +33,11 @@ const LandingScreen = ({ navigation }) => {
 
     const getMemberData = async (phone, value) => {
         try {
-            const response = await fetch(
-                Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + phone)
-            const json = await response.json();
+            
+            const response = await axios.get(
+                Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + phone);
+            const json = response.data;           
+            console.log("This is landing screen data:- ", json);
             AsyncStorage.setItem('token', JSON.stringify(json))
                 .then(() => {
                     // setTimeout(() => {

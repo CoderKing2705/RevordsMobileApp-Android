@@ -355,7 +355,7 @@ export default function MapViewing({ navigation }) {
                     <TouchableOpacity onPress={() => setShow(true)}>
                       <Image
                         source={{
-                          uri: Globals.Root_URL + business.mapIconPath,
+                          uri:business.mapIconPath,
                         }}
                         style={{ width: 48, height: 48 }}
                         resizeMode="contain"

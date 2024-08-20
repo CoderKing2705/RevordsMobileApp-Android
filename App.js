@@ -30,6 +30,7 @@ import { Text } from "react-native";
 import { useErrorHandler } from "./components/ErrorHandler";
 import axios from "axios";
 import { check } from "react-native-permissions";
+import { setUpInterceptor } from "./components/interceptor";
 
 export default function App() {
   const Stack = createStackNavigator();
@@ -38,7 +39,10 @@ export default function App() {
   const isNotificationAllowed = useRef(false)
   let long = 0;
   let lat = 0;
+  
   useEffect(() => {
+    console.log("This is inside hooks!!");
+    setUpInterceptor();
     getDeviceToken();
     AsyncStorage.getItem("token").then(async (value) => {
       if (value !== null) {
@@ -108,7 +112,7 @@ export default function App() {
       }
     } catch (error) {
       await useErrorHandler("(Android): AppJS > checkNotificationPermission(): " + error);
-    }    
+    }
   };
 
   const postData = async (memberId) => {

@@ -18,6 +18,9 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import LinearGradient from "react-native-linear-gradient";
 import { useErrorHandler } from "./ErrorHandler";
 import { check } from "react-native-permissions";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { api } from "./interceptor";
 
 const VerifyNumber = ({ navigation }) => {
   const [phone, setPhone] = useState("");
@@ -36,13 +39,27 @@ const VerifyNumber = ({ navigation }) => {
     return randomNumber;
   };
 
+  const saveAccessToken = async (token) => {
+    try {
+      await AsyncStorage.setItem('accessToken', token);
+    } catch (error) {
+      await useErrorHandler("(Android): VerifyNumber > saveAccessToken()" + error);
+    }
+  }
+
+
+
   async function fetchAPI() {
     try {
       setLoading(true);
-      const response = await fetch(
-        Globals.API_URL + "/MemberProfiles/GetMemberByPhoneNo/" + unMaskPhone
+      const response = await axios.get(
+        Globals.API_URL + "/MemberProfiles/GetMemberByPhoneNoForCustomer/" + unMaskPhone
       );
-      const json = await response.json();
+      console.log(response);
+      const json = await response.data;
+      console.log("This is json:- ", json[0].accessToken);
+
+      await saveAccessToken(json[0].accessToken);
       CustomerExists = json != undefined && json.length > 0 ? json : null;
 
       const randomOtp = await generateRandomNumber();
@@ -216,8 +233,8 @@ const VerifyNumber = ({ navigation }) => {
           {!isValid && (
             <Text style={{ color: "red", marginTop: 4 }}>
               {unMaskPhone != "" &&
-              unMaskPhone != null &&
-              unMaskPhone != undefined
+                unMaskPhone != null &&
+                unMaskPhone != undefined
                 ? "Invalid Phone Number"
                 : "Please enter phone number"}
             </Text>

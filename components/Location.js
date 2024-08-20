@@ -29,13 +29,11 @@ const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
 const Location = ({ navigation }) => {
   const focus = useIsFocused();
-  const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState("");
   lang = 0;
   lat = 0;
   const [loadingData, setLoadingData] = useState(true);
   const [userData, setUserData] = useState("");
-  const userId = "1";
   const baseUrl =
     Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesForMobile";
   const pulse = {
@@ -589,7 +587,7 @@ const Location = ({ navigation }) => {
                         onPress={() => this.NavigateToBusinessDetails(item.id)}
                       >
                         <Card.Cover
-                          source={{ uri: Globals.Root_URL + item.imagePath }}
+                          source={{ uri:item.imagePath }}
                           style={styles.cardCover}
                           resizeMode="contain"
                         />
@@ -605,7 +603,7 @@ const Location = ({ navigation }) => {
                           >
                             <Image
                               style={styles.avatarImg}
-                              source={{ uri: Globals.Root_URL + item.logoPath }}
+                              source={{ uri: item.logoPath }}
                               resizeMode="stretch"
                             ></Image>
                           </View>

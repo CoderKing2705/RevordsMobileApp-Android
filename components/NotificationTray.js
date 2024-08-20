@@ -471,7 +471,7 @@ const NotificationTray = ({ navigation }) => {
                   <Image
                     style={styles.avatarImg}
                     source={{
-                      uri: Globals.Root_URL + notificationData.filePath,
+                      uri: notificationData.filePath,
                     }}
                     resizeMode="stretch"
                   ></Image>

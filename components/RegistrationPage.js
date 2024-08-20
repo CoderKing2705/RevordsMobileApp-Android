@@ -68,6 +68,8 @@ export default function RegistrationPage({ route }) {
             let currentYear = new Date().getFullYear();
             let platformOS = Platform.OS;
 
+            
+
             fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileByPhone', {
                 method: 'POST',
                 headers: {

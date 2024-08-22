@@ -27,7 +27,6 @@ const LandingScreen = ({ navigation }) => {
             })
             .catch(async error => {
                 await useErrorHandler("(Android): LandingScreen > useEffect()" + error);
-                console.error('Error retrieving data:', error);
             });
     }, [focus]);
 
@@ -37,7 +36,6 @@ const LandingScreen = ({ navigation }) => {
             const response = await axios.get(
                 Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + phone);
             const json = response.data;           
-            console.log("This is landing screen data:- ", json);
             AsyncStorage.setItem('token', JSON.stringify(json))
                 .then(() => {
                     // setTimeout(() => {
@@ -46,7 +44,6 @@ const LandingScreen = ({ navigation }) => {
                     // }, 2500);
                 })
                 .catch(async error => {
-                    console.error('Error saving data:', error);
                     await useErrorHandler("(Android): LandingScreen > getMemberData()" + error);
                 });
         } catch (error) {

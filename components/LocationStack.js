@@ -3,12 +3,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Location from './Location';
 import MapViewing from './MapView';
 import BusinessDetailsView from './BusinessDetailsView';
+import { useContext } from 'react';
+import PageSequenceContext from './contexts/PageSequence/PageSequenceContext';
 
 const LocationStack = ({ route, navigation }) => {
+    const PageSequence = useContext(PageSequenceContext);
     const locationStack = createNativeStackNavigator();
     return (
         <>
-            <locationStack.Navigator initialRouteName='Locations' >
+            <locationStack.Navigator initialRouteName={PageSequence.pageSequenceData.mobileFirstLocationPage} >
                 <locationStack.Screen name="Locations" component={Location} options={{
                     headerShown: false,
                 }} />                

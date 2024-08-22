@@ -55,9 +55,7 @@ const VerifyNumber = ({ navigation }) => {
       const response = await axios.get(
         Globals.API_URL + "/MemberProfiles/GetMemberByPhoneNoForCustomer/" + unMaskPhone
       );
-      console.log(response);
       const json = await response.data;
-      console.log("This is json:- ", json[0].accessToken);
 
       await saveAccessToken(json[0].accessToken);
       CustomerExists = json != undefined && json.length > 0 ? json : null;
@@ -166,7 +164,6 @@ const VerifyNumber = ({ navigation }) => {
     const controller = new AbortController();
     checkApplicationPermission();
     return () => {
-      console.log("abort");
       controller.abort();
     };
   }, []);

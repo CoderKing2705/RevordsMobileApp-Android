@@ -8,7 +8,7 @@ import {
 import { View, Text, StyleSheet, Image } from "react-native";
 import { Card, Title } from "react-native-paper";
 import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { FlatList } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Spinner from "react-native-loading-spinner-overlay";
@@ -24,6 +24,7 @@ import { createShimmerPlaceholder } from "react-native-shimmer-placeholder";
 import { ScrollView } from "react-native-gesture-handler";
 import { check, request, PERMISSIONS, RESULTS } from "react-native-permissions";
 import { useErrorHandler } from "./ErrorHandler";
+import PageSequenceContext from "./contexts/PageSequence/PageSequenceContext";
 
 const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
@@ -34,6 +35,9 @@ const Location = ({ navigation }) => {
   lat = 0;
   const [loadingData, setLoadingData] = useState(true);
   const [userData, setUserData] = useState("");
+  const { regionWiseBusiness, setRegionWiseBusiness } =
+    useContext(PageSequenceContext);
+
   const baseUrl =
     Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesForMobile";
   const pulse = {
@@ -103,7 +107,7 @@ const Location = ({ navigation }) => {
   };
 
   const getData = async () => {
-    // setLoadingData(true);
+    setLoadingData(true);
 
     try {
       AsyncStorage.getItem("token")
@@ -114,13 +118,18 @@ const Location = ({ navigation }) => {
               url: `${baseUrl}/${JSON.parse(value)[0].memberId}`,
             })
               .then(async (response) => {
+                if (regionWiseBusiness != null) {
+                  response = regionWiseBusiness;
+                } else {
+                  response = response.data;
+                }
                 await Geolocation.getCurrentPosition(
                   async (position) => {
                     try {
                       const { latitude, longitude } = position.coords;
 
                       await setLangandLat(latitude, longitude);
-                      await response.data.map((data1, index) => {
+                      await response.map((data1, index) => {
                         const toRadian = (n) => (n * Math.PI) / 180;
                         let lat2 = data1.latitude;
                         let lon2 = data1.longitude;
@@ -143,11 +152,11 @@ const Location = ({ navigation }) => {
                         data1.distance = parseInt(d * 0.621371);
                       });
 
-                      response.data = response.data.sort((a, b) => {
+                      response = response.sort((a, b) => {
                         return a.distance - b.distance;
                       });
-                      await setUserData(response.data);
-                      await setFilteredData(response.data);
+                      await setUserData(response);
+                      await setFilteredData(response);
                       setLoadingData(false);
                     } catch (error) {
                       await useErrorHandler(
@@ -159,7 +168,6 @@ const Location = ({ navigation }) => {
                     await useErrorHandler(
                       "(Android): Location > getData() " + error
                     );
-                    console.error("Error getting current location: ", error);
                     setLoadingData(false);
                   },
                   { enableHighAccuracy: false, timeout: 5000 }
@@ -169,13 +177,11 @@ const Location = ({ navigation }) => {
                 await useErrorHandler(
                   "(Android): Location > getData() " + error
                 );
-                console.error("Error fetching data", error);
               });
           }
         })
         .catch(async (error) => {
           await useErrorHandler("(Android): Location > getData() " + error);
-          console.error("Error retrieving dataa:", error);
         });
     } catch (error) {
       await useErrorHandler("(Android): Location > getData() " + error);
@@ -187,12 +193,11 @@ const Location = ({ navigation }) => {
     // handleCheckPressed();
     checkNotificationPermission();
     requestLocationPermission();
-
+    // console.log(regionWiseBusiness)
     return () => {
-      console.log("abort");
       controller.abort();
     };
-  }, [focus]);
+  }, [regionWiseBusiness]);
 
   const requestLocationPermission = async () => {
     try {
@@ -225,7 +230,6 @@ const Location = ({ navigation }) => {
       await useErrorHandler(
         "(Android): Location > requestLocationPermission() " + error
       );
-      console.error("Error checking/requesting location permission: ", error);
     }
   };
 
@@ -359,13 +363,18 @@ const Location = ({ navigation }) => {
         })
         .catch(async (error) => {
           await useErrorHandler("(Android): Location > likeProfile() " + error);
-          console.error("Error retrieving dataa:", error);
           // setLoadingData(false);
         });
     } catch (error) {
       await useErrorHandler("(Android): Location > likeProfile() " + error);
     }
   };
+
+  const EmptyElement = (
+    <Text style={styles.noDataText}>
+      To find Revords Businesses, set the map view accordingly!{" "}
+    </Text>
+  );
 
   return (
     <>
@@ -577,6 +586,7 @@ const Location = ({ navigation }) => {
                 </>
               ) : (
                 <FlatList
+                  ListEmptyComponent={EmptyElement}
                   showsVerticalScrollIndicator={false}
                   data={filteredData}
                   keyExtractor={(item, index) => index.toString()}
@@ -587,7 +597,7 @@ const Location = ({ navigation }) => {
                         onPress={() => this.NavigateToBusinessDetails(item.id)}
                       >
                         <Card.Cover
-                          source={{ uri:item.imagePath }}
+                          source={{ uri: item.imagePath }}
                           style={styles.cardCover}
                           resizeMode="contain"
                         />
@@ -683,7 +693,6 @@ const Location = ({ navigation }) => {
             </View>
           </View>
         </View>
-
         {/* <SafeAreaView>
                     <View style={styles.container}>
                         <Spinner
@@ -840,6 +849,14 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     textAlign: "center",
     width: "80%",
+  },
+  noDataText: {
+    color: "gray",
+    fontSize: 18,
+    fontWeight: "800",
+    textAlign: "center",
+    marginTop: 200,
+    // width: "80%",
   },
 });
 

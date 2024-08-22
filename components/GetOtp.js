@@ -106,7 +106,6 @@ const GetOtp = ({ route, navigation }) => {
       }
     } catch (error) {
       await useErrorHandler("(Android): GetOtp > verifyOtp() " + error);
-      console.error("Error storing token:", error);
     }
   };
 
@@ -170,7 +169,6 @@ const GetOtp = ({ route, navigation }) => {
       verifyOtp();
     }
     return () => {
-      console.log("abort");
       controller.abort();
     };
   });

@@ -139,7 +139,6 @@ const Favourite = ({ navigation }) => {
                 await getRefreshData();
             }).catch(async error => {
                 await useErrorHandler("(Android): Favourites > closeRedeemModal(): " + error);
-                console.error('Error retrieving dataa:', error);
                 setLoading(false);
             });
         } catch (error) {
@@ -191,7 +190,6 @@ const Favourite = ({ navigation }) => {
                                 },
                                 async (error) => {
                                     await useErrorHandler("(Android): Favourites > refreshedData(): " + error);
-                                    console.error('Error getting current location: ', error);
                                 },
                                 { enableHighAccuracy: false, timeout: 5000 }
                             );
@@ -199,13 +197,11 @@ const Favourite = ({ navigation }) => {
                     }
                 })
                 .catch(async (error) => {
-                    console.error('Error retrieving data:', error);
                     await useErrorHandler("(Android): Favourites > getRefreshedData(): " + error);
                     setLoading(false);
                 });
         } catch (error) {
             await useErrorHandler("(Android): Favourites > getRefreshedData(): " + error);
-            console.error("This is geolocation error exception", error);
         }
 
     }
@@ -318,7 +314,6 @@ const Favourite = ({ navigation }) => {
                     }
                 })
                 .catch(async (error) => {
-                    console.error('Error retrieving dataa:', error);
                     await useErrorHandler("(Android): Favourites > likeProfile() " + error);
                     setLoading(false);
                 });
@@ -332,7 +327,6 @@ const Favourite = ({ navigation }) => {
         checkNotificationPermission();
         getRefreshData();
         return () => {
-            console.log('abort')
             controller.abort();
           }
     }, [isFocused]);

@@ -58,7 +58,6 @@ const NotificationTray = ({ navigation }) => {
           await useErrorHandler(
             "(Android): NotificationTray > claimData() " + error
           );
-          console.error("Error retrieving dataa:", error);
           setLoading(false);
         });
     } catch (error) {
@@ -125,23 +124,30 @@ const NotificationTray = ({ navigation }) => {
     try {
       AsyncStorage.getItem("token").then(async (value) => {
         setLoading(true);
-
+        console.log('value', value)
         if (value !== null) {
-          await axios({
-            method: "GET",
-            url: `${baseUrl}/${JSON.parse(value)[0].memberId}`,
-          })
-            .then(async (response) => {
-              await setUserData(response.data);
-              setLoading(false);
-            })
-            .catch(async (error) => {
-              await useErrorHandler(
-                "(Android): NotificationTray > getData() " + error
-              );
-              console.error("Error fetching data", error);
-              setLoading(false);
-            });
+          // await axios({
+          //   method: "GET",
+          //   url: `${baseUrl}/${JSON.parse(value)[0].memberId}`,
+          // })
+          //   .then(async (response) => {
+          //     await setUserData(response.data);
+          //     setLoading(false);
+          //   })
+          const res = await axios.get(
+            `${baseUrl}/${JSON.parse(value)[0].memberId}`
+          );
+          console.log('JSON.parse(value)[0].memberId', res.data)
+          // const resData = res.data;
+          setUserData(res.data);
+          setLoading(false);
+          // .catch(async (error) => {
+          //   await useErrorHandler(
+          //     "(Android): NotificationTray > getData() " + error
+          //   );
+          //   console.error("Error fetching data", error);
+          //   setLoading(false);
+          // });
         }
       });
     } catch (error) {
@@ -152,7 +158,6 @@ const NotificationTray = ({ navigation }) => {
     const controller = new AbortController();
     getData();
     return () => {
-      console.log("abort");
       controller.abort();
     };
   }, [focus]);
@@ -258,7 +263,7 @@ const NotificationTray = ({ navigation }) => {
                           >
                             <Image
                               source={{
-                                uri: `${Globals.Root_URL}${item.businessGroupImage}`,
+                                uri: `${item.businessGroupImage}`,
                               }}
                               style={[styles.giftIcon]}
                               resizeMode="contain"
@@ -387,7 +392,7 @@ const NotificationTray = ({ navigation }) => {
               >
                 <Image
                   source={{
-                    uri: `${Globals.Root_URL}${notificationData.businessGroupImage}`,
+                    uri: `${notificationData.businessGroupImage}`,
                   }}
                   style={styles.logoBusinessInModal}
                   resizeMode="stretch"

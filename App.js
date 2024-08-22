@@ -31,17 +31,20 @@ import { useErrorHandler } from "./components/ErrorHandler";
 import axios from "axios";
 import { check } from "react-native-permissions";
 import { setUpInterceptor } from "./components/interceptor";
+import PageSequenceContext from "./components/contexts/PageSequence/PageSequenceContext";
 
 export default function App() {
   const Stack = createStackNavigator();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const currentVersion = require("./package.json").version;
-  const isNotificationAllowed = useRef(false)
+  const isNotificationAllowed = useRef(false);
   let long = 0;
   let lat = 0;
-  
+  const [pageSequenceData, setPageSequenceData] = useState({});
+  const [regionWiseBusiness, setRegionWiseBusiness] = useState(null);
+  const [isFirstLaunch, setIsFirstLaunch] = useState(true);
+
   useEffect(() => {
-    console.log("This is inside hooks!!");
     setUpInterceptor();
     getDeviceToken();
     AsyncStorage.getItem("token").then(async (value) => {
@@ -62,13 +65,56 @@ export default function App() {
       .catch(async (error) => {
         await useErrorHandler("App > checkVersion(): " + error);
       });
+
+    let data;
+    switch (getCurrentVersion.data.mobileFirstTab) {
+      case 1:
+        data = {
+          "mobileFirstTab" : "Location",
+          "mobileFirstLocationPage" : getmobileFirstLocationPage(getCurrentVersion.data.mobileFirstLocationPage)
+        }
+        setPageSequenceData(data);
+        break;
+      case 2:
+        data = {
+          "mobileFirstTab" : "Favorite",
+          "mobileFirstLocationPage" : getmobileFirstLocationPage(getCurrentVersion.data.mobileFirstLocationPage)
+        }
+        setPageSequenceData(data);
+        break;
+      case 3:
+        data = {
+          "mobileFirstTab" : "Profile",
+          "mobileFirstLocationPage" : getmobileFirstLocationPage(getCurrentVersion.data.mobileFirstLocationPage)
+        }
+        setPageSequenceData(data);
+        break;
+      default:
+        data = {
+          "mobileFirstTab" : "Location",
+          "mobileFirstLocationPage" : getmobileFirstLocationPage(getCurrentVersion.data.mobileFirstLocationPage)
+        }
+        setPageSequenceData(data);
+        break;
+    }
+
     if (getCurrentVersion.data.appVersion !== currentVersion) {
       setIsModalVisible(true);
     }
   };
 
+  const getmobileFirstLocationPage = (item) => {
+    switch (item) {
+      case 1:
+        return "Locations";
+      case 2:
+        return "MapViewing";      
+      default:
+        return "Locations";
+    }
+  }
+
   const openStores = () => {
-    console.log("Update Pressed");
     const url =
       Platform.OS === "android"
         ? "https://play.google.com/store/apps/details?id=com.revordsMobile.app&pcampaignid=web_share"
@@ -76,7 +122,6 @@ export default function App() {
 
     Linking.openURL(url).catch(async (error) => {
       await useErrorHandler("(Android): AppJS > openStores(): " + error);
-      console.error("Error occur during opening url", error);
     });
 
     setIsModalVisible(false);
@@ -111,7 +156,9 @@ export default function App() {
           break;
       }
     } catch (error) {
-      await useErrorHandler("(Android): AppJS > checkNotificationPermission(): " + error);
+      await useErrorHandler(
+        "(Android): AppJS > checkNotificationPermission(): " + error
+      );
     }
   };
 
@@ -138,18 +185,12 @@ export default function App() {
             appToken: token,
             longitude: long,
             latitude: lat,
-            appVersion: currentVersion
+            appVersion: currentVersion,
           }),
         }
       )
-        .then((response) => {
-          fetch(
-            `${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${memberId}/${token}/${platformOS}/${isNotificationAllowed.current}`,
-            {
-              method: "PUT",
-            }
-          ).then((res) => {
-          });
+        .then(async(response) => {          
+          await axios.put(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${memberId}/${token}/${platformOS}/${isNotificationAllowed.current}`)
         })
         .catch(async (error) => {
           await useErrorHandler("(Android): App > postData(): " + error);
@@ -217,103 +258,105 @@ export default function App() {
   };
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="LandingScreen"
-          component={LandingScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="GetStarted"
-          component={GetStarted}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="VerifyNumber"
-          component={VerifyNumber}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="GetOtp"
-          component={GetOtp}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="AppTour"
-          component={AppTour}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="RegistrationPage"
-          component={RegistrationPage}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="TabNavigation"
-          component={TabNavigation}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="ProfileEdit"
-          component={ProfileEdit}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="BusinessDetailView"
-          component={BusinessDetailsView}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="NotificationTray"
-          component={NotificationTray}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isModalVisible}
-        onRequestClose={() => setIsModalVisible(false)}
-        focusable={true}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text
-              style={{
-                fontSize: 20,
-                marginBottom: 20,
-                fontWeight: "bold",
-              }}
-            >
-              App Update Required!
-            </Text>
-            <Text style={{ textAlign: "center" }}>
-              {" "}
-              We have launched new and improved version. Please update the app
-              for better experience.{" "}
-            </Text>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                marginTop: 20,
-              }}
-            >
-              <View style={{ marginRight: 15 }}>
-                <Button
-                  title="Cancel"
-                  onPress={() => setIsModalVisible(false)}
-                />
-              </View>
-              <View style={{ marginRight: 5 }}>
-                <Button title="Update" onPress={openStores} />
+    <PageSequenceContext.Provider value={{pageSequenceData, regionWiseBusiness, setRegionWiseBusiness, isFirstLaunch, setIsFirstLaunch}}>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="LandingScreen"
+            component={LandingScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="GetStarted"
+            component={GetStarted}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="VerifyNumber"
+            component={VerifyNumber}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="GetOtp"
+            component={GetOtp}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="AppTour"
+            component={AppTour}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="RegistrationPage"
+            component={RegistrationPage}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="TabNavigation"
+            component={TabNavigation}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ProfileEdit"
+            component={ProfileEdit}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="BusinessDetailView"
+            component={BusinessDetailsView}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="NotificationTray"
+            component={NotificationTray}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={() => setIsModalVisible(false)}
+          focusable={true}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  marginBottom: 20,
+                  fontWeight: "bold",
+                }}
+              >
+                App Update Required!
+              </Text>
+              <Text style={{ textAlign: "center" }}>
+                {" "}
+                We have launched new and improved version. Please update the app
+                for better experience.{" "}
+              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  marginTop: 20,
+                }}
+              >
+                <View style={{ marginRight: 15 }}>
+                  <Button
+                    title="Cancel"
+                    onPress={() => setIsModalVisible(false)}
+                  />
+                </View>
+                <View style={{ marginRight: 5 }}>
+                  <Button title="Update" onPress={openStores} />
+                </View>
               </View>
             </View>
           </View>
-        </View>
-      </Modal>
-    </NavigationContainer>
+        </Modal>
+      </NavigationContainer>
+    </PageSequenceContext.Provider>
   );
 }
 

@@ -108,10 +108,8 @@ const ProfileEdit = ({ navigation, route }) => {
       })
       .catch(async (error) => {
         await useErrorHandler("(Android): ProfileEdit > useEffect() " + error);
-        console.error("Error retrieving dataa:", error);
       });
       return () => {
-        console.log("abort");
         controller.abort();
       };
   }, [focus]);
@@ -172,7 +170,6 @@ const ProfileEdit = ({ navigation, route }) => {
             await useErrorHandler(
               "(Android): ProfileEdit > putData() " + error
             );
-            console.error(error);
           });
       }
     } catch (error) {
@@ -197,10 +194,10 @@ const ProfileEdit = ({ navigation, route }) => {
 
   const getMemberData = async () => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         Globals.API_URL + "/MemberProfiles/GetMemberByPhoneNo/" + phone
       );
-      const json = await response.json();
+      const json = await response.data;
       AsyncStorage.setItem("token", JSON.stringify(json))
         .then(() => {
           console.log("Data saved successfully!");
@@ -209,7 +206,6 @@ const ProfileEdit = ({ navigation, route }) => {
           await useErrorHandler(
             "(Android): ProfileEdit > getMemberData() " + error
           );
-          console.error("Error saving data:", error);
         });
     } catch (error) {
       await useErrorHandler(
@@ -262,7 +258,6 @@ const ProfileEdit = ({ navigation, route }) => {
       await useErrorHandler(
         "(Android): ProfileEdit > requestCameraPermission() " + error
       );
-      console.error("Error requesting camera permission:", error);
     }
   };
 
@@ -317,7 +312,6 @@ const ProfileEdit = ({ navigation, route }) => {
       await useErrorHandler(
         "(Android): ProfileEdit > openImagePicker() " + error
       );
-      console.error("Error checking camera permission:", error);
     }
   };
 
@@ -356,7 +350,6 @@ const ProfileEdit = ({ navigation, route }) => {
         await useErrorHandler(
           "(Android): ProfileEdit > uploadImage() " + error
         );
-        console.error("Image upload failed", error);
       }
     } catch (error) {
       await useErrorHandler("(Android): ProfileEdit > uploadImage() " + error);

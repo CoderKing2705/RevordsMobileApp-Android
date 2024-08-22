@@ -126,7 +126,6 @@ export default function BusinessDetailsView({ route }) {
         await useErrorHandler(
           "(Android): BusinessDetailsView > getLocation(): " + error
         );
-        console.error("Error getting current location: ", error);
       },
       { enableHighAccuracy: false, timeout: 500 }
     );
@@ -159,7 +158,6 @@ export default function BusinessDetailsView({ route }) {
         await useErrorHandler(
           "(Android): BusinessDetailsView > LoadData(): " + error
         );
-        console.error("Error retrieving dataa:", error);
         setLoading(false);
       });
   }
@@ -270,7 +268,6 @@ export default function BusinessDetailsView({ route }) {
           await useErrorHandler(
             "(Android): BusinessDetailsView > saveProfile(): " + error
           );
-          console.error("Error retrieving dataa:", error);
           setLoading(false);
           setButtonClicked(false);
         });
@@ -280,7 +277,6 @@ export default function BusinessDetailsView({ route }) {
   useEffect(() => {
     checkNotificationPermission();
     LoadData();
-    console.log('render')
   }, [isFocused]);
 
   const handleGalleryImagePress = (index) => {

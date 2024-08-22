@@ -47,7 +47,6 @@ const Profile = ({ route, navigation }) => {
                             });
                         } catch (error) {
                             await useErrorHandler("(Android): Profile > createTwoButtonAlert() " + error);
-                            console.error('Error removing token:', error);
                         }
                     }
                 },
@@ -89,10 +88,8 @@ const Profile = ({ route, navigation }) => {
             })
             .catch(async error => {
                 await useErrorHandler("(Android): Profile > setMemberData() " + error);
-                console.error('Error retrieving dataa:', error);
             });
             return () => {
-                console.log("abort");
                 controller.abort();
               };
     }, [focus]);

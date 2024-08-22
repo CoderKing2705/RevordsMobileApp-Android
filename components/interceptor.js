@@ -10,7 +10,6 @@ export const setUpInterceptor = async () => {
         async (config) => {
             try {
                 const token = await AsyncStorage.getItem('accessToken');
-                console.log("This is interceptor token:- ", token);
                 if (token) {
                     config.headers.Authorization = `Bearer ${token}`
                 }
@@ -25,7 +24,6 @@ export const setUpInterceptor = async () => {
     );
     axios.interceptors.response.use(
         (response) => {
-            console.log("This is interceptor res:-", response);
             if (response.status.toString() === 401) {
                 const navigate = useNavigation();
                 navigate.navigate("GetStarted");

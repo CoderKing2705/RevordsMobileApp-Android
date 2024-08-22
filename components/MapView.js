@@ -15,7 +15,13 @@ import {
   TouchableOpacity,
 } from "react-native-gesture-handler";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useContext,
+} from "react";
 import currentIcon from "../assets/currentlocation.png";
 import { check, request, PERMISSIONS, RESULTS } from "react-native-permissions";
 import Geolocation from "@react-native-community/geolocation";
@@ -26,19 +32,31 @@ import { promptForEnableLocationIfNeeded } from "react-native-android-location-e
 import Spinner from "react-native-loading-spinner-overlay";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useErrorHandler } from "./ErrorHandler";
+import PageSequenceContext from "./contexts/PageSequence/PageSequenceContext";
 
 export default function MapViewing({ navigation }) {
   const isFocused = useIsFocused();
   const [filteredData, setFilteredData] = useState("");
-  
+  const [initialData, setInitialData] = useState([]);
   const [initialRegion, setInitialRegion] = useState(null);
-
+  const memberID = useRef(0);
   //   const [businessData, setBusinessData] = useState([{}]);
   const businessData = useRef([{}]);
+  const [searchText, setSearchText] = useState("");
   const baseUrl =
     Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesForMobile";
+  const baseUrlRegionWise =
+    Globals.API_URL +
+    "/BusinessProfiles/GetBusinessProfilesForMobileRegionWise";
   const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(false);
+  const {
+    regionWiseBusiness,
+    setRegionWiseBusiness,
+    isFirstLaunch,
+    setIsFirstLaunch,
+  } = useContext(PageSequenceContext);
+  const [region, setRegion] = useState();
 
   async function handleCheckPressed() {
     if (Platform.OS === "android") {
@@ -51,21 +69,18 @@ export default function MapViewing({ navigation }) {
   }
 
   useEffect(() => {
-    const controller = new AbortController();
-
     setLoading(true);
     requestLocationPermission();
-    // checkApplicationPermission();
 
     AsyncStorage.getItem("token")
       .then(async (value) => {
         if (value !== null) {
-
           try {
-            const res = await axios.get(
-              `${baseUrl}/${JSON.parse(value)[0].memberId}`
-            );
+            memberID.current = JSON.parse(value)[0].memberId;
+            const res = await axios.get(`${baseUrl}/${memberID.current}`);
             businessData.current = res.data;
+            setInitialData(res.data);
+            setRegionWiseBusiness(res.data);
             setFilteredData(res.data);
             setLoading(false);
           } catch (error) {
@@ -81,21 +96,9 @@ export default function MapViewing({ navigation }) {
 
     setLoading(false);
 
-    return () => {
-      console.log('abort')
-      controller.abort();
-    }
-  }, [isFocused]);
+    initializeMap();
+  }, []);
 
-  // async function setLangandLat(latitude, longitude) {
-  //   (lang = longitude), (lat = latitude);
-  // }
-
-  // async function setBusinessDataWhole(data) {
-  //   // setBusinessData(data);
-  //   businessData.current = data;
-  //   setFilteredData(data);
-  // }
   async function setMarkers(centerLat, centerLong) {
     setInitialRegion({
       latitude: centerLat,
@@ -105,33 +108,56 @@ export default function MapViewing({ navigation }) {
     });
   }
 
+  const initializeMap = async () => {
+    try {
+      if (isFirstLaunch) {
+        setIsFirstLaunch(false);
+        await getCurrentLocation();
+        currentRegionSetting(setRegion);
+      } else {
+        // Not first launch: restore last known region
+        const savedRegion = await AsyncStorage.getItem("mapRegion");
+        if (savedRegion) {
+          setRegion(JSON.parse(savedRegion));
+          currentRegionSetting(setInitialRegion);
+        } else {
+          // No saved region: fallback to default
+          getCurrentLocation();
+        }
+      }
+    } catch (error) {
+      console.error("Error initializing map:", error);
+    }
+  };
+
+  const currentRegionSetting = (itemSet) => {
+    Geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          itemSet({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            longitudeDelta: 0.0922 * 2,
+            latitudeDelta: 0.0922,
+          });
+        } catch (error) {
+          await useErrorHandler(
+            "(Android): MapView > currentRegionSetting() " + error
+          );
+        }
+      },
+      async (error) => {
+        await useErrorHandler(
+          "(Android): MapView > currentRegionSetting() " + error
+        );
+      },
+      { enableHighAccuracy: false, timeout: 10000 }
+    );
+  };
+
   const getCurrentLocation = async () => {
     try {
-      Geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            // await setLangandLat(
-            //   position.coords.latitude,
-            //   position.coords.longitude
-            // );
-            await setMarkers(
-              position.coords.latitude,
-              position.coords.longitude
-            );
-          } catch (error) {
-            await useErrorHandler(
-              "(Android): MapView > getCurrentLocation() " + error
-            );
-          }
-        },
-        async (error) => {
-          await useErrorHandler(
-            "(Android): MapView > getCurrentLocation() " + error
-          );
-          console.error("Error getting current location: ", error);
-        },
-        { enableHighAccuracy: false, timeout: 10000 }
-      );
+      currentRegionSetting(setInitialRegion);
     } catch (error) {
       await useErrorHandler(
         "(Android): MapView > getCurrentLocation() " + error
@@ -149,7 +175,6 @@ export default function MapViewing({ navigation }) {
             await useErrorHandler(
               "(Android): MapView > handleEnabledPressed() " + error
             );
-            console.error(error.message);
           }
         }
       }
@@ -174,7 +199,7 @@ export default function MapViewing({ navigation }) {
 
       if (permissionStatus === RESULTS.GRANTED) {
         await handleCheckPressed();
-        await getCurrentLocation();
+        // await getCurrentLocation();
       } else if (permissionStatus === RESULTS.DENIED) {
         const newPermissionStatus = await request(
           Platform.OS === "ios"
@@ -184,7 +209,7 @@ export default function MapViewing({ navigation }) {
 
         if (newPermissionStatus === RESULTS.GRANTED) {
           await handleCheckPressed();
-          await getCurrentLocation();
+          // await getCurrentLocation();
         } else {
           console.log("Location permission denied");
         }
@@ -193,13 +218,13 @@ export default function MapViewing({ navigation }) {
       await useErrorHandler(
         "(Android): MapView > requestLocationPremission() " + error
       );
-      console.error("Error checking/requesting location permission: ", error);
     }
   };
 
   const handleInputChange = async (text) => {
     try {
       setShow(false);
+      setSearchText(text);
       if (text === "") {
         setFilteredData(businessData.current);
       } else {
@@ -219,6 +244,70 @@ export default function MapViewing({ navigation }) {
         "(Android): MapView > handleInputChange() " + error
       );
     }
+  };
+
+  const regionRef = useRef(null);
+
+  const handleRegionChange = async (newRegion) => {
+    if (regionRef.current !== region) {
+      regionRef.current = region;
+      setRegion(region);
+    }
+    try {
+      await AsyncStorage.setItem("mapRegion", JSON.stringify(newRegion));
+    } catch (error) {
+      console.error("Error saving map region:", error);
+    }
+    filterLocations(newRegion);
+  };
+
+  const getBoundingBox = (region) => {
+    return {
+      northEast: {
+        latitude: region.latitude + region.latitudeDelta / 2,
+        longitude: region.longitude + region.longitudeDelta / 2,
+      },
+      southWest: {
+        latitude: region.latitude - region.latitudeDelta / 2,
+        longitude: region.longitude - region.longitudeDelta / 2,
+      },
+    };
+  };
+
+  const filterLocations = async (region) => {
+    let data;
+    if (searchText === "") {
+      data = initialData;
+    } else {
+      data = initialData.filter((item) => {
+        if (
+          item.metaData !== null &&
+          item.metaData !== undefined &&
+          item.metaData !== ""
+        ) {
+          return item.metaData.toLowerCase().includes(searchText.toLowerCase());
+        }
+      });
+    }
+
+    const boundingBox = getBoundingBox(region);
+    console.log(boundingBox);
+
+    const filtered = data.filter((location) => {
+      return isLocationInRegion(location, boundingBox);
+    });
+    console.log(filtered.length)
+    setRegionWiseBusiness(filtered);
+    setFilteredData(filtered);
+  };
+
+  const isLocationInRegion = (location, boundingBox) => {
+    return (
+      location.latitude >= boundingBox.southWest.latitude &&
+      location.latitude <= boundingBox.northEast.latitude &&
+      location.longitude >= boundingBox.southWest.longitude &&
+      location.longitude <= boundingBox.northEast.longitude
+    );
   };
 
   return (
@@ -279,9 +368,10 @@ export default function MapViewing({ navigation }) {
 
       <View style={styles.mapViewMain}>
         <MapView
+          onRegionChangeComplete={handleRegionChange}
           style={styles.mapView}
           provider={PROVIDER_GOOGLE}
-          region={initialRegion}
+          region={region}
           showsMyLocationButton={true}
           customMapStyle={[
             {
@@ -332,7 +422,11 @@ export default function MapViewing({ navigation }) {
           ]}
         >
           {initialRegion && (
-            <Marker coordinate={initialRegion} title="My Location" trackViewChanges={false}>
+            <Marker
+              coordinate={initialRegion}
+              title="My Location"
+              trackViewChanges={false}
+            >
               <Image
                 source={currentIcon}
                 style={{ width: 32, height: 32 }}
@@ -355,7 +449,7 @@ export default function MapViewing({ navigation }) {
                     <TouchableOpacity onPress={() => setShow(true)}>
                       <Image
                         source={{
-                          uri:business.mapIconPath,
+                          uri: business.mapIconPath,
                         }}
                         style={{ width: 48, height: 48 }}
                         resizeMode="contain"

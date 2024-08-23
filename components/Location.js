@@ -1,5 +1,8 @@
 import {
+  Alert,
+  AppState,
   BackHandler,
+  Modal,
   PermissionsAndroid,
   TextInput,
   ToastAndroid,
@@ -52,6 +55,7 @@ const Location = ({ navigation }) => {
     },
   };
   const [isNotificationAllowed, setIsNotificationAllowed] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const backPressed = () => {
     BackHandler.exitApp();
@@ -194,10 +198,43 @@ const Location = ({ navigation }) => {
     checkNotificationPermission();
     requestLocationPermission();
     // console.log(regionWiseBusiness)
+
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange
+    );
+
     return () => {
+      subscription.remove();
       controller.abort();
     };
   }, [regionWiseBusiness]);
+
+  const handleAppStateChange = (nextAppState) => {
+    console.log(nextAppState);
+    if (nextAppState === "active") {
+      // The app has come to the foreground
+      checkLocationPermissionFrequently();
+    }
+    // setAppState(nextAppState);
+  };
+
+  const checkLocationPermissionFrequently = async () => {
+    const permission = PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+    const result = await check(permission);
+
+    if (result === RESULTS.GRANTED) {
+      console.log("Location permission granted");
+      await handleCheckPressed();
+    } else {
+      // If permission is blocked, show a dialog to open settings
+      showLocationPermissionAlert();
+    }
+  };
+
+  const showLocationPermissionAlert = () => {
+    showModal();
+  };
 
   const requestLocationPermission = async () => {
     try {
@@ -223,14 +260,24 @@ const Location = ({ navigation }) => {
         if (newPermissionStatus === RESULTS.GRANTED) {
           await handleCheckPressed();
         } else {
+          showModal();
           console.log("Location permission denied");
         }
+      } else {
+        showModal();
+        console.log("Location permission denied");
       }
     } catch (error) {
       await useErrorHandler(
         "(Android): Location > requestLocationPermission() " + error
       );
     }
+  };
+
+  const openAppSettings = () => {
+    const { openSettings } = require("react-native-permissions");
+    closeModal();
+    openSettings().catch(() => console.warn("Cannot open settings"));
   };
 
   const handleInputChange = async (text) => {
@@ -375,6 +422,14 @@ const Location = ({ navigation }) => {
       To find Revords Businesses, set the map view accordingly!{" "}
     </Text>
   );
+
+  const showModal = () => {
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
 
   return (
     <>
@@ -693,6 +748,51 @@ const Location = ({ navigation }) => {
             </View>
           </View>
         </View>
+
+        <Modal
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={closeModal}
+        >
+          <View style={styles.overlay}>
+            <View style={styles.modalContainer}>
+              <Image
+                source={require("../assets/Applogo.png")}
+                style={styles.modalAppLogo}
+              />
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Image
+                  source={require("../assets/navigation.png")}
+                  style={{
+                    width: 20,
+                    height: 20,
+                    marginRight: 2,
+                    marginBottom: 8,
+                  }}
+                />
+                <Text style={styles.modalTitle}>
+                  Location Permission Required
+                </Text>
+              </View>
+              <Text style={styles.modalMessage}>
+                We need permission to access your location.
+              </Text>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={openAppSettings}
+                >
+                  <Text style={styles.buttonText}>Tap to go to settings</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
         {/* <SafeAreaView>
                     <View style={styles.container}>
                         <Spinner
@@ -707,6 +807,52 @@ const Location = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  modalAppLogo: {
+    width: 50,
+    height: 50,
+    marginBottom: 5,
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    width: "80%",
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalMessage: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  button: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: "#d9e7ed",
+    borderRadius: 5,
+    alignItems: "center",
+    marginHorizontal: 5,
+  },
+  buttonText: {
+    color: "black",
+    fontWeight: "700",
+    fontSize: 16,
+  },
   shimmer: {
     width: "100%",
     height: "100%",

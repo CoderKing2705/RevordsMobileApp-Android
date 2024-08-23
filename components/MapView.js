@@ -8,12 +8,14 @@ import {
   SafeAreaView,
   BackHandler,
   Platform,
+  AppState,
+  Modal,
 } from "react-native";
 import MapView, { Marker, Callout, PROVIDER_GOOGLE } from "react-native-maps";
 import {
   TouchableHighlight,
   TouchableOpacity,
-} from "react-native-gesture-handler";
+} from "react-native";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import React, {
   useState,
@@ -57,19 +59,27 @@ export default function MapViewing({ navigation }) {
     setIsFirstLaunch,
   } = useContext(PageSequenceContext);
   const [region, setRegion] = useState();
+  const [modalVisible, setModalVisible] = useState(false);
 
   async function handleCheckPressed() {
     if (Platform.OS === "android") {
       const checkEnabled = await isLocationEnabled();
       if (!checkEnabled) {
         await handleEnabledPressed();
-        // await getCurrentLocation();
+      }else{
+        await getCurrentLocation();
+
       }
     }
   }
 
   useEffect(() => {
     setLoading(true);
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange
+    );
+
     requestLocationPermission();
 
     AsyncStorage.getItem("token")
@@ -97,7 +107,51 @@ export default function MapViewing({ navigation }) {
     setLoading(false);
 
     initializeMap();
+    return () => {
+      subscription.remove();
+    };
   }, []);
+
+  const handleAppStateChange = (nextAppState) => {
+    console.log(nextAppState);
+    if (nextAppState === "active") {
+      // The app has come to the foreground
+      checkLocationPermissionFrequently();
+    }
+    // setAppState(nextAppState);
+  };
+
+  const checkLocationPermissionFrequently = async () => {
+    const permission = PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+    const result = await check(permission);
+
+    if (result === RESULTS.GRANTED) {
+      console.log("Location permission granted");
+      await handleCheckPressed();
+    } else {
+      // If permission is blocked, show a dialog to open settings
+      showLocationPermissionAlert();
+    }
+  };
+
+  const showLocationPermissionAlert = () => {
+    showModal();
+  };
+
+  const openAppSettings = () => {
+    console.log("idjoksnlf");
+    const { openSettings } = require("react-native-permissions");
+    closeModal();
+    openSettings().catch(() => console.warn("Cannot open settings"));
+  };
+
+  const showModal = () => {
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
 
   async function setMarkers(centerLat, centerLong) {
     setInitialRegion({
@@ -211,8 +265,11 @@ export default function MapViewing({ navigation }) {
           await handleCheckPressed();
           // await getCurrentLocation();
         } else {
+          showModal();
           console.log("Location permission denied");
         }
+      } else {
+        showModal();
       }
     } catch (error) {
       await useErrorHandler(
@@ -291,12 +348,11 @@ export default function MapViewing({ navigation }) {
     }
 
     const boundingBox = getBoundingBox(region);
-    console.log(boundingBox);
 
     const filtered = data.filter((location) => {
       return isLocationInRegion(location, boundingBox);
     });
-    console.log(filtered.length)
+
     setRegionWiseBusiness(filtered);
     setFilteredData(filtered);
   };
@@ -311,184 +367,281 @@ export default function MapViewing({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <View
-        style={{
-          flexDirection: "row",
-          width: "100%",
-          height: 50,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Text style={styles.welcomeText}>Where to go?</Text>
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => navigation.navigate("NotificationTray")}
-        >
-          <Image
-            source={require("../assets/notification-oRK.png")}
-            style={styles.setimg1}
-          />
-        </TouchableOpacity>
-      </View>
-
-      <View
-        style={{
-          flexDirection: "row",
-          width: "100%",
-          height: 75,
-          marginTop: 20,
-        }}
-      >
-        <View style={{ width: "82%", paddingHorizontal: "2%", height: "70%" }}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search.."
-            onChangeText={(text) => handleInputChange(text)}
-          />
-          <Image
-            style={styles.magnifyingGlass}
-            source={require("../assets/magnifyingglass-qQV.png")}
-          />
-        </View>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate("Locations")}
-          style={{ width: "16%", height: "70%", marginRight: "2%" }}
-        >
-          <View style={styles.mainMapImage}>
-            <Image
-              style={styles.mapImage}
-              source={require("../assets/listImg.png")}
-            />
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.mapViewMain}>
-        <MapView
-          onRegionChangeComplete={handleRegionChange}
-          style={styles.mapView}
-          provider={PROVIDER_GOOGLE}
-          region={region}
-          showsMyLocationButton={true}
-          customMapStyle={[
-            {
-              featureType: "transit",
-              elementType: "geometry",
-              stylers: [
-                {
-                  color: "#f8f7f7",
-                },
-              ],
-            },
-            {
-              featureType: "road",
-              elementType: "geometry",
-              stylers: [
-                {
-                  color: "#c8d6e3", // Blue color
-                },
-              ],
-            },
-            {
-              featureType: "road",
-              elementType: "labels.text.fill",
-              stylers: [
-                {
-                  color: "#000",
-                },
-              ],
-            },
-            {
-              featureType: "water",
-              elementType: "geometry",
-              stylers: [
-                {
-                  color: "#95c3d6",
-                },
-              ],
-            },
-            {
-              featureType: "water",
-              elementType: "labels.text.stroke",
-              stylers: [
-                {
-                  color: "#000",
-                },
-              ],
-            },
-          ]}
-        >
-          {initialRegion && (
-            <Marker
-              coordinate={initialRegion}
-              title="My Location"
-              trackViewChanges={false}
+    <>
+      <View style={styles.container}>
+        <>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              height: 50,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={styles.welcomeText}>Where to go?</Text>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => navigation.navigate("NotificationTray")}
             >
               <Image
-                source={currentIcon}
-                style={{ width: 32, height: 32 }}
-                resizeMode="contain"
+                source={require("../assets/notification-oRK.png")}
+                style={styles.setimg1}
               />
-            </Marker>
-          )}
-          {filteredData &&
-            filteredData.map(
-              (business, index) =>
-                business.latitude && (
-                  <Marker
-                    trackViewChanges={false}
-                    key={business.id}
-                    coordinate={{
-                      latitude: parseFloat(business.latitude),
-                      longitude: parseFloat(business.longitude),
-                    }}
-                  >
-                    <TouchableOpacity onPress={() => setShow(true)}>
-                      <Image
-                        source={{
-                          uri: business.mapIconPath,
-                        }}
-                        style={{ width: 48, height: 48 }}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
-                    <Callout
-                      onPress={() =>
-                        navigation.navigate("BusinessDetailView", {
-                          id: business.id,
-                        })
-                      }
-                      style={styles.locationbuttoncallout}
-                    >
-                      <TouchableHighlight style={{ width: 180 }}>
-                        <Text style={{ textAlign: "center" }}>
-                          {business.businessName}
-                        </Text>
-                      </TouchableHighlight>
-                    </Callout>
-                  </Marker>
-                )
-            )}
-        </MapView>
-      </View>
+            </TouchableOpacity>
+          </View>
 
-      <SafeAreaView>
-        <View style={styles.container}>
-          <Spinner
-            visible={loading}
-            textContent={""}
-            textStyle={styles.spinnerStyle}
-          />
-        </View>
-      </SafeAreaView>
-    </View>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              height: 75,
+              marginTop: 20,
+            }}
+          >
+            <View
+              style={{ width: "82%", paddingHorizontal: "2%", height: "70%" }}
+            >
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search.."
+                onChangeText={(text) => handleInputChange(text)}
+              />
+              <Image
+                style={styles.magnifyingGlass}
+                source={require("../assets/magnifyingglass-qQV.png")}
+              />
+            </View>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate("Locations")}
+              style={{ width: "16%", height: "70%", marginRight: "2%" }}
+            >
+              <View style={styles.mainMapImage}>
+                <Image
+                  style={styles.mapImage}
+                  source={require("../assets/listImg.png")}
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.mapViewMain}>
+            <MapView
+              onRegionChangeComplete={handleRegionChange}
+              style={styles.mapView}
+              provider={PROVIDER_GOOGLE}
+              region={region}
+              showsMyLocationButton={true}
+              customMapStyle={[
+                {
+                  featureType: "transit",
+                  elementType: "geometry",
+                  stylers: [
+                    {
+                      color: "#f8f7f7",
+                    },
+                  ],
+                },
+                {
+                  featureType: "road",
+                  elementType: "geometry",
+                  stylers: [
+                    {
+                      color: "#c8d6e3", // Blue color
+                    },
+                  ],
+                },
+                {
+                  featureType: "road",
+                  elementType: "labels.text.fill",
+                  stylers: [
+                    {
+                      color: "#000",
+                    },
+                  ],
+                },
+                {
+                  featureType: "water",
+                  elementType: "geometry",
+                  stylers: [
+                    {
+                      color: "#95c3d6",
+                    },
+                  ],
+                },
+                {
+                  featureType: "water",
+                  elementType: "labels.text.stroke",
+                  stylers: [
+                    {
+                      color: "#000",
+                    },
+                  ],
+                },
+              ]}
+            >
+              {initialRegion && (
+                <Marker
+                  coordinate={initialRegion}
+                  title="My Location"
+                  trackViewChanges={false}
+                >
+                  <Image
+                    source={currentIcon}
+                    style={{ width: 32, height: 32 }}
+                    resizeMode="contain"
+                  />
+                </Marker>
+              )}
+              {filteredData &&
+                filteredData.map(
+                  (business, index) =>
+                    business.latitude && (
+                      <Marker
+                        trackViewChanges={false}
+                        key={business.id}
+                        coordinate={{
+                          latitude: parseFloat(business.latitude),
+                          longitude: parseFloat(business.longitude),
+                        }}
+                      >
+                        <TouchableOpacity onPress={() => setShow(true)}>
+                          <Image
+                            source={{
+                              uri: business.mapIconPath,
+                            }}
+                            style={{ width: 48, height: 48 }}
+                            resizeMode="contain"
+                          />
+                        </TouchableOpacity>
+                        <Callout
+                          onPress={() =>
+                            navigation.navigate("BusinessDetailView", {
+                              id: business.id,
+                            })
+                          }
+                          style={styles.locationbuttoncallout}
+                        >
+                          <TouchableHighlight style={{ width: 180 }}>
+                            <Text style={{ textAlign: "center" }}>
+                              {business.businessName}
+                            </Text>
+                          </TouchableHighlight>
+                        </Callout>
+                      </Marker>
+                    )
+                )}
+            </MapView>
+          </View>
+        </>
+        <SafeAreaView>
+          <View style={styles.container}>
+            <Spinner
+              visible={loading}
+              textContent={""}
+              textStyle={styles.spinnerStyle}
+            />
+          </View>
+        </SafeAreaView>
+
+        <Modal
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={closeModal}
+        >
+          <View style={styles.overlay}>
+            <View style={styles.modalContainer}>
+              <Image
+                source={require("../assets/Applogo.png")}
+                style={styles.modalAppLogo}
+              />
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Image
+                  source={require("../assets/navigation.png")}
+                  style={{
+                    width: 20,
+                    height: 20,
+                    marginRight: 2,
+                    marginBottom: 8,
+                  }}
+                />
+                <Text style={styles.modalTitle}>
+                  Location Permission Required
+                </Text>
+              </View>
+              <Text style={styles.modalMessage}>
+                We need permission to access your location.
+              </Text>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={openAppSettings}
+                >
+                  <Text style={styles.buttonText}>Tap to go to settings</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  modalAppLogo: {
+    width: 50,
+    height: 50,
+    marginBottom: 5,
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    width: "80%",
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalMessage: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    width: "100%",
+  },
+  button: {
+    flex: 1,
+    pointerEvents: "auto",
+    padding: 10,
+    backgroundColor: "#d9e7ed",
+    borderRadius: 5,
+    alignItems: "center",
+    marginHorizontal: 5,
+  },
+  buttonText: {
+    color: "black",
+    fontWeight: "700",
+    fontSize: 16,
+  },
   setimg1: {
     width: 50,
     height: 50,

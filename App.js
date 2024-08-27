@@ -15,12 +15,15 @@ import NotificationTray from "./components/NotificationTray";
 import Globals from "./components/Globals";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
+  AppState,
   Button,
+  Image,
   Linking,
   Modal,
   PermissionsAndroid,
   Platform,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import Geolocation from "@react-native-community/geolocation";
@@ -43,7 +46,7 @@ export default function App() {
   const [pageSequenceData, setPageSequenceData] = useState({});
   const [regionWiseBusiness, setRegionWiseBusiness] = useState(null);
   const [isFirstLaunch, setIsFirstLaunch] = useState(true);
-
+  const [isUpdateRequired, setIsUpdateRequired] = useState(true);
   useEffect(() => {
     setUpInterceptor();
     getDeviceToken();
@@ -53,7 +56,20 @@ export default function App() {
       }
     });
     checkVersion();
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange
+    );
   }, []);
+
+  const handleAppStateChange = (nextAppState) => {
+    console.log(nextAppState);
+    if (nextAppState === "active") {
+      // The app has come to the foreground
+      checkVersion();
+    }
+    // setAppState(nextAppState);
+  };
 
   const checkVersion = async () => {
     const osID = Platform.OS === "android" ? 1 : 2;
@@ -70,35 +86,45 @@ export default function App() {
     switch (getCurrentVersion.data.mobileFirstTab) {
       case 1:
         data = {
-          "mobileFirstTab" : "Location",
-          "mobileFirstLocationPage" : getmobileFirstLocationPage(getCurrentVersion.data.mobileFirstLocationPage)
-        }
+          mobileFirstTab: "Location",
+          mobileFirstLocationPage: getmobileFirstLocationPage(
+            getCurrentVersion.data.mobileFirstLocationPage
+          ),
+        };
         setPageSequenceData(data);
         break;
       case 2:
         data = {
-          "mobileFirstTab" : "Favorite",
-          "mobileFirstLocationPage" : getmobileFirstLocationPage(getCurrentVersion.data.mobileFirstLocationPage)
-        }
+          mobileFirstTab: "Favorite",
+          mobileFirstLocationPage: getmobileFirstLocationPage(
+            getCurrentVersion.data.mobileFirstLocationPage
+          ),
+        };
         setPageSequenceData(data);
         break;
       case 3:
         data = {
-          "mobileFirstTab" : "Profile",
-          "mobileFirstLocationPage" : getmobileFirstLocationPage(getCurrentVersion.data.mobileFirstLocationPage)
-        }
+          mobileFirstTab: "Profile",
+          mobileFirstLocationPage: getmobileFirstLocationPage(
+            getCurrentVersion.data.mobileFirstLocationPage
+          ),
+        };
         setPageSequenceData(data);
         break;
       default:
         data = {
-          "mobileFirstTab" : "Location",
-          "mobileFirstLocationPage" : getmobileFirstLocationPage(getCurrentVersion.data.mobileFirstLocationPage)
-        }
+          mobileFirstTab: "Location",
+          mobileFirstLocationPage: getmobileFirstLocationPage(
+            getCurrentVersion.data.mobileFirstLocationPage
+          ),
+        };
         setPageSequenceData(data);
         break;
     }
 
     if (getCurrentVersion.data.appVersion !== currentVersion) {
+      
+      setIsUpdateRequired(getCurrentVersion.data.isAppUpdateRequired);
       setIsModalVisible(true);
     }
   };
@@ -108,11 +134,11 @@ export default function App() {
       case 1:
         return "Locations";
       case 2:
-        return "MapViewing";      
+        return "MapViewing";
       default:
         return "Locations";
     }
-  }
+  };
 
   const openStores = () => {
     const url =
@@ -189,8 +215,10 @@ export default function App() {
           }),
         }
       )
-        .then(async(response) => {          
-          await axios.put(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${memberId}/${token}/${platformOS}/${isNotificationAllowed.current}`)
+        .then(async (response) => {
+          await axios.put(
+            `${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${memberId}/${token}/${platformOS}/${isNotificationAllowed.current}`
+          );
         })
         .catch(async (error) => {
           await useErrorHandler("(Android): App > postData(): " + error);
@@ -256,9 +284,17 @@ export default function App() {
       await useErrorHandler("(Android): App > getCurrentLocation(): " + error);
     }
   };
-
+  console.log(pageSequenceData);
   return (
-    <PageSequenceContext.Provider value={{pageSequenceData, regionWiseBusiness, setRegionWiseBusiness, isFirstLaunch, setIsFirstLaunch}}>
+    <PageSequenceContext.Provider
+      value={{
+        pageSequenceData,
+        regionWiseBusiness,
+        setRegionWiseBusiness,
+        isFirstLaunch,
+        setIsFirstLaunch,
+      }}
+    >
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
@@ -321,7 +357,11 @@ export default function App() {
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              <Text
+              <Image
+                source={require("./assets/Applogo.png")}
+                style={styles.modalAppLogo}
+              />
+              {/* <Text
                 style={{
                   fontSize: 20,
                   marginBottom: 20,
@@ -342,14 +382,61 @@ export default function App() {
                   marginTop: 20,
                 }}
               >
-                <View style={{ marginRight: 15 }}>
-                  <Button
-                    title="Cancel"
-                    onPress={() => setIsModalVisible(false)}
-                  />
-                </View>
+                {isUpdateRequired == true && (
+                  <View style={{ marginRight: 15 }}>
+                    <Button
+                      title="Cancel"
+                      onPress={() => setIsModalVisible(false)}
+                    />
+                  </View>
+                )}
                 <View style={{ marginRight: 5 }}>
                   <Button title="Update" onPress={openStores} />
+                </View>
+              </View> */}
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                {/* <Image
+                  source={require("../assets/navigation.png")}
+                  style={{
+                    width: 20,
+                    height: 20,
+                    marginRight: 2,
+                    marginBottom: 8,
+                  }}
+                /> */}
+                <Text style={styles.modalTitle}>App Update Required!</Text>
+              </View>
+              <Text style={styles.modalMessage}>
+                We have launched new and improved version. Please update the app
+                for better experience.
+              </Text>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                }}
+              >
+                {isUpdateRequired == false && (
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={() => setIsModalVisible(false)}
+                    >
+                      <Text style={styles.buttonText}>Cancel</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity style={styles.button} onPress={openStores}>
+                    <Text style={styles.buttonText}>Update</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>
@@ -367,6 +454,39 @@ TextInput.defaultProps = TextInput.defaultProps || {};
 TextInput.defaultProps.allowFontScaling = false;
 
 const styles = {
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalMessage: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "50%",
+  },
+  button: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: "#7d5513",
+    borderRadius: 5,
+    alignItems: "center",
+    marginHorizontal: 5,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  modalAppLogo: {
+    width: 50,
+    height: 50,
+    marginBottom: 5,
+  },
   modalOverlay: {
     flex: 1,
     justifyContent: "center",

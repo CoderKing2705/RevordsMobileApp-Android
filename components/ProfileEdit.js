@@ -465,7 +465,7 @@ const ProfileEdit = ({ navigation, route }) => {
                 <View>
                   {!memberProfilePic && !selectedImage && (
                     <Image
-                      source={require("../assets/defaultUser1.png")}
+                      source={require("../assets/user.png")}
                       style={styles.img1}
                     />
                   )}
@@ -488,7 +488,7 @@ const ProfileEdit = ({ navigation, route }) => {
                       onPress={() => setOptionModalVisible(true)}
                     >
                       <Image
-                        source={require("../assets/pencilsimple.png")}
+                        source={require("../assets/pen.png")}
                         style={styles.pencilImg}
                       />
                     </TouchableOpacity>
@@ -866,7 +866,7 @@ const styles = StyleSheet.create({
   pencilView: {
     height: 40,
     width: 40,
-    backgroundColor: "#73a5bc",
+    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 500,
@@ -875,8 +875,8 @@ const styles = StyleSheet.create({
     top: "60%",
   },
   pencilImg: {
-    height: 22,
-    width: 22,
+    height: 32,
+    width: 32,
   },
   frame2vJu: {
     backgroundColor: "#140d05",

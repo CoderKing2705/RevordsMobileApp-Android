@@ -113,7 +113,7 @@ const Profile = ({ route, navigation }) => {
                             marginTop: 16, borderRadius: 23, paddingVertical: 15
                         }}>
                             {(memberProfilePic == null || memberProfilePic == '' || memberProfilePic == undefined) &&
-                                <Image source={require('../assets/defaultUser1.png')} style={styles.img1} />}
+                                <Image source={require('../assets/user.png')} style={styles.img1} />}
                             <TouchableOpacity onPress={handleGalleryImagePress}>
                                 {(memberProfilePic != null && memberProfilePic != '' && memberProfilePic != undefined) &&
                                     <Image source={{ uri: memberProfilePic }} style={styles.img1} resizeMode='contain' />}

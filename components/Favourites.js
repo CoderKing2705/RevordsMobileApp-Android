@@ -379,7 +379,6 @@ const Favourite = ({ navigation }) => {
   }, [isFocused]);
 
   const handleAppStateChange = (nextAppState) => {
-    console.log(nextAppState);
     if (nextAppState === "active") {
       // The app has come to the foreground
       checkLocationPermissionFrequently();
@@ -392,7 +391,6 @@ const Favourite = ({ navigation }) => {
     const result = await check(permission);
 
     if (result === RESULTS.GRANTED) {
-      console.log("Location permission granted");
       await getRefreshData();
     } else {
       // If permission is blocked, show a dialog to open settings
@@ -1333,13 +1331,13 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     padding: 10,
-    backgroundColor: "#d9e7ed",
+    backgroundColor: "#7d5513",
     borderRadius: 5,
     alignItems: "center",
     marginHorizontal: 5,
   },
   buttonText: {
-    color: "black",
+    color: "white",
     fontWeight: "700",
     fontSize: 16,
   },

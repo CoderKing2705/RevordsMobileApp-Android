@@ -48,6 +48,7 @@ export default function App() {
   const [isFirstLaunch, setIsFirstLaunch] = useState(true);
   const [isUpdateRequired, setIsUpdateRequired] = useState(true);
   useEffect(() => {
+    console.log("App")
     setUpInterceptor();
     getDeviceToken();
     AsyncStorage.getItem("token").then(async (value) => {
@@ -63,7 +64,6 @@ export default function App() {
   }, []);
 
   const handleAppStateChange = (nextAppState) => {
-    console.log(nextAppState);
     if (nextAppState === "active") {
       // The app has come to the foreground
       checkVersion();
@@ -284,7 +284,7 @@ export default function App() {
       await useErrorHandler("(Android): App > getCurrentLocation(): " + error);
     }
   };
-  console.log(pageSequenceData);
+
   return (
     <PageSequenceContext.Provider
       value={{

@@ -275,6 +275,7 @@ export default function BusinessDetailsView({ route }) {
   };
 
   useEffect(() => {
+    console.log("detailview")
     checkNotificationPermission();
     LoadData();
   }, [isFocused]);

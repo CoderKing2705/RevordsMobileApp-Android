@@ -6,7 +6,8 @@ import BusinessDetailsView from './BusinessDetailsView';
 import { useContext } from 'react';
 import PageSequenceContext from './contexts/PageSequence/PageSequenceContext';
 
-const LocationStack = ({ route, navigation }) => {
+const LocationStack = () => {
+    console.log("LocationStack")
     const PageSequence = useContext(PageSequenceContext);
     const locationStack = createNativeStackNavigator();
     return (

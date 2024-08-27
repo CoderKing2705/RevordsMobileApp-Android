@@ -7,12 +7,12 @@ import { FlatList } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Spinner from "react-native-loading-spinner-overlay";
 import Globals from "./Globals";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment/moment";
 import { useErrorHandler } from "./ErrorHandler";
 
-const NotificationTray = ({ navigation }) => {
+const NotificationTray = () => {
   const focus = useIsFocused();
   const [userData, setUserData] = useState("");
   const baseUrl =
@@ -20,6 +20,7 @@ const NotificationTray = ({ navigation }) => {
   const [isPromoModalVisible, setIsPromoModalVisible] = useState(false);
   const [notificationData, setNotificationData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
 
   const setIsPromoModalVisibleData = async (promotion) => {
     setIsPromoModalVisible(true);
@@ -124,7 +125,6 @@ const NotificationTray = ({ navigation }) => {
     try {
       AsyncStorage.getItem("token").then(async (value) => {
         setLoading(true);
-        console.log('value', value)
         if (value !== null) {
           // await axios({
           //   method: "GET",
@@ -137,7 +137,7 @@ const NotificationTray = ({ navigation }) => {
           const res = await axios.get(
             `${baseUrl}/${JSON.parse(value)[0].memberId}`
           );
-          console.log('JSON.parse(value)[0].memberId', res.data)
+
           // const resData = res.data;
           setUserData(res.data);
           setLoading(false);
@@ -154,6 +154,17 @@ const NotificationTray = ({ navigation }) => {
       await useErrorHandler("(Android): NotificationTray > getData() " + error);
     }
   };
+
+  const GoBack = () => {
+    AsyncStorage.getItem("token").then(async (value) => {
+      if (value !== null) {
+        navigation.navigate("TabNavigation", {
+          MemberData: JSON.parse(value),
+        });
+      }
+    });    
+  };
+
   useEffect(() => {
     const controller = new AbortController();
     getData();
@@ -186,10 +197,7 @@ const NotificationTray = ({ navigation }) => {
               justifyContent: "center",
             }}
           >
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={() => navigation.goBack()}
-            >
+            <TouchableOpacity activeOpacity={0.7} onPress={GoBack}>
               <Image
                 source={require("../assets/more-button-ved.png")}
                 style={styles.setimg1}

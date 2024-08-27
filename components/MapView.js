@@ -12,11 +12,12 @@ import {
   Modal,
 } from "react-native";
 import MapView, { Marker, Callout, PROVIDER_GOOGLE } from "react-native-maps";
+import { TouchableHighlight, TouchableOpacity } from "react-native";
 import {
-  TouchableHighlight,
-  TouchableOpacity,
-} from "react-native";
-import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+  useFocusEffect,
+  useIsFocused,
+  useNavigation,
+} from "@react-navigation/native";
 import React, {
   useState,
   useEffect,
@@ -36,7 +37,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useErrorHandler } from "./ErrorHandler";
 import PageSequenceContext from "./contexts/PageSequence/PageSequenceContext";
 
-export default function MapViewing({ navigation }) {
+export default function MapViewing() {
+  const navigation = useNavigation();
   const isFocused = useIsFocused();
   const [filteredData, setFilteredData] = useState("");
   const [initialData, setInitialData] = useState([]);
@@ -50,14 +52,10 @@ export default function MapViewing({ navigation }) {
   const baseUrlRegionWise =
     Globals.API_URL +
     "/BusinessProfiles/GetBusinessProfilesForMobileRegionWise";
-  const [loading, setLoading] = useState(false);
-  const [show, setShow] = useState(false);
-  const {
-    regionWiseBusiness,
-    setRegionWiseBusiness,
-    isFirstLaunch,
-    setIsFirstLaunch,
-  } = useContext(PageSequenceContext);
+  // const [loading, setLoading] = useState(false);
+  // const [show, setShow] = useState(false);
+  const { setRegionWiseBusiness, isFirstLaunch, setIsFirstLaunch } =
+    useContext(PageSequenceContext);
   const [region, setRegion] = useState();
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -66,15 +64,15 @@ export default function MapViewing({ navigation }) {
       const checkEnabled = await isLocationEnabled();
       if (!checkEnabled) {
         await handleEnabledPressed();
-      }else{
+      } else {
         await getCurrentLocation();
-
       }
     }
   }
 
   useEffect(() => {
-    setLoading(true);
+    console.log("Mapview");
+    // setLoading(true);
     const subscription = AppState.addEventListener(
       "change",
       handleAppStateChange
@@ -92,19 +90,19 @@ export default function MapViewing({ navigation }) {
             setInitialData(res.data);
             setRegionWiseBusiness(res.data);
             setFilteredData(res.data);
-            setLoading(false);
+            // setLoading(false);
           } catch (error) {
             await useErrorHandler("(Android): MapView > useEffect() " + error);
-            setLoading(false);
+            // setLoading(false);
           }
         }
       })
       .catch(async (error) => {
-        setLoading(false);
+        // setLoading(false);
         await useErrorHandler("(Android): MapView > useEffect() " + error);
       });
 
-    setLoading(false);
+    // setLoading(false);
 
     initializeMap();
     return () => {
@@ -113,7 +111,6 @@ export default function MapViewing({ navigation }) {
   }, []);
 
   const handleAppStateChange = (nextAppState) => {
-    console.log(nextAppState);
     if (nextAppState === "active") {
       // The app has come to the foreground
       checkLocationPermissionFrequently();
@@ -126,7 +123,6 @@ export default function MapViewing({ navigation }) {
     const result = await check(permission);
 
     if (result === RESULTS.GRANTED) {
-      console.log("Location permission granted");
       await handleCheckPressed();
     } else {
       // If permission is blocked, show a dialog to open settings
@@ -139,7 +135,6 @@ export default function MapViewing({ navigation }) {
   };
 
   const openAppSettings = () => {
-    console.log("idjoksnlf");
     const { openSettings } = require("react-native-permissions");
     closeModal();
     openSettings().catch(() => console.warn("Cannot open settings"));
@@ -152,15 +147,6 @@ export default function MapViewing({ navigation }) {
   const closeModal = () => {
     setModalVisible(false);
   };
-
-  async function setMarkers(centerLat, centerLong) {
-    setInitialRegion({
-      latitude: centerLat,
-      longitude: centerLong,
-      longitudeDelta: 0.0922 * 2,
-      latitudeDelta: 0.0922,
-    });
-  }
 
   const initializeMap = async () => {
     try {
@@ -242,7 +228,6 @@ export default function MapViewing({ navigation }) {
   const requestLocationPermission = async () => {
     try {
       let permissionStatus;
-
       if (Platform.OS === "ios") {
         permissionStatus = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
       } else if (Platform.OS === "android") {
@@ -266,7 +251,6 @@ export default function MapViewing({ navigation }) {
           // await getCurrentLocation();
         } else {
           showModal();
-          console.log("Location permission denied");
         }
       } else {
         showModal();
@@ -280,7 +264,7 @@ export default function MapViewing({ navigation }) {
 
   const handleInputChange = async (text) => {
     try {
-      setShow(false);
+      // setShow(false);
       setSearchText(text);
       if (text === "") {
         setFilteredData(businessData.current);
@@ -306,6 +290,7 @@ export default function MapViewing({ navigation }) {
   const regionRef = useRef(null);
 
   const handleRegionChange = async (newRegion) => {
+    console.log(newRegion);
     if (regionRef.current !== region) {
       regionRef.current = region;
       setRegion(region);
@@ -352,7 +337,7 @@ export default function MapViewing({ navigation }) {
     const filtered = data.filter((location) => {
       return isLocationInRegion(location, boundingBox);
     });
-
+    console.log(filtered.length);
     setRegionWiseBusiness(filtered);
     setFilteredData(filtered);
   };
@@ -365,7 +350,32 @@ export default function MapViewing({ navigation }) {
       location.longitude <= boundingBox.northEast.longitude
     );
   };
+  const MemoizedMarker = React.memo(
+    () => (
+      <Marker
+        coordinate={initialRegion}
+        title="My Location"
+        trackViewChanges={false}
+      ></Marker>
+    ),
+    []
+  );
 
+  const BusinessMemoizedMarker = React.memo(
+    (props) => (
+      <Marker
+        trackViewChanges={false}
+        key={props.business.id}
+        coordinate={{
+          latitude: parseFloat(props.business.latitude),
+          longitude: parseFloat(props.business.longitude),
+        }}
+      >
+        {props.children}
+      </Marker>
+    ),
+    []
+  );
   return (
     <>
       <View style={styles.container}>
@@ -433,6 +443,7 @@ export default function MapViewing({ navigation }) {
               provider={PROVIDER_GOOGLE}
               region={region}
               showsMyLocationButton={true}
+              trackViewChanges={false}
               customMapStyle={[
                 {
                   featureType: "transit",
@@ -481,37 +492,21 @@ export default function MapViewing({ navigation }) {
                 },
               ]}
             >
-              {initialRegion && (
-                <Marker
-                  coordinate={initialRegion}
-                  title="My Location"
-                  trackViewChanges={false}
-                >
-                  <Image
-                    source={currentIcon}
-                    style={{ width: 32, height: 32 }}
-                    resizeMode="contain"
-                  />
-                </Marker>
-              )}
+              {initialRegion && <MemoizedMarker />}
               {filteredData &&
                 filteredData.map(
                   (business, index) =>
                     business.latitude && (
-                      <Marker
-                        trackViewChanges={false}
+                      <BusinessMemoizedMarker
                         key={business.id}
-                        coordinate={{
-                          latitude: parseFloat(business.latitude),
-                          longitude: parseFloat(business.longitude),
-                        }}
+                        business={business}
                       >
-                        <TouchableOpacity onPress={() => setShow(true)}>
+                        <TouchableOpacity>
                           <Image
                             source={{
                               uri: business.mapIconPath,
                             }}
-                            style={{ width: 48, height: 48 }}
+                            style={styles.markerImage}
                             resizeMode="contain"
                           />
                         </TouchableOpacity>
@@ -529,13 +524,13 @@ export default function MapViewing({ navigation }) {
                             </Text>
                           </TouchableHighlight>
                         </Callout>
-                      </Marker>
+                      </BusinessMemoizedMarker>
                     )
                 )}
             </MapView>
           </View>
         </>
-        <SafeAreaView>
+        {/* <SafeAreaView>
           <View style={styles.container}>
             <Spinner
               visible={loading}
@@ -543,7 +538,7 @@ export default function MapViewing({ navigation }) {
               textStyle={styles.spinnerStyle}
             />
           </View>
-        </SafeAreaView>
+        </SafeAreaView> */}
 
         <Modal
           transparent={true}
@@ -613,6 +608,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
   },
+  markerImage: {
+    width: 48,
+    height: 48,
+  },
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
@@ -632,13 +631,13 @@ const styles = StyleSheet.create({
     flex: 1,
     pointerEvents: "auto",
     padding: 10,
-    backgroundColor: "#d9e7ed",
+    backgroundColor: "#7d5513",
     borderRadius: 5,
     alignItems: "center",
     marginHorizontal: 5,
   },
   buttonText: {
-    color: "black",
+    color: "white",
     fontWeight: "700",
     fontSize: 16,
   },

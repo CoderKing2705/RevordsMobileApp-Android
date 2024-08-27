@@ -38,7 +38,7 @@ const Location = ({ navigation }) => {
   lat = 0;
   const [loadingData, setLoadingData] = useState(true);
   const [userData, setUserData] = useState("");
-  const { regionWiseBusiness, setRegionWiseBusiness } =
+  const { regionWiseBusiness } =
     useContext(PageSequenceContext);
 
   const baseUrl =
@@ -193,6 +193,7 @@ const Location = ({ navigation }) => {
   };
 
   useEffect(() => {
+    console.log("Locations")
     const controller = new AbortController();
     // handleCheckPressed();
     checkNotificationPermission();
@@ -843,13 +844,13 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     padding: 10,
-    backgroundColor: "#d9e7ed",
+    backgroundColor: "#7d5513",
     borderRadius: 5,
     alignItems: "center",
     marginHorizontal: 5,
   },
   buttonText: {
-    color: "black",
+    color: "white",
     fontWeight: "700",
     fontSize: 16,
   },

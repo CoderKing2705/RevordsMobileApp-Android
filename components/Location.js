@@ -193,12 +193,10 @@ const Location = ({ navigation }) => {
   };
 
   useEffect(() => {
-    console.log("Locations")
     const controller = new AbortController();
     // handleCheckPressed();
     checkNotificationPermission();
     requestLocationPermission();
-    // console.log(regionWiseBusiness)
 
     const subscription = AppState.addEventListener(
       "change",
@@ -212,7 +210,6 @@ const Location = ({ navigation }) => {
   }, [regionWiseBusiness]);
 
   const handleAppStateChange = (nextAppState) => {
-    console.log(nextAppState);
     if (nextAppState === "active") {
       // The app has come to the foreground
       checkLocationPermissionFrequently();
@@ -454,7 +451,7 @@ const Location = ({ navigation }) => {
             <Text style={styles.welcomeText}>Where to go?</Text>
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={() => navigation.navigate("NotificationTray")}
+              onPress={() => navigation.navigate("NotificationTray", { UUID: null })}
             >
               <Image
                 source={require("../assets/notification-oRK.png")}

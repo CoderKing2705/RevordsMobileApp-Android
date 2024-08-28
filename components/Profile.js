@@ -43,7 +43,7 @@ const Profile = ({ route, navigation }) => {
                                 method: 'PUT'
                             }).then(async (res) => {
                                 await AsyncStorage.removeItem('token');
-                                navigation.navigate('LandingScreen')
+                                navigation.navigate('GetStarted')
                             });
                         } catch (error) {
                             await useErrorHandler("(Android): Profile > createTwoButtonAlert() " + error);

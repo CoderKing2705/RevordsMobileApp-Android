@@ -444,7 +444,7 @@ const Favourite = ({ navigation }) => {
           <Text style={styles.welcomeText}>Favorite</Text>
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => navigation.navigate("NotificationTray")}
+            onPress={() => navigation.navigate("NotificationTray", { UUID: null })}
           >
             <Image
               source={require("../assets/notification-skD.png")}

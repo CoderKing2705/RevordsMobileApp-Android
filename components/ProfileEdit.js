@@ -423,7 +423,7 @@ const ProfileEdit = ({ navigation, route }) => {
             <Text style={styles.welcomeText}>Edit Profile</Text>
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={() => navigation.navigate("NotificationTray")}
+              onPress={() => navigation.navigate("NotificationTray", { UUID: null })}
             >
               <Image
                 source={require("../assets/notification-swo.png")}

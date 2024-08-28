@@ -12,7 +12,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment/moment";
 import { useErrorHandler } from "./ErrorHandler";
 
-const NotificationTray = () => {
+const NotificationTray = ({ route }) => {
+  const { UUID } = route.params;
   const focus = useIsFocused();
   const [userData, setUserData] = useState("");
   const baseUrl =
@@ -126,28 +127,20 @@ const NotificationTray = () => {
       AsyncStorage.getItem("token").then(async (value) => {
         setLoading(true);
         if (value !== null) {
-          // await axios({
-          //   method: "GET",
-          //   url: `${baseUrl}/${JSON.parse(value)[0].memberId}`,
-          // })
-          //   .then(async (response) => {
-          //     await setUserData(response.data);
-          //     setLoading(false);
-          //   })
           const res = await axios.get(
             `${baseUrl}/${JSON.parse(value)[0].memberId}`
           );
-
-          // const resData = res.data;
           setUserData(res.data);
+          if (UUID) {
+            if (res.data.filter((x) => x.uuid == UUID)) {
+             
+              let popupdata = res.data.filter((x) => x.uuid == UUID)[0];
+              if (popupdata) {
+                openPromoModal(popupdata);
+              }
+            }
+          }
           setLoading(false);
-          // .catch(async (error) => {
-          //   await useErrorHandler(
-          //     "(Android): NotificationTray > getData() " + error
-          //   );
-          //   console.error("Error fetching data", error);
-          //   setLoading(false);
-          // });
         }
       });
     } catch (error) {
@@ -162,7 +155,7 @@ const NotificationTray = () => {
           MemberData: JSON.parse(value),
         });
       }
-    });    
+    });
   };
 
   useEffect(() => {
@@ -171,7 +164,7 @@ const NotificationTray = () => {
     return () => {
       controller.abort();
     };
-  }, [focus]);
+  }, []);
   return (
     <>
       <View style={styles.container}>

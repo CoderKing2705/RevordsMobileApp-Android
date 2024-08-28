@@ -102,9 +102,9 @@ export default function BusinessDetailsView({ route }) {
           let a =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(toRadian(lat1)) *
-            Math.cos(toRadian(lat2)) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
+              Math.cos(toRadian(lat2)) *
+              Math.sin(dLon / 2) *
+              Math.sin(dLon / 2);
           let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
           let d = R * c;
           response.data[0].distance = parseInt(d * 0.621371);
@@ -187,7 +187,7 @@ export default function BusinessDetailsView({ route }) {
     } catch (error) {
       await useErrorHandler(
         "(Android): BusinessDetailsView > checkNotificationPermission(): " +
-        error
+          error
       );
     }
   };
@@ -202,7 +202,7 @@ export default function BusinessDetailsView({ route }) {
             let currentDate = new Date().toISOString();
             await fetch(
               Globals.API_URL +
-              "/MemberProfiles/PostMemberProfileInMobileBySave",
+                "/MemberProfiles/PostMemberProfileInMobileBySave",
               {
                 method: "POST",
                 headers: {
@@ -223,8 +223,8 @@ export default function BusinessDetailsView({ route }) {
                   smsoptIn: false,
                   emailOptIn:
                     JSON.parse(value)[0].emailId == "" ||
-                      JSON.parse(value)[0].emailId == null ||
-                      JSON.parse(value)[0].emailId == undefined
+                    JSON.parse(value)[0].emailId == null ||
+                    JSON.parse(value)[0].emailId == undefined
                       ? false
                       : true,
                   notificationOptIn: isNotificationAllowed,
@@ -275,7 +275,6 @@ export default function BusinessDetailsView({ route }) {
   };
 
   useEffect(() => {
-    console.log("detailview")
     checkNotificationPermission();
     LoadData();
   }, [isFocused]);
@@ -350,7 +349,9 @@ export default function BusinessDetailsView({ route }) {
           <Text style={styles.welcomeText}>{businessDetails.businessName}</Text>
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => navigation.navigate("NotificationTray")}
+            onPress={() =>
+              navigation.navigate("NotificationTray", { UUID: null })
+            }
             style={{
               width: "15%",
               height: "100%",
@@ -631,34 +632,34 @@ export default function BusinessDetailsView({ route }) {
                               <View style={{ width: "65%" }}>
                                 {promo.promotionalMessage.toString().length <
                                   25 && (
-                                    <Text
-                                      style={{
-                                        fontWeight: "500",
-                                        fontSize: 14,
-                                        marginTop: "2%",
-                                        paddingHorizontal: "2%",
-                                      }}
-                                    >
-                                      {promo.promotionalMessage}
-                                    </Text>
-                                  )}
+                                  <Text
+                                    style={{
+                                      fontWeight: "500",
+                                      fontSize: 14,
+                                      marginTop: "2%",
+                                      paddingHorizontal: "2%",
+                                    }}
+                                  >
+                                    {promo.promotionalMessage}
+                                  </Text>
+                                )}
                                 {promo.promotionalMessage.toString().length >=
                                   25 && (
-                                    <Text
-                                      onLongPress={() => promo.promotionalMessage}
-                                      style={{
-                                        fontWeight: "500",
-                                        fontSize: 14,
-                                        marginTop: "2%",
-                                        paddingHorizontal: "2%",
-                                      }}
-                                    >
-                                      {promo.promotionalMessage
-                                        .toString()
-                                        .substring(0, 25)}
-                                      ...
-                                    </Text>
-                                  )}
+                                  <Text
+                                    onLongPress={() => promo.promotionalMessage}
+                                    style={{
+                                      fontWeight: "500",
+                                      fontSize: 14,
+                                      marginTop: "2%",
+                                      paddingHorizontal: "2%",
+                                    }}
+                                  >
+                                    {promo.promotionalMessage
+                                      .toString()
+                                      .substring(0, 25)}
+                                    ...
+                                  </Text>
+                                )}
                               </View>
                               <View
                                 style={{
@@ -852,7 +853,7 @@ export default function BusinessDetailsView({ route }) {
                                 progress={
                                   1 -
                                   rewards.pendingToAchiveValue /
-                                  rewards.achivableTargetValue
+                                    rewards.achivableTargetValue
                                 }
                                 width={250}
                                 color="#2ac95d"
@@ -892,50 +893,50 @@ export default function BusinessDetailsView({ route }) {
                   galleryImagePath2 != null ||
                   galleryImagePath3 != null ||
                   galleryImagePath4 != null) && (
-                    <View style={{ paddingHorizontal: 12, marginTop: 5 }}>
-                      <Text
+                  <View style={{ paddingHorizontal: 12, marginTop: 5 }}>
+                    <Text
+                      style={{
+                        marginTop: "7%",
+                        fontWeight: "700",
+                        fontSize: 18,
+                      }}
+                    >
+                      Photos
+                    </Text>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                    >
+                      <View
                         style={{
-                          marginTop: "7%",
-                          fontWeight: "700",
-                          fontSize: 18,
+                          flexDirection: "row",
+                          width: 350,
+                          height: 100,
+                          marginTop: 15,
                         }}
                       >
-                        Photos
-                      </Text>
-                      <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                      >
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            width: 350,
-                            height: 100,
-                            marginTop: 15,
-                          }}
-                        >
-                          {images.map((image, index) => (
-                            <TouchableOpacity
-                              key={index}
-                              onPress={() => handleGalleryImagePress(index)}
-                            >
-                              <Image
-                                style={{
-                                  width: 80,
-                                  height: 80,
-                                  borderRadius: 10,
-                                  marginTop: "2%",
-                                  marginLeft: "2%",
-                                }}
-                                source={{ uri: image.url }}
-                                resizeMode="contain"
-                              />
-                            </TouchableOpacity>
-                          ))}
-                        </View>
-                      </ScrollView>
-                    </View>
-                  )}
+                        {images.map((image, index) => (
+                          <TouchableOpacity
+                            key={index}
+                            onPress={() => handleGalleryImagePress(index)}
+                          >
+                            <Image
+                              style={{
+                                width: 80,
+                                height: 80,
+                                borderRadius: 10,
+                                marginTop: "2%",
+                                marginLeft: "2%",
+                              }}
+                              source={{ uri: image.url }}
+                              resizeMode="contain"
+                            />
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </ScrollView>
+                  </View>
+                )}
                 {businessDetails.businesswiseWorkingDays && (
                   <View style={{ paddingHorizontal: "3%" }}>
                     <Text
@@ -1058,8 +1059,7 @@ export default function BusinessDetailsView({ route }) {
                           >
                             <Image
                               source={{
-                                uri:
-                                  businessDetails.mapIconPath,
+                                uri: businessDetails.mapIconPath,
                               }}
                               style={{ width: 48, height: 48 }}
                               resizeMode="contain"
@@ -1079,8 +1079,8 @@ export default function BusinessDetailsView({ route }) {
                         onPress={() =>
                           Platform.OS === "ios"
                             ? Linking.openURL(
-                              `telprompt:${businessDetails.phoneNo}`
-                            )
+                                `telprompt:${businessDetails.phoneNo}`
+                              )
                             : Linking.openURL(`tel:${businessDetails.phoneNo}`)
                         }
                       >

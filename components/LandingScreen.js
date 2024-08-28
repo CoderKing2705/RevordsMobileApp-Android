@@ -24,31 +24,28 @@ const LandingScreen = () => {
 
   // This hook will get the member data...
   useEffect(() => {
-    console.log("LandingScreen");
+    let unsubscribeOnNotificationOpenedApp;
     setLoading(true);
     AsyncStorage.getItem("token")
       .then(async (value) => {
         if (value !== null) {
-          const unsubscribeOnMessage = messaging().onMessage(
-            async (remoteMessage) => {
-              console.log("Foreground Notification", remoteMessage);
-              // Optionally handle foreground notifications here
-            }
-          );
-
-          const unsubscribeOnNotificationOpenedApp =
-            messaging().onNotificationOpenedApp(async (remoteMessage) => {
-              console.log("onNotificationOpenedApp", remoteMessage);
-              if (remoteMessage.data) {
+          unsubscribeOnNotificationOpenedApp =
+            messaging().onNotificationOpenedApp(async (remoteMessage) => {        
+              if (remoteMessage.data) {                     
                 const response = await axios.get(
-                    Globals.API_URL +
-                      "/MemberProfiles/GetMemberByPhoneNo/" +
-                      JSON.parse(value)[0].phone
-                  );
-                  const json = response.data;
-                  AsyncStorage.setItem("token", JSON.stringify(json));
-                  setLoading(false);
-                navigation.navigate("NotificationTray");
+                  Globals.API_URL +
+                    "/MemberProfiles/GetMemberByPhoneNo/" +
+                    JSON.parse(value)[0].phone
+                );
+                const json = response.data;
+                AsyncStorage.setItem("token", JSON.stringify(json));
+                setLoading(false);
+                let remoteMessagedata = remoteMessage.data["data"];
+                let uuid = JSON.parse(remoteMessagedata).UUID;             
+                navigation.navigate("NotificationTray", {
+                  UUID: uuid,
+                });
+              
               } else {
                 await getMemberData(JSON.parse(value)[0].phone, value);
               }
@@ -57,7 +54,6 @@ const LandingScreen = () => {
           messaging()
             .getInitialNotification()
             .then(async (remoteMessage) => {
-              console.log("getInitialNotification", remoteMessage);
               if (remoteMessage) {
                 const response = await axios.get(
                   Globals.API_URL +
@@ -67,11 +63,11 @@ const LandingScreen = () => {
                 const json = response.data;
                 AsyncStorage.setItem("token", JSON.stringify(json));
                 setLoading(false);
-                navigation.navigate("NotificationTray");
-                // if (remoteMessage.data) {
-                // } else {
-                //   await getMemberData(JSON.parse(value)[0].phone, value);
-                // }
+                let remoteMessagedata = remoteMessage.data["data"];
+                let uuid = JSON.parse(remoteMessagedata).UUID;
+                navigation.navigate("NotificationTray", {
+                  UUID: uuid,
+                });
               } else {
                 await getMemberData(JSON.parse(value)[0].phone, value);
               }
@@ -84,6 +80,10 @@ const LandingScreen = () => {
       .catch(async (error) => {
         await useErrorHandler("(Android): LandingScreen > useEffect()" + error);
       });
+
+      return () =>{
+        unsubscribeOnNotificationOpenedApp();
+      }
   }, []);
 
   const getMemberData = async (phone, value) => {

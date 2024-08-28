@@ -48,7 +48,6 @@ export default function App() {
   const [isFirstLaunch, setIsFirstLaunch] = useState(true);
   const [isUpdateRequired, setIsUpdateRequired] = useState(true);
   useEffect(() => {
-    console.log("App")
     setUpInterceptor();
     getDeviceToken();
     AsyncStorage.getItem("token").then(async (value) => {

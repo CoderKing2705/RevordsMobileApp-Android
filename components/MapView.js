@@ -71,7 +71,6 @@ export default function MapViewing() {
   }
 
   useEffect(() => {
-    console.log("Mapview");
     // setLoading(true);
     const subscription = AppState.addEventListener(
       "change",
@@ -290,7 +289,6 @@ export default function MapViewing() {
   const regionRef = useRef(null);
 
   const handleRegionChange = async (newRegion) => {
-    console.log(newRegion);
     if (regionRef.current !== region) {
       regionRef.current = region;
       setRegion(region);
@@ -337,7 +335,6 @@ export default function MapViewing() {
     const filtered = data.filter((location) => {
       return isLocationInRegion(location, boundingBox);
     });
-    console.log(filtered.length);
     setRegionWiseBusiness(filtered);
     setFilteredData(filtered);
   };
@@ -392,7 +389,7 @@ export default function MapViewing() {
             <Text style={styles.welcomeText}>Where to go?</Text>
             <TouchableOpacity
               activeOpacity={0.9}
-              onPress={() => navigation.navigate("NotificationTray")}
+              onPress={() => navigation.navigate("NotificationTray", { UUID: null })}
             >
               <Image
                 source={require("../assets/notification-oRK.png")}

@@ -84,7 +84,7 @@ const LandingScreen = () => {
       return () =>{
         unsubscribeOnNotificationOpenedApp();
       }
-  }, []);
+  }, [focus]);
 
   const getMemberData = async (phone, value) => {
     try {

@@ -339,6 +339,8 @@ const Location = ({ navigation }) => {
               }
             });
             let currentDate = new Date().toISOString();
+            const token = await AsyncStorage.getItem('accessToken');
+
             await fetch(
               Globals.API_URL + "/MembersWishLists/PostMemberWishlistInMobile",
               {
@@ -382,6 +384,7 @@ const Location = ({ navigation }) => {
               }
             )
               .then(async (res) => {
+                console.log(res)
                 ToastAndroid.showWithGravityAndOffset(
                   "Liked!",
                   ToastAndroid.LONG,

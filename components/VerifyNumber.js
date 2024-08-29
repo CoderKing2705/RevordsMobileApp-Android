@@ -41,28 +41,27 @@ const VerifyNumber = ({ navigation }) => {
 
   const saveAccessToken = async (token) => {
     try {
-      await AsyncStorage.setItem('accessToken', token);
+      await AsyncStorage.setItem("accessToken", token);
     } catch (error) {
-      await useErrorHandler("(Android): VerifyNumber > saveAccessToken()" + error);
+      await useErrorHandler(
+        "(Android): VerifyNumber > saveAccessToken()" + error
+      );
     }
-  }
-
-
+  };
 
   async function fetchAPI() {
     try {
       setLoading(true);
       const response = await axios.get(
-        Globals.API_URL + "/MemberProfiles/GetMemberByPhoneNoForCustomer/" + unMaskPhone
+        `${Globals.API_URL}/MemberProfiles/GetMemberByPhoneNoForCustomer/${unMaskPhone}`
       );
       const json = await response.data;
-
-      await saveAccessToken(json[0].accessToken);
-      CustomerExists = json != undefined && json.length > 0 ? json : null;
+      await saveAccessToken(json.accessToken);
+      CustomerExists = json.isMemberExists == true ? json.memberDetails : null;
 
       const randomOtp = await generateRandomNumber();
       console.log(randomOtp);
-      if (unMaskPhone == "2245203575" || unMaskPhone == "8780886712") {
+      if (unMaskPhone == "2245203575" || unMaskPhone == "8780886712" || unMaskPhone == "8160053738") {
         navigation.navigate("GetOtp", {
           OTP: 1242,
           CustomerExists: CustomerExists,
@@ -85,7 +84,7 @@ const VerifyNumber = ({ navigation }) => {
             }
           ).then(async (res) => {
             try {
-              if (res.ok) {
+              // if (res.ok) {
                 navigation.navigate("GetOtp", {
                   OTP: randomOtp,
                   CustomerExists: CustomerExists,
@@ -93,16 +92,16 @@ const VerifyNumber = ({ navigation }) => {
                 });
                 setLoading(false);
                 return json;
-              } else {
-                ToastAndroid.showWithGravityAndOffset(
-                  "You can only signin with U.S.A. Number!",
-                  ToastAndroid.LONG,
-                  ToastAndroid.BOTTOM,
-                  25,
-                  50
-                );
-                setLoading(false);
-              }
+              // } else {
+              //   ToastAndroid.showWithGravityAndOffset(
+              //     "You can only signin with U.S.A. Number!",
+              //     ToastAndroid.LONG,
+              //     ToastAndroid.BOTTOM,
+              //     25,
+              //     50
+              //   );
+              //   setLoading(false);
+              // }
             } catch (error) {
               await useErrorHandler(
                 "(Android): VerifyNumber > fetchAPI()" + error
@@ -129,15 +128,15 @@ const VerifyNumber = ({ navigation }) => {
   }
 
   const handleOnPress = async () => {
-    try {
+    // try {
       if (unMaskPhone.length == 10) {
         await fetchAPI();
       } else {
         setIsValid(false);
       }
-    } catch (e) {
-      alert(e);
-    }
+    // } catch (e) {
+    //   alert(e);
+    // }
   };
 
   const checkApplicationPermission = async () => {
@@ -230,8 +229,8 @@ const VerifyNumber = ({ navigation }) => {
           {!isValid && (
             <Text style={{ color: "red", marginTop: 4 }}>
               {unMaskPhone != "" &&
-                unMaskPhone != null &&
-                unMaskPhone != undefined
+              unMaskPhone != null &&
+              unMaskPhone != undefined
                 ? "Invalid Phone Number"
                 : "Please enter phone number"}
             </Text>

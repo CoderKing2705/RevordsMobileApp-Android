@@ -13,7 +13,7 @@ import moment from "moment/moment";
 import { useErrorHandler } from "./ErrorHandler";
 
 const NotificationTray = ({ route }) => {
-  const { UUID } = route.params;
+  let { UUID } = route.params;
   const focus = useIsFocused();
   const [userData, setUserData] = useState("");
   const baseUrl =
@@ -72,6 +72,9 @@ const NotificationTray = ({ route }) => {
   const closePromoRedeemModal = async (type, ID) => {
     setLoading(true);
     await claimData(type, ID);
+    if (UUID) {
+      UUID = null;
+    }
     await getData();
     setLoading(false);
   };

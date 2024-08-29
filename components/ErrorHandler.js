@@ -4,7 +4,7 @@ import Globals from "./Globals";
 
 export const useErrorHandler = async (error) => {
     let url = Globals.API_URL;
-
+    console.log('type error',error)
     try {
         let data = await axios.post(`${url}/Logging/FrontEndlogError`, {
             "deviceType": "5",

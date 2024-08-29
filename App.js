@@ -156,6 +156,7 @@ export default function App() {
   let platformOS;
   const getDeviceToken = async () => {
     token = await messaging().getToken();
+    console.log(token);
   };
 
   const checkNotificationPermission = async () => {
@@ -252,7 +253,6 @@ export default function App() {
         }
       } catch (error) {
         if (error instanceof Error) {
-          console.error(error.message);
         }
       }
     }

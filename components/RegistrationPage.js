@@ -9,6 +9,8 @@ import messaging from '@react-native-firebase/messaging';
 import moment from 'moment';
 import RNPickerSelect from 'react-native-picker-select';
 import { useErrorHandler } from './ErrorHandler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 export default function RegistrationPage({ route }) {
     const [name, setName] = useState('');
@@ -61,15 +63,14 @@ export default function RegistrationPage({ route }) {
     };
 
     const postData = async () => {
+        console.log("post")
 
         try {
             await getDeviceToken();
             let currentDate = (new Date()).toISOString();
             let currentYear = new Date().getFullYear();
-            let platformOS = Platform.OS;
-
-            
-
+            let platformOS = Platform.OS;            
+            const token = await AsyncStorage.getItem('accessToken');
             fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileByPhone', {
                 method: 'POST',
                 headers: {
@@ -97,6 +98,7 @@ export default function RegistrationPage({ route }) {
                 getMemberData();
             });
         } catch (error) {
+            console.log('err');
             await useErrorHandler("(Android): Registrationpage > postData()" + error);
         }
 
@@ -117,11 +119,12 @@ export default function RegistrationPage({ route }) {
     const getMemberData = async () => {
 
         try {
-            const response = await fetch(
+            const response = await axios.get(
                 Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + Phone)
-            const json = await response.json();
+            const json = await response.data;
             navigation.navigate('TabNavigation', { MemberData: json, Phone: Phone });
         } catch (error) {
+            console.log('help',error)
             await useErrorHandler("(Android): Registrationpage > getMemberData()" + error);
         }
 

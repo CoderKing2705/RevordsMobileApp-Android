@@ -405,7 +405,7 @@ const Profile = ({ route, navigation }) => {
                 </View>
               </View>
               <Text style={{ fontWeight: "600", color: "#c2c3c5" }}>
-                App Version: {appVersion}
+                App Version: 1.0.12
               </Text>
             </View>
           </ScrollView>

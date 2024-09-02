@@ -15,27 +15,15 @@ export const setUpInterceptor = async () => {
       options.headers["Authorization"] = `Bearer ${token}`;
     }
 
-    try {
-      // Perform the fetch request
-      const response = await originalFetch(url, options);
-  
-      // Handle 401 Unauthorized status
-      if (response.status === 401) {
-        await AsyncStorage.removeItem('token');
-        await AsyncStorage.removeItem('accessToken');
-        EventBus.emit('logout'); // Emit logout event
-      }
-  
-      // Check if response was successful
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      return response;
-    } catch (error) {
-      console.error('Fetch error:', error);
-      throw error; // Re-throw the error for further handling
+    const response = await originalFetch(url, options);
+
+    // Handle 401 Unauthorized status
+    if (response.status === 401) {
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('accessToken');
+      EventBus.emit('logout'); // Emit logout event
     }
+    return originalFetch(url, options);
   };
   axios.interceptors.request.use(
     async (config) => {
@@ -57,7 +45,7 @@ export const setUpInterceptor = async () => {
   );
   axios.interceptors.response.use(
     (response) => {
-      const token =  AsyncStorage.getItem("accessToken");
+      const token = AsyncStorage.getItem("accessToken");
       if (response.status.toString() === 401) {
         AsyncStorage.removeItem("token");
         AsyncStorage.removeItem('accessToken');

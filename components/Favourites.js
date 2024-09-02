@@ -348,8 +348,6 @@ const Favourite = ({ navigation }) => {
                 );
                 setLoading(false);
               });
-          } else {
-            console.log("not available");
           }
         })
         .catch(async (error) => {
@@ -441,7 +439,7 @@ const Favourite = ({ navigation }) => {
             justifyContent: "center",
           }}
         >
-          <Text style={styles.welcomeText}>Favorite</Text>
+          <Text style={styles.welcomeText}>Favorites</Text>
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => navigation.navigate("NotificationTray", { UUID: null })}

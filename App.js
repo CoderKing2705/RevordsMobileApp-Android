@@ -7,7 +7,7 @@ import AppTour from "./components/AppTour";
 import RegistrationPage from "./components/RegistrationPage";
 import TabNavigation from "./components/TabNavigation";
 import ProfileEdit from "./components/ProfileEdit";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import LandingScreen from "./components/LandingScreen";
 import messaging from "@react-native-firebase/messaging";
 import BusinessDetailsView from "./components/BusinessDetailsView";
@@ -35,7 +35,9 @@ import axios from "axios";
 import { check } from "react-native-permissions";
 import { setUpInterceptor } from "./components/interceptor";
 import PageSequenceContext from "./components/contexts/PageSequence/PageSequenceContext";
+import LogoutHandler from "./components/LogoutHandler";
 
+export const navigationRef = React.createRef();
 export default function App() {
   const Stack = createStackNavigator();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -60,6 +62,30 @@ export default function App() {
       "change",
       handleAppStateChange
     );
+  }, []);
+
+  const appState = useRef(AppState.currentState);
+  useEffect(() => {
+    const handleAppStateChange = async (nextAppState) => {
+      if (nextAppState === 'active') {
+        try {
+          const shouldNavigate = await AsyncStorage.getItem('shouldNavigateToLanding');
+          if (shouldNavigate === 'true') {
+            await AsyncStorage.removeItem('shouldNavigateToLanding');
+            navigationRef.current?.navigate('LandingScreen');
+          }
+        } catch (error) {
+          console.error('Failed to check navigation flag', error);
+        }
+      }
+      appState.current = nextAppState;
+    };
+
+    AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      AppState.removeEventListener('change', handleAppStateChange);
+    };
   }, []);
 
   const handleAppStateChange = (nextAppState) => {
@@ -94,7 +120,7 @@ export default function App() {
         break;
       case 2:
         data = {
-          mobileFirstTab: "Favorite",
+          mobileFirstTab: "Favorites",
           mobileFirstLocationPage: getmobileFirstLocationPage(
             getCurrentVersion.data.mobileFirstLocationPage
           ),
@@ -156,7 +182,6 @@ export default function App() {
   let platformOS;
   const getDeviceToken = async () => {
     token = await messaging().getToken();
-    console.log(token);
   };
 
   const checkNotificationPermission = async () => {
@@ -295,6 +320,7 @@ export default function App() {
       }}
     >
       <NavigationContainer>
+        <LogoutHandler />
         <Stack.Navigator>
           <Stack.Screen
             name="LandingScreen"

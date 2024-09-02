@@ -835,10 +835,8 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     color: "black",
-    fontSize: 18,
-    fontWeight: "800",
-    textTransform: "uppercase",
-    marginTop: "5%",
+    fontSize: 24,
+    fontWeight: "600",
     textAlign: "center",
     width: "80%",
   },

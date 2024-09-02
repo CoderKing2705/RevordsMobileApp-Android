@@ -77,25 +77,7 @@ const NotificationTray = ({ route }) => {
     }
     await getData();
     setLoading(false);
-  };
-  // const closeAutoPilotRedeemModal = async (type, ID) => {
-  //     setLoading(true)
-  //     await axios({
-  //         method: 'GET',
-  //         url: `${Globals.API_URL}/Promotions/GetRewardsByActivityTypeAndIDInMobile/${type}/${ID}`
-  //     }).then(async (response) => {
-  //         ToastAndroid.showWithGravityAndOffset(
-  //             'Claimed Successfully!',
-  //             ToastAndroid.LONG,
-  //             ToastAndroid.BOTTOM,
-  //             25,
-  //             50,
-  //         );
-  //     }).catch(error => {
-  //         console.error('Error retrieving dataa:', error);
-  //         setLoading(false);
-  //     });
-  // }
+  };  
 
   const ToastForClaimed = () => {
     ToastAndroid.showWithGravityAndOffset(

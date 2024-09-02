@@ -38,8 +38,7 @@ const Location = ({ navigation }) => {
   lat = 0;
   const [loadingData, setLoadingData] = useState(true);
   const [userData, setUserData] = useState("");
-  const { regionWiseBusiness } =
-    useContext(PageSequenceContext);
+  const { regionWiseBusiness } = useContext(PageSequenceContext);
 
   const baseUrl =
     Globals.API_URL + "/BusinessProfiles/GetBusinessProfilesForMobile";
@@ -57,9 +56,15 @@ const Location = ({ navigation }) => {
   const [isNotificationAllowed, setIsNotificationAllowed] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const backPressed = () => {
+  const backPressed = async () => {
+    try {
+      // Set a flag to indicate that the app should navigate to the landing page
+      await AsyncStorage.setItem("shouldNavigateToLanding", "true");
+    } catch (error) {
+      console.error("Failed to save navigation flag", error);
+    }
     BackHandler.exitApp();
-    navigation.navigate("LandingScreen");
+    // navigation.navigate("LandingScreen");
   };
 
   useFocusEffect(
@@ -339,7 +344,7 @@ const Location = ({ navigation }) => {
               }
             });
             let currentDate = new Date().toISOString();
-            const token = await AsyncStorage.getItem('accessToken');
+            const token = await AsyncStorage.getItem("accessToken");
 
             await fetch(
               Globals.API_URL + "/MembersWishLists/PostMemberWishlistInMobile",
@@ -384,7 +389,6 @@ const Location = ({ navigation }) => {
               }
             )
               .then(async (res) => {
-                console.log(res)
                 ToastAndroid.showWithGravityAndOffset(
                   "Liked!",
                   ToastAndroid.LONG,
@@ -454,7 +458,9 @@ const Location = ({ navigation }) => {
             <Text style={styles.welcomeText}>Where to go?</Text>
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={() => navigation.navigate("NotificationTray", { UUID: null })}
+              onPress={() =>
+                navigation.navigate("NotificationTray", { UUID: null })
+              }
             >
               <Image
                 source={require("../assets/notification-oRK.png")}

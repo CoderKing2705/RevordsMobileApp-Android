@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useErrorHandler } from "./ErrorHandler";
 import { useNavigation } from "@react-navigation/native";
+import { EventBus } from "./EventEmitter";
 
 export const setUpInterceptor = async () => {
   const originalFetch = window.fetch;
@@ -24,7 +25,6 @@ export const setUpInterceptor = async () => {
           config.headers.Authorization = `Bearer ${token}`;
         }
       } catch (error) {
-        console.log("test");
         await useErrorHandler(
           "(Android): VerifyNumber > setUpInterceptor " + error
         );
@@ -37,16 +37,20 @@ export const setUpInterceptor = async () => {
   );
   axios.interceptors.response.use(
     (response) => {
+      console.log('inter',response);
+      const token =  AsyncStorage.getItem("accessToken");
+      console.log('token',token);
       if (response.status.toString() === 401) {
-        const navigate = useNavigation();
-        navigate.navigate("GetStarted");
+        AsyncStorage.removeItem("token");
+        EventBus.emit('logout'); // Emit logout event
       }
       return response;
     },
     async (error) => {
-      const navigate = useNavigation();
+      console.log('inter error',error);
       if (error.response && error.response.status === 401) {
-        navigate.navigate("GetStarted");
+        AsyncStorage.removeItem("token");
+        EventBus.emit('logout'); // Emit logout event
       }
       return Promise.reject(error);
     }

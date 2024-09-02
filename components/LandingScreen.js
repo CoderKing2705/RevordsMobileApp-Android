@@ -24,12 +24,11 @@ const LandingScreen = () => {
 
   // This hook will get the member data...
   useEffect(() => {
-    let unsubscribeOnNotificationOpenedApp;
     setLoading(true);
     AsyncStorage.getItem("token")
       .then(async (value) => {
         if (value !== null) {
-          unsubscribeOnNotificationOpenedApp =
+         const unsubscribeOnNotificationOpenedApp =
             messaging().onNotificationOpenedApp(async (remoteMessage) => {        
               if (remoteMessage.data) {                     
                 const response = await axios.get(
@@ -45,7 +44,6 @@ const LandingScreen = () => {
                 navigation.navigate("NotificationTray", {
                   UUID: uuid,
                 });
-              
               } else {
                 await getMemberData(JSON.parse(value)[0].phone, value);
               }
@@ -79,19 +77,18 @@ const LandingScreen = () => {
       })
       .catch(async (error) => {
         await useErrorHandler("(Android): LandingScreen > useEffect()" + error);
-      });
-
-      return () =>{
-        unsubscribeOnNotificationOpenedApp();
-      }
-  }, [focus]);
+      });      
+  }, []);
 
   const getMemberData = async (phone, value) => {
     try {
-      const response = await axios.get(
-        Globals.API_URL + "/MemberProfiles/GetMemberByPhoneNo/" + phone
+      const response = await fetch(
+        Globals.API_URL + "/MemberProfiles/GetMemberByPhoneNo/" + phone,
+        {
+          method:'GET'
+        }
       );
-      const json = response.data;
+      const json = response.json();
       AsyncStorage.setItem("token", JSON.stringify(json))
         .then(() => {
           // setTimeout(() => {

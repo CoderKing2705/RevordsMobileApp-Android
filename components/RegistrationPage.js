@@ -63,8 +63,6 @@ export default function RegistrationPage({ route }) {
     };
 
     const postData = async () => {
-        console.log("post")
-
         try {
             await getDeviceToken();
             let currentDate = (new Date()).toISOString();
@@ -98,7 +96,6 @@ export default function RegistrationPage({ route }) {
                 getMemberData();
             });
         } catch (error) {
-            console.log('err');
             await useErrorHandler("(Android): Registrationpage > postData()" + error);
         }
 
@@ -124,7 +121,6 @@ export default function RegistrationPage({ route }) {
             const json = await response.data;
             navigation.navigate('TabNavigation', { MemberData: json, Phone: Phone });
         } catch (error) {
-            console.log('help',error)
             await useErrorHandler("(Android): Registrationpage > getMemberData()" + error);
         }
 

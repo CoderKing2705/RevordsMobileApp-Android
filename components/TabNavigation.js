@@ -67,7 +67,7 @@ export default function TabNavigation({ route, navigation }) {
           }}
         />
         <Tab.Screen
-          name="Favorite"
+          name="Favorites"
           component={Favourite}
           initialParams={MemberData[0].memberId}
           options={{

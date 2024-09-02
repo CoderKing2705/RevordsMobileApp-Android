@@ -150,8 +150,6 @@ export default function BusinessDetailsView({ route }) {
               );
               setLoading(false);
             });
-        } else {
-          console.log("not available");
         }
       })
       .catch(async (error) => {
@@ -260,8 +258,6 @@ export default function BusinessDetailsView({ route }) {
                 setLoading(false);
                 setButtonClicked(false);
               });
-          } else {
-            console.log("not available");
           }
         })
         .catch(async (error) => {

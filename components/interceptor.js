@@ -15,15 +15,15 @@ export const setUpInterceptor = async () => {
       options.headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const response = await originalFetch(url, options);
-
-    // Handle 401 Unauthorized status
-    if (response.status === 401) {
-      await AsyncStorage.removeItem('token');
-      await AsyncStorage.removeItem('accessToken');
-      EventBus.emit('logout'); // Emit logout event
-    }
-    return originalFetch(url, options);
+      const response = await originalFetch(url, options);
+  
+      // Handle 401 Unauthorized status
+      if (response.status === 401) {
+        await AsyncStorage.removeItem('token');
+        await AsyncStorage.removeItem('accessToken');
+        EventBus.emit('logout'); // Emit logout event
+      }
+      return originalFetch(url, options);    
   };
   axios.interceptors.request.use(
     async (config) => {
@@ -45,7 +45,7 @@ export const setUpInterceptor = async () => {
   );
   axios.interceptors.response.use(
     (response) => {
-      const token = AsyncStorage.getItem("accessToken");
+      const token =  AsyncStorage.getItem("accessToken");
       if (response.status.toString() === 401) {
         AsyncStorage.removeItem("token");
         AsyncStorage.removeItem('accessToken');

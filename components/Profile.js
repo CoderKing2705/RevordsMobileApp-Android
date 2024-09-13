@@ -49,12 +49,15 @@ const Profile = ({ route, navigation }) => {
             try {
               let platformOS = Platform.OS == "android" ? 1 : 2;
               fetch(
-                `${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/NULL/${platformOS}/${false}`,
+                `${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${
+                  MemberData[0].memberId
+                }/NULL/${platformOS}/${false}`,
                 {
                   method: "PUT",
                 }
               ).then(async (res) => {
                 await AsyncStorage.removeItem("token");
+                await AsyncStorage.clear();
                 navigation.navigate("LandingScreen");
                 navigation.reset({
                   index: 0,
@@ -186,7 +189,7 @@ const Profile = ({ route, navigation }) => {
                     <Image
                       source={{ uri: memberProfilePic }}
                       style={styles.img1}
-                      resizeMode="contain"
+                      resizeMode="stretch"
                     />
                   )}
               </TouchableOpacity>

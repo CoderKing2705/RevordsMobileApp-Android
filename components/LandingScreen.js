@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   StyleSheet,
   Image,
@@ -22,73 +22,93 @@ const LandingScreen = () => {
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
 
-  // This hook will get the member data...
-  useEffect(() => {
-    setLoading(true);
-    AsyncStorage.getItem("token")
-      .then(async (value) => {
-        if (value !== null) {
-         const unsubscribeOnNotificationOpenedApp =
-            messaging().onNotificationOpenedApp(async (remoteMessage) => {        
-              if (remoteMessage.data) {                     
-                const response = await axios.get(
-                  Globals.API_URL +
-                    "/MemberProfiles/GetMemberByPhoneNo/" +
-                    JSON.parse(value)[0].phone
-                );
-                const json = response.data;
-                AsyncStorage.setItem("token", JSON.stringify(json));
-                setLoading(false);
-                let remoteMessagedata = remoteMessage.data["data"];
-                let uuid = JSON.parse(remoteMessagedata).UUID;             
-                navigation.navigate("NotificationTray", {
-                  UUID: uuid,
-                });
-              } else {
-                await getMemberData(JSON.parse(value)[0].phone, value);
-              }
-            });
-
-          messaging()
-            .getInitialNotification()
-            .then(async (remoteMessage) => {
-              if (remoteMessage) {
-                const response = await axios.get(
-                  Globals.API_URL +
-                    "/MemberProfiles/GetMemberByPhoneNo/" +
-                    JSON.parse(value)[0].phone
-                );
-                const json = response.data;
-                AsyncStorage.setItem("token", JSON.stringify(json));
-                setLoading(false);
-                let remoteMessagedata = remoteMessage.data["data"];
-                let uuid = JSON.parse(remoteMessagedata).UUID;
-                navigation.navigate("NotificationTray", {
-                  UUID: uuid,
-                });
-              } else {
-                await getMemberData(JSON.parse(value)[0].phone, value);
-              }
-            });
+  const handleNotificationOpenedApp = useCallback(
+    async (remoteMessage) => {
+      try {
+        if (remoteMessage?.data) {
+          const uuid = remoteMessage.data.UUID;
+          const token = await AsyncStorage.getItem("token");
+          const uuidNotification = await AsyncStorage.getItem("uuidNotification");          
+          if (uuid == uuidNotification) {
+            if (token) {
+              const phoneNo = JSON.parse(token)[0].phone;
+              await getMemberData(phoneNo, token);
+            }
+          } else {
+            if (token) {
+              const phoneNo = JSON.parse(token)[0].phone;
+              const response = await axios.get(
+                `${Globals.API_URL}/MemberProfiles/GetMemberByPhoneNo/${phoneNo}`
+              );
+              const json = response.data;
+              await AsyncStorage.setItem("token", JSON.stringify(json));
+              await AsyncStorage.removeItem("uuidNotification");
+              await AsyncStorage.setItem("uuidNotification", uuid);
+              setLoading(false);
+              navigation.navigate("NotificationTray", { UUID: uuid });
+            }
+          }
         } else {
-          setLoading(false);
-          navigation.navigate("GetStarted");
+          // Handle case where remoteMessage.data is null or undefined
+          const token = await AsyncStorage.getItem("token");
+          if (token) {
+            const phoneNo = JSON.parse(token)[0].phone;
+            await getMemberData(phoneNo, token);
+          }
         }
-      })
-      .catch(async (error) => {
-        await useErrorHandler("(Android): LandingScreen > useEffect()" + error);
-      });      
-  }, []);
+      } catch (error) {
+        await useErrorHandler(
+          "(Android): LandingScreen > handleNotificationOpenedApp() " + error
+        );
+      }
+    },
+    [navigation]
+  );
 
+  useEffect(() => {
+    const unsubscribeOnNotificationOpenedApp =
+      messaging().onNotificationOpenedApp(handleNotificationOpenedApp);
+
+    const checkInitialNotification = async () => {
+      try {
+        const remoteMessage = await messaging().getInitialNotification();
+        if (remoteMessage) {
+          await handleNotificationOpenedApp(remoteMessage);
+        } else {
+          const token = await AsyncStorage.getItem("token");
+          if (token) {
+            const phoneNo = JSON.parse(token)[0].phone;
+            await getMemberData(phoneNo, token);
+          } else {
+            setLoading(false);
+            navigation.navigate("GetStarted");
+          }
+        }
+      } catch (error) {
+        await useErrorHandler(
+          "(Android): LandingScreen > checkInitialNotification() " + error
+        );
+      }
+    };
+
+    checkInitialNotification();
+
+    // Cleanup function to unsubscribe from notifications
+    return () => {
+      if (unsubscribeOnNotificationOpenedApp) {
+        unsubscribeOnNotificationOpenedApp();
+      }
+    };
+  }, [handleNotificationOpenedApp, navigation]);
   const getMemberData = async (phone, value) => {
     try {
       const response = await fetch(
         Globals.API_URL + "/MemberProfiles/GetMemberByPhoneNo/" + phone,
         {
-          method:'GET'
+          method: "GET",
         }
       );
-      const json = response.json();
+      const json = await response.json();
       AsyncStorage.setItem("token", JSON.stringify(json))
         .then(() => {
           // setTimeout(() => {

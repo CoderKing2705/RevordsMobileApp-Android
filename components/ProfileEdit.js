@@ -84,7 +84,7 @@ const ProfileEdit = ({ navigation, route }) => {
         value[0].birthMonth == undefined
           ? null
           : value[0].birthDay + " " + value[0].birthMonth;
-      setBirthDate(bDay);      
+      setBirthDate(bDay);
       setMemberProfilePic(value[0].memberImageFile);
       let numP1 = String(value[0].phone).toString().substring(0, 3);
       let numP2 = String(value[0].phone).toString().substring(3, 6);
@@ -98,7 +98,7 @@ const ProfileEdit = ({ navigation, route }) => {
     }
   }
 
-  useEffect(() => {  
+  useEffect(() => {
     const controller = new AbortController();
     AsyncStorage.getItem("token")
       .then(async (value) => {
@@ -109,9 +109,9 @@ const ProfileEdit = ({ navigation, route }) => {
       .catch(async (error) => {
         await useErrorHandler("(Android): ProfileEdit > useEffect() " + error);
       });
-      return () => {
-        controller.abort();
-      };
+    return () => {
+      controller.abort();
+    };
   }, [focus]);
 
   const putData = async () => {
@@ -153,7 +153,7 @@ const ProfileEdit = ({ navigation, route }) => {
           .put(apiUrl, requestBody)
           .then(async (response) => {
             if (selectedImage || selectedImage == "") {
-            await uploadImage(imageRes);
+              await uploadImage(imageRes);
             }
             await getMemberData();
             setLoading(false);
@@ -275,7 +275,6 @@ const ProfileEdit = ({ navigation, route }) => {
             includeBase64: false,
             maxHeight: 1000,
             maxWidth: 1000,
-        
           };
 
           const launchCallback = (response) => {
@@ -423,7 +422,9 @@ const ProfileEdit = ({ navigation, route }) => {
             <Text style={styles.welcomeText}>Edit Profile</Text>
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={() => navigation.navigate("NotificationTray", { UUID: null })}
+              onPress={() =>
+                navigation.navigate("NotificationTray", { UUID: null })
+              }
             >
               <Image
                 source={require("../assets/notification-swo.png")}
@@ -473,7 +474,7 @@ const ProfileEdit = ({ navigation, route }) => {
                     <Image
                       source={{ uri: memberProfilePic }}
                       style={styles.img1}
-                      resizeMode="contain"
+                      resizeMode="stretch"
                     />
                   )}
                   {selectedImage && (

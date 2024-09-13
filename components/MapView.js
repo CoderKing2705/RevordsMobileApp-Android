@@ -52,7 +52,7 @@ export default function MapViewing() {
   const baseUrlRegionWise =
     Globals.API_URL +
     "/BusinessProfiles/GetBusinessProfilesForMobileRegionWise";
-  // const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   // const [show, setShow] = useState(false);
   const { setRegionWiseBusiness, isFirstLaunch, setIsFirstLaunch } =
     useContext(PageSequenceContext);
@@ -71,41 +71,48 @@ export default function MapViewing() {
   }
 
   useEffect(() => {
-    // setLoading(true);
     const subscription = AppState.addEventListener(
       "change",
       handleAppStateChange
     );
+    const initialize = async () => {
+      try {
+        // Set loading state if needed
+        setLoading(true);
 
-    requestLocationPermission();
+        // Handle app state changes
 
-    AsyncStorage.getItem("token")
-      .then(async (value) => {
-        if (value !== null) {
-          try {
-            memberID.current = JSON.parse(value)[0].memberId;
-            const res = await axios.get(`${baseUrl}/${memberID.current}`);
-            businessData.current = res.data;
-            setInitialData(res.data);
-            setRegionWiseBusiness(res.data);
-            setFilteredData(res.data);
-            // setLoading(false);
-          } catch (error) {
-            await useErrorHandler("(Android): MapView > useEffect() " + error);
-            // setLoading(false);
-          }
+        // Request location permission
+        await requestLocationPermission();
+
+        // Retrieve token and fetch data
+        const token = await AsyncStorage.getItem("token");
+        if (token !== null) {
+          memberID.current = JSON.parse(token)[0].memberId;
+
+          const res = await axios.get(`${baseUrl}/${memberID.current}`);
+          businessData.current = res.data;
+          setInitialData(res.data);
+          setFilteredData(res.data);
+          setRegionWiseBusiness(res.data);
         }
-      })
-      .catch(async (error) => {
-        // setLoading(false);
+
+        // Initialize map
+        await initializeMap();
+        setLoading(false);
+      } catch (error) {
         await useErrorHandler("(Android): MapView > useEffect() " + error);
-      });
+      } finally {
+        // Optionally set loading state to false
+        setLoading(false);
+      }
+    };
 
-    // setLoading(false);
+    initialize();
 
-    initializeMap();
     return () => {
-      subscription.remove();
+      // Cleanup subscription
+      subscription?.remove();
     };
   }, []);
 
@@ -156,6 +163,7 @@ export default function MapViewing() {
       } else {
         // Not first launch: restore last known region
         const savedRegion = await AsyncStorage.getItem("mapRegion");
+
         if (savedRegion) {
           setRegion(JSON.parse(savedRegion));
           currentRegionSetting(setInitialRegion);
@@ -298,54 +306,79 @@ export default function MapViewing() {
     } catch (error) {
       console.error("Error saving map region:", error);
     }
-    filterLocations(newRegion);
+    await filterLocations(newRegion);
   };
 
-  const getBoundingBox = (region) => {
+  const getBoundingBox = async (region) => {
+    const { latitude, longitude, latitudeDelta, longitudeDelta } = region;
     return {
       northEast: {
-        latitude: region.latitude + region.latitudeDelta / 2,
-        longitude: region.longitude + region.longitudeDelta / 2,
+        latitude: latitude + latitudeDelta / 2,
+        longitude: longitude + longitudeDelta / 2,
       },
       southWest: {
-        latitude: region.latitude - region.latitudeDelta / 2,
-        longitude: region.longitude - region.longitudeDelta / 2,
+        latitude: latitude - latitudeDelta / 2,
+        longitude: longitude - longitudeDelta / 2,
       },
     };
   };
-
-  const filterLocations = async (region) => {
-    let data;
-    if (searchText === "") {
-      data = initialData;
-    } else {
-      data = initialData.filter((item) => {
+  const filterItems = async () => {
+    const results = await Promise.all(
+      initialData.map(async (item) => {
         if (
           item.metaData !== null &&
           item.metaData !== undefined &&
           item.metaData !== ""
         ) {
-          return item.metaData.toLowerCase().includes(searchText.toLowerCase());
+          // Check if the metaData includes the searchText
+          const includesSearchText = item.metaData
+            .toLowerCase()
+            .includes(searchText.toLowerCase());
+          return { ...item, includesSearchText };
         }
-      });
+        return { ...item, includesSearchText: false }; // If metaData is invalid, set includesSearchText to false
+      })
+    );
+
+    // Filter items based on the includesSearchText property
+    const data = results.filter((item) => item.includesSearchText);
+
+    return data;
+  };
+  const filterLocations = async (region) => {
+    let data;
+    if (searchText === "") {
+      data = initialData;
+    } else {      
+      data = await filterItems();
     }
 
-    const boundingBox = getBoundingBox(region);
-
-    const filtered = data.filter((location) => {
-      return isLocationInRegion(location, boundingBox);
-    });
+    const boundingBox = await getBoundingBox(region);
+    const filtered = await Promise.all(
+      data.map(async (location) => {
+        // Check if each location is within the bounding box
+        const isInRegion = isLocationInRegion(location, boundingBox);
+        return isInRegion ? location : null;
+      })
+    ).then((results) => results.filter((result) => result !== null));
     setRegionWiseBusiness(filtered);
     setFilteredData(filtered);
   };
 
   const isLocationInRegion = (location, boundingBox) => {
-    return (
-      location.latitude >= boundingBox.southWest.latitude &&
-      location.latitude <= boundingBox.northEast.latitude &&
-      location.longitude >= boundingBox.southWest.longitude &&
-      location.longitude <= boundingBox.northEast.longitude
-    );
+    const { latitude, longitude } = location;
+    const { southWest, northEast } = boundingBox;
+    // Check latitude range
+    const isLatInRange =
+      latitude >= southWest.latitude && latitude <= northEast.latitude;
+
+    // Check longitude range considering Date Line
+    const isLonInRange =
+      southWest.longitude <= northEast.longitude
+        ? longitude >= southWest.longitude && longitude <= northEast.longitude
+        : longitude >= southWest.longitude || longitude <= northEast.longitude;
+
+    return isLatInRange && isLonInRange;
   };
   const MemoizedMarker = React.memo(
     () => (
@@ -389,7 +422,9 @@ export default function MapViewing() {
             <Text style={styles.welcomeText}>Where to go?</Text>
             <TouchableOpacity
               activeOpacity={0.9}
-              onPress={() => navigation.navigate("NotificationTray", { UUID: null })}
+              onPress={() =>
+                navigation.navigate("NotificationTray", { UUID: null })
+              }
             >
               <Image
                 source={require("../assets/notification-oRK.png")}
@@ -504,7 +539,7 @@ export default function MapViewing() {
                               uri: business.mapIconPath,
                             }}
                             style={styles.markerImage}
-                            resizeMode="contain"
+                            resizeMode="stretch"
                           />
                         </TouchableOpacity>
                         <Callout
@@ -527,7 +562,7 @@ export default function MapViewing() {
             </MapView>
           </View>
         </>
-        {/* <SafeAreaView>
+        <SafeAreaView>
           <View style={styles.container}>
             <Spinner
               visible={loading}
@@ -535,7 +570,7 @@ export default function MapViewing() {
               textStyle={styles.spinnerStyle}
             />
           </View>
-        </SafeAreaView> */}
+        </SafeAreaView>
 
         <Modal
           transparent={true}

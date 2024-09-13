@@ -77,7 +77,7 @@ const NotificationTray = ({ route }) => {
     }
     await getData();
     setLoading(false);
-  };  
+  };
 
   const ToastForClaimed = () => {
     ToastAndroid.showWithGravityAndOffset(
@@ -118,7 +118,6 @@ const NotificationTray = ({ route }) => {
           setUserData(res.data);
           if (UUID) {
             if (res.data.filter((x) => x.uuid == UUID)) {
-             
               let popupdata = res.data.filter((x) => x.uuid == UUID)[0];
               if (popupdata) {
                 openPromoModal(popupdata);
@@ -145,11 +144,14 @@ const NotificationTray = ({ route }) => {
 
   useEffect(() => {
     const controller = new AbortController();
-    getData();
+    if (focus) {
+      getData();
+    }
     return () => {
+      closePromoModal();
       controller.abort();
     };
-  }, []);
+  }, [focus, UUID]);
   return (
     <>
       <View style={styles.container}>
@@ -252,7 +254,7 @@ const NotificationTray = ({ route }) => {
                                 uri: `${item.businessGroupImage}`,
                               }}
                               style={[styles.giftIcon]}
-                              resizeMode="contain"
+                              resizeMode="stretch"
                             />
                           </View>
                           <View style={{ width: "80%", height: "100%" }}>

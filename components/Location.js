@@ -4,6 +4,7 @@ import {
   BackHandler,
   Modal,
   PermissionsAndroid,
+  Platform,
   TextInput,
   ToastAndroid,
   TouchableOpacity,
@@ -18,9 +19,7 @@ import Spinner from "react-native-loading-spinner-overlay";
 import Globals from "./Globals";
 import Geolocation from "@react-native-community/geolocation";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
-import { isLocationEnabled } from "react-native-android-location-enabler";
-import { promptForEnableLocationIfNeeded } from "react-native-android-location-enabler";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { isLocationEnabled, promptForEnableLocationIfNeeded } from "react-native-android-location-enabler";
 import * as Animatable from "react-native-animatable";
 import LinearGradient from "react-native-linear-gradient";
 import { createShimmerPlaceholder } from "react-native-shimmer-placeholder";
@@ -28,6 +27,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { check, request, PERMISSIONS, RESULTS } from "react-native-permissions";
 import { useErrorHandler } from "./ErrorHandler";
 import PageSequenceContext from "./contexts/PageSequence/PageSequenceContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
@@ -80,7 +80,6 @@ const Location = ({ navigation }) => {
     try {
       if (Platform.OS === "android") {
         const checkEnabled = await isLocationEnabled();
-
         if (!checkEnabled) {
           await handleEnabledPressed();
         } else {
@@ -98,7 +97,9 @@ const Location = ({ navigation }) => {
     if (Platform.OS === "android") {
       try {
         const enableResult = await promptForEnableLocationIfNeeded();
-        await getData();
+        if (enableResult) {
+          await getData();          
+        }
       } catch (error) {
         if (error instanceof Error) {
           console.error(error.message);
@@ -127,6 +128,7 @@ const Location = ({ navigation }) => {
               url: `${baseUrl}/${JSON.parse(value)[0].memberId}`,
             })
               .then(async (response) => {
+                
                 if (regionWiseBusiness != null) {
                   response = regionWiseBusiness;
                 } else {
@@ -217,6 +219,7 @@ const Location = ({ navigation }) => {
   const handleAppStateChange = (nextAppState) => {
     if (nextAppState === "active") {
       // The app has come to the foreground
+      
       checkLocationPermissionFrequently();
     }
     // setAppState(nextAppState);
@@ -227,7 +230,6 @@ const Location = ({ navigation }) => {
     const result = await check(permission);
 
     if (result === RESULTS.GRANTED) {
-      console.log("Location permission granted");
       await handleCheckPressed();
     } else {
       // If permission is blocked, show a dialog to open settings
@@ -264,11 +266,9 @@ const Location = ({ navigation }) => {
           await handleCheckPressed();
         } else {
           showModal();
-          console.log("Location permission denied");
         }
       } else {
         showModal();
-        console.log("Location permission denied");
       }
     } catch (error) {
       await useErrorHandler(
@@ -661,7 +661,8 @@ const Location = ({ navigation }) => {
                         <Card.Cover
                           source={{ uri: item.imagePath }}
                           style={styles.cardCover}
-                          resizeMode="contain"
+                          resizeMode="stretch"
+
                         />
 
                         <Card.Content style={styles.cardContent}>
@@ -926,7 +927,8 @@ const styles = StyleSheet.create({
     height: 26.028,
     resizeMode: "contain",
     backgroundColor: "transparent",
-    marginLeft: "50%",
+    // marginLeft: "50%",
+    right: 65,
     position: "absolute",
   },
   searchInput: {

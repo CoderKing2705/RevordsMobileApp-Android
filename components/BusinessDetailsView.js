@@ -539,7 +539,7 @@ export default function BusinessDetailsView({ route }) {
                 <Image
                   source={{ uri: imageUrl }}
                   style={styles.imageBusiness}
-                  resizeMode="contain"
+                  resizeMode="stretch"
                 />
                 <Text
                   style={{
@@ -606,7 +606,7 @@ export default function BusinessDetailsView({ route }) {
                   <Image
                     source={{ uri: logoUrl }}
                     style={styles.logoBusiness}
-                    resizeMode="contain"
+                    resizeMode="stretch"
                   />
                 </View>
                 {(businessDetails.promotionData ||
@@ -925,7 +925,7 @@ export default function BusinessDetailsView({ route }) {
                                 marginLeft: "2%",
                               }}
                               source={{ uri: image.url }}
-                              resizeMode="contain"
+                              resizeMode="stretch"
                             />
                           </TouchableOpacity>
                         ))}
@@ -1058,7 +1058,7 @@ export default function BusinessDetailsView({ route }) {
                                 uri: businessDetails.mapIconPath,
                               }}
                               style={{ width: 48, height: 48 }}
-                              resizeMode="contain"
+                              resizeMode="stretch"
                             />
                           </Marker>
                         )}

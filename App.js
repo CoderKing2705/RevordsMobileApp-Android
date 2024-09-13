@@ -41,7 +41,7 @@ export const navigationRef = React.createRef();
 export default function App() {
   const Stack = createStackNavigator();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const currentVersion = require("./package.json").version;
+  const currentVersion = "1.0.12";
   const isNotificationAllowed = useRef(false);
   let long = 0;
   let lat = 0;
@@ -67,24 +67,26 @@ export default function App() {
   const appState = useRef(AppState.currentState);
   useEffect(() => {
     const handleAppStateChange = async (nextAppState) => {
-      if (nextAppState === 'active') {
+      if (nextAppState === "active") {
         try {
-          const shouldNavigate = await AsyncStorage.getItem('shouldNavigateToLanding');
-          if (shouldNavigate === 'true') {
-            await AsyncStorage.removeItem('shouldNavigateToLanding');
-            navigationRef.current?.navigate('LandingScreen');
+          const shouldNavigate = await AsyncStorage.getItem(
+            "shouldNavigateToLanding"
+          );
+          if (shouldNavigate === "true") {
+            await AsyncStorage.removeItem("shouldNavigateToLanding");
+            navigationRef.current?.navigate("LandingScreen");
           }
         } catch (error) {
-          console.error('Failed to check navigation flag', error);
+          console.error("Failed to check navigation flag", error);
         }
       }
       appState.current = nextAppState;
     };
 
-    AppState.addEventListener('change', handleAppStateChange);
+    AppState.addEventListener("change", handleAppStateChange);
 
     return () => {
-      AppState.removeEventListener('change', handleAppStateChange);
+      AppState.removeEventListener("change", handleAppStateChange);
     };
   }, []);
 
@@ -106,7 +108,7 @@ export default function App() {
       .catch(async (error) => {
         await useErrorHandler("App > checkVersion(): " + error);
       });
-
+      console.log(getCurrentVersion.data)
     let data;
     switch (getCurrentVersion.data.mobileFirstTab) {
       case 1:
@@ -147,8 +149,7 @@ export default function App() {
         break;
     }
 
-    if (getCurrentVersion.data.appVersion !== currentVersion) {
-      
+    if (getCurrentVersion.data.appVersion !== currentVersion && getCurrentVersion.data.playStoreAppVersion !== currentVersion) {
       setIsUpdateRequired(getCurrentVersion.data.isAppUpdateRequired);
       setIsModalVisible(true);
     }

@@ -442,7 +442,9 @@ const Favourite = ({ navigation }) => {
           <Text style={styles.welcomeText}>Favorites</Text>
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => navigation.navigate("NotificationTray", { UUID: null })}
+            onPress={() =>
+              navigation.navigate("NotificationTray", { UUID: null })
+            }
           >
             <Image
               source={require("../assets/notification-skD.png")}
@@ -598,7 +600,7 @@ const Favourite = ({ navigation }) => {
                       <Image
                         source={{ uri: item.logoPath }}
                         style={styles.logoBusiness}
-                        resizeMode="contain"
+                        resizeMode="stretch"
                       />
                       <View
                         style={{
@@ -696,7 +698,7 @@ const Favourite = ({ navigation }) => {
                               <Image
                                 source={require("../assets/Bronze.png")}
                                 style={[styles.trophyImg]}
-                                resizeMode="contain"
+                                resizeMode="stretch"
                               />
                             )}
                             {item.badgeName.toString().toLowerCase() ==
@@ -704,7 +706,7 @@ const Favourite = ({ navigation }) => {
                               <Image
                                 source={require("../assets/Silver.png")}
                                 style={[styles.trophyImg]}
-                                resizeMode="contain"
+                                resizeMode="stretch"
                               />
                             )}
                             {item.badgeName.toString().toLowerCase() ==
@@ -712,7 +714,7 @@ const Favourite = ({ navigation }) => {
                               <Image
                                 source={require("../assets/Gold.png")}
                                 style={[styles.trophyImg]}
-                                resizeMode="contain"
+                                resizeMode="stretch"
                               />
                             )}
                             {item.badgeName.toString().toLowerCase() ==
@@ -720,7 +722,7 @@ const Favourite = ({ navigation }) => {
                               <Image
                                 source={require("../assets/platinum.png")}
                                 style={[styles.trophyImg]}
-                                resizeMode="contain"
+                                resizeMode="stretch"
                               />
                             )}
                           </View>
@@ -984,7 +986,7 @@ const Favourite = ({ navigation }) => {
               <Image
                 source={{ uri: `${businessClaimData.logoPath}` }}
                 style={styles.logoBusinessInModal}
-                resizeMode="contain"
+                resizeMode="stretch"
               />
 
               <TouchableOpacity
@@ -1096,7 +1098,7 @@ const Favourite = ({ navigation }) => {
               <Image
                 source={{ uri: `${businessClaimData.logoPath}` }}
                 style={styles.logoBusinessInModal}
-                resizeMode="contain"
+                resizeMode="stretch"
               />
               <TouchableOpacity
                 activeOpacity={0.7}

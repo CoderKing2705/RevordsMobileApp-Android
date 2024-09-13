@@ -5,6 +5,7 @@ import {
   View,
   ToastAndroid,
   PermissionsAndroid,
+  Platform,
 } from "react-native";
 import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 import { useEffect, useRef, useState } from "react";
@@ -16,7 +17,7 @@ import { check } from "react-native-permissions";
 const GetOtp = ({ route, navigation }) => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const refs = [useRef(), useRef(), useRef(), useRef()];
-
+  const currentVersion = "1.0.10";
   const [isVerified, setIsVerified] = useState(true);
   let { OTP, CustomerExists, Phone } = route.params;
   const [seconds, setSeconds] = useState(60);
@@ -89,12 +90,61 @@ const GetOtp = ({ route, navigation }) => {
     }
   };
 
+  let token = "";
+  let platformOS;
+  const getDeviceToken = async () => {
+    token = await messaging().getToken();
+  };
+
+  const postData = async (memberId) => {
+    try {
+      let currentDate = new Date().toISOString();
+      platformOS = Platform.OS == "android" ? 1 : 2;
+      await getDeviceToken();
+      await checkNotificationPermission();
+      await fetch(
+        Globals.API_URL + "/MobileAppVisitersLogs/PostMobileAppVisitersLog",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            uniqueID: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            id: 0,
+            memberId: memberId,
+            createdDate: currentDate,
+            deviceOS: platformOS,
+            appToken: token,
+            longitude: long,
+            latitude: lat,
+            appVersion: currentVersion,
+          }),
+        }
+      )
+        .then(async (response) => {
+          await axios.put(
+            `${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${memberId}/${token}/${platformOS}/${isNotificationAllowed.current}`
+          );
+        })
+        .catch(async (error) => {
+          await useErrorHandler("(Android): App > postData(): " + error);
+        });
+    } catch (error) {
+      await useErrorHandler("(Android): App > postData(): " + error);
+    }
+  };
+
   const verifyOtp = async () => {
     try {
       if (otp.join("").length !== 0) {
         if (otp.join("") == OTP) {
           setIsVerified(true);
           setSeconds(0);
+          if (CustomerExists != null) {
+            
+          }
           navigation.navigate("AppTour", {
             MemberData: CustomerExists,
             Phone: Phone,

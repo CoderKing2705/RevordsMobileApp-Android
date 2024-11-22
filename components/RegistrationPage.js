@@ -56,6 +56,7 @@ export default function RegistrationPage({ route }) {
     const getDeviceToken = async () => {
         try {
             tokenid = await messaging().getToken();
+            
         } catch (error) {
             await useErrorHandler("(Android): RegistrationPage > getDeviceToken()" + error);
         }
@@ -67,8 +68,9 @@ export default function RegistrationPage({ route }) {
             await getDeviceToken();
             let currentDate = (new Date()).toISOString();
             let currentYear = new Date().getFullYear();
-            let platformOS = Platform.OS;            
+            let platformOS = Platform.OS;
             const token = await AsyncStorage.getItem('accessToken');
+            console.log("This is token", token);
             fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileByPhone', {
                 method: 'POST',
                 headers: {
@@ -94,6 +96,7 @@ export default function RegistrationPage({ route }) {
                 }),
             }).then((res) => {
                 getMemberData();
+                console.log("this is res", res)
             });
         } catch (error) {
             await useErrorHandler("(Android): Registrationpage > postData()" + error);
@@ -102,14 +105,17 @@ export default function RegistrationPage({ route }) {
     }
 
     const start = async () => {
+        console.log("123")
         if (email != null && email != '' && email != undefined) {
             const isValidEmail = validateEmail(email);
             setIsValid(isValidEmail);
             if (isValidEmail) {
+                console.log("456")
                 postData();
             }
         }
         else {
+            console.log("789")
             postData();
         }
     }

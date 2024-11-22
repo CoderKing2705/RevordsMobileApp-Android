@@ -102,9 +102,9 @@ export default function BusinessDetailsView({ route }) {
           let a =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(toRadian(lat1)) *
-              Math.cos(toRadian(lat2)) *
-              Math.sin(dLon / 2) *
-              Math.sin(dLon / 2);
+            Math.cos(toRadian(lat2)) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
           let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
           let d = R * c;
           response.data[0].distance = parseInt(d * 0.621371);
@@ -185,7 +185,7 @@ export default function BusinessDetailsView({ route }) {
     } catch (error) {
       await useErrorHandler(
         "(Android): BusinessDetailsView > checkNotificationPermission(): " +
-          error
+        error
       );
     }
   };
@@ -200,7 +200,7 @@ export default function BusinessDetailsView({ route }) {
             let currentDate = new Date().toISOString();
             await fetch(
               Globals.API_URL +
-                "/MemberProfiles/PostMemberProfileInMobileBySave",
+              "/MemberProfiles/PostMemberProfileInMobileBySave",
               {
                 method: "POST",
                 headers: {
@@ -221,8 +221,8 @@ export default function BusinessDetailsView({ route }) {
                   smsoptIn: false,
                   emailOptIn:
                     JSON.parse(value)[0].emailId == "" ||
-                    JSON.parse(value)[0].emailId == null ||
-                    JSON.parse(value)[0].emailId == undefined
+                      JSON.parse(value)[0].emailId == null ||
+                      JSON.parse(value)[0].emailId == undefined
                       ? false
                       : true,
                   notificationOptIn: isNotificationAllowed,
@@ -307,7 +307,47 @@ export default function BusinessDetailsView({ route }) {
 
     return time12;
   };
+  const openWebsiteUrl = () => {
+    Linking.openURL(businessDetails.website).catch((error) => {
+      console.error("Failed to open URL:/", error);
+    });
+  }
 
+  const openInstagramUrl = () => {
+    Linking.openURL(businessDetails.instagramUrl).catch(async (error) => {
+      await useErrorHandler("(Android): BusinessDetalsView > openInstagramUrl()" + error);
+      console.error("Failed to open URL:/", error);
+
+    })
+  }
+
+  const openFacebookUrl = () => {
+    Linking.openURL(businessDetails.facebookUrl).catch(async (error) => {
+      await useErrorHandler("(Android): BusinessDetalsView > openFacebookUrl()" + error);
+      console.error("Failed to open URL:/", error);
+    });
+  }
+
+  const openTwitterUrl = () => {
+    Linking.openURL(businessDetails.twitterUrl).catch(async (error) => {
+      await useErrorHandler("(Android): BusinessDetalsView > openTwitterUrl()" + error);
+      console.error("Failed to open Url:/", error);
+    })
+  }
+
+  const openYelpUrl = () => {
+    Linking.openURL(businessDetails.yelpUrl).catch(async (error) => {
+      await useErrorHandler("(Android): BusinessDetalsView > openYelpUrl()" + error);
+      console.error("Failed to open Url:/", error);
+    })
+  }
+
+  const openGooglePlusUrl = () => {
+    Linking.openURL(businessDetails.googleUrl).catch(async (error) => {
+      await useErrorHandler("(Android): BusinessDetalsView > openGooglePlusUrl()" + error);
+      console.error("Failed to open URL:/", error);
+    })
+  }
   return (
     <View style={styles.container}>
       <View
@@ -628,34 +668,34 @@ export default function BusinessDetailsView({ route }) {
                               <View style={{ width: "65%" }}>
                                 {promo.promotionalMessage.toString().length <
                                   25 && (
-                                  <Text
-                                    style={{
-                                      fontWeight: "500",
-                                      fontSize: 14,
-                                      marginTop: "2%",
-                                      paddingHorizontal: "2%",
-                                    }}
-                                  >
-                                    {promo.promotionalMessage}
-                                  </Text>
-                                )}
+                                    <Text
+                                      style={{
+                                        fontWeight: "500",
+                                        fontSize: 14,
+                                        marginTop: "2%",
+                                        paddingHorizontal: "2%",
+                                      }}
+                                    >
+                                      {promo.promotionalMessage}
+                                    </Text>
+                                  )}
                                 {promo.promotionalMessage.toString().length >=
                                   25 && (
-                                  <Text
-                                    onLongPress={() => promo.promotionalMessage}
-                                    style={{
-                                      fontWeight: "500",
-                                      fontSize: 14,
-                                      marginTop: "2%",
-                                      paddingHorizontal: "2%",
-                                    }}
-                                  >
-                                    {promo.promotionalMessage
-                                      .toString()
-                                      .substring(0, 25)}
-                                    ...
-                                  </Text>
-                                )}
+                                    <Text
+                                      onLongPress={() => promo.promotionalMessage}
+                                      style={{
+                                        fontWeight: "500",
+                                        fontSize: 14,
+                                        marginTop: "2%",
+                                        paddingHorizontal: "2%",
+                                      }}
+                                    >
+                                      {promo.promotionalMessage
+                                        .toString()
+                                        .substring(0, 25)}
+                                      ...
+                                    </Text>
+                                  )}
                               </View>
                               <View
                                 style={{
@@ -849,7 +889,7 @@ export default function BusinessDetailsView({ route }) {
                                 progress={
                                   1 -
                                   rewards.pendingToAchiveValue /
-                                    rewards.achivableTargetValue
+                                  rewards.achivableTargetValue
                                 }
                                 width={250}
                                 color="#2ac95d"
@@ -889,50 +929,50 @@ export default function BusinessDetailsView({ route }) {
                   galleryImagePath2 != null ||
                   galleryImagePath3 != null ||
                   galleryImagePath4 != null) && (
-                  <View style={{ paddingHorizontal: 12, marginTop: 5 }}>
-                    <Text
-                      style={{
-                        marginTop: "7%",
-                        fontWeight: "700",
-                        fontSize: 18,
-                      }}
-                    >
-                      Photos
-                    </Text>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                    >
-                      <View
+                    <View style={{ paddingHorizontal: 12, marginTop: 5 }}>
+                      <Text
                         style={{
-                          flexDirection: "row",
-                          width: 350,
-                          height: 100,
-                          marginTop: 15,
+                          marginTop: "7%",
+                          fontWeight: "700",
+                          fontSize: 18,
                         }}
                       >
-                        {images.map((image, index) => (
-                          <TouchableOpacity
-                            key={index}
-                            onPress={() => handleGalleryImagePress(index)}
-                          >
-                            <Image
-                              style={{
-                                width: 80,
-                                height: 80,
-                                borderRadius: 10,
-                                marginTop: "2%",
-                                marginLeft: "2%",
-                              }}
-                              source={{ uri: image.url }}
-                              resizeMode="stretch"
-                            />
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    </ScrollView>
-                  </View>
-                )}
+                        Photos
+                      </Text>
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                      >
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            width: 350,
+                            height: 100,
+                            marginTop: 15,
+                          }}
+                        >
+                          {images.map((image, index) => (
+                            <TouchableOpacity
+                              key={index}
+                              onPress={() => handleGalleryImagePress(index)}
+                            >
+                              <Image
+                                style={{
+                                  width: 80,
+                                  height: 80,
+                                  borderRadius: 10,
+                                  marginTop: "2%",
+                                  marginLeft: "2%",
+                                }}
+                                source={{ uri: image.url }}
+                                resizeMode="stretch"
+                              />
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      </ScrollView>
+                    </View>
+                  )}
                 {businessDetails.businesswiseWorkingDays && (
                   <View style={{ paddingHorizontal: "3%" }}>
                     <Text
@@ -1075,8 +1115,8 @@ export default function BusinessDetailsView({ route }) {
                         onPress={() =>
                           Platform.OS === "ios"
                             ? Linking.openURL(
-                                `telprompt:${businessDetails.phoneNo}`
-                              )
+                              `telprompt:${businessDetails.phoneNo}`
+                            )
                             : Linking.openURL(`tel:${businessDetails.phoneNo}`)
                         }
                       >
@@ -1113,6 +1153,46 @@ export default function BusinessDetailsView({ route }) {
                     </Text>
                   </View>
                 )}
+
+                {(
+                  businessDetails.website || businessDetails.facebookUrl ||
+                  businessDetails.instagramUrl || businessDetails.googleUrl) && (
+                    <View style={{ paddingHorizontal: '4%' }}>
+                      <Text style={styles.iconHeading}>Connect us on:</Text>
+                      <View style={{ flexDirection: 'row', marginTop: 10, paddingLeft: '2%', marginBottom: 10 }}>
+                        {businessDetails.website && (
+                          <TouchableOpacity onPress={openWebsiteUrl} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
+                            <Image source={require('../assets/world-wide-web.png')} style={styles.websiteIcon} />
+                          </TouchableOpacity>
+                        )}
+                        {businessDetails.facebookUrl && (
+                          <TouchableOpacity onPress={openFacebookUrl} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 13 }}>
+                            <Image source={require('../assets/facebook.png')} style={styles.websiteIcon} />
+                          </TouchableOpacity>
+                        )}
+                        {businessDetails.instagramUrl && (
+                          <TouchableOpacity onPress={openInstagramUrl} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 13 }}>
+                            <Image source={require('../assets/instagram.png')} style={styles.websiteIcon} />
+                          </TouchableOpacity>
+                        )}
+                        {businessDetails.googleUrl && (
+                          <TouchableOpacity onPress={openGooglePlusUrl} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 13 }}>
+                            <Image source={require('../assets/google-plus-fill.png')} style={styles.websiteIcon} />
+                          </TouchableOpacity>
+                        )}
+                        {businessDetails.yelpUrl && (
+                          <TouchableOpacity onPress={openYelpUrl} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 13 }}>
+                            <Image source={require('../assets/yelp.png')} style={styles.websiteIcon} />
+                          </TouchableOpacity>
+                        )}
+                        {businessDetails.twitterUrl && (
+                          <TouchableOpacity onPress={openTwitterUrl} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 13 }}>
+                            <Image source={require('../assets/twitter.png')} style={styles.websiteIcon} />
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    </View>
+                  )}
               </View>
             )}
           </ScrollView>
@@ -1129,20 +1209,16 @@ export default function BusinessDetailsView({ route }) {
           onClick={() => setModalVisible(false)}
         />
       </Modal>
-      {/* <SafeAreaView style={{ flex: 1 }}>
-                <View style={styles.container}>
-                    <Spinner
-                        visible={loading}
-                        textContent={''}
-                        textStyle={styles.spinnerTextStyle}
-                    />
-                </View>
-            </SafeAreaView> */}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  websiteIcon: {
+    width: 35,
+    height: 35,
+    borderRadius: 15
+  },
   workingStatusText: {
     fontWeight: "500",
     fontSize: 18,

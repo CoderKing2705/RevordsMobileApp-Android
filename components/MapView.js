@@ -602,9 +602,9 @@ export default function MapViewing() {
                   Location Permission Required
                 </Text>
               </View>
-              <Text style={styles.modalMessage}>
+              {/* <Text style={styles.modalMessage}>
                 We need permission to access your location.
-              </Text>
+              </Text> */}
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
                   style={styles.button}

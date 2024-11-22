@@ -8,8 +8,8 @@ import {
   Linking,
   Modal,
   Platform,
+  TouchableOpacity
 } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect } from "react";
@@ -17,6 +17,7 @@ import { useIsFocused } from "@react-navigation/native";
 import Globals from "./Globals";
 import ImageViewer from "react-native-image-zoom-viewer";
 import { useErrorHandler } from "./ErrorHandler";
+import axios from "axios";
 
 const Profile = ({ route, navigation }) => {
   const focus = useIsFocused();
@@ -28,7 +29,6 @@ const Profile = ({ route, navigation }) => {
   const [MemberData, setMemberData] = useState([{}]);
   const appVersion = require("../package.json").version;
   const [modalVisible, setModalVisible] = useState(false);
-
   const images = [{ url: memberProfilePic }];
 
   const handleGalleryImagePress = () => {
@@ -49,8 +49,7 @@ const Profile = ({ route, navigation }) => {
             try {
               let platformOS = Platform.OS == "android" ? 1 : 2;
               fetch(
-                `${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${
-                  MemberData[0].memberId
+                `${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId
                 }/NULL/${platformOS}/${false}`,
                 {
                   method: "PUT",
@@ -86,11 +85,11 @@ const Profile = ({ route, navigation }) => {
       setEmail(value[0].emailId);
       let bDay =
         value[0].birthDay == "" ||
-        value[0].birthDay == null ||
-        value[0].birthDay == undefined ||
-        value[0].birthMonth == "" ||
-        value[0].birthMonth == null ||
-        value[0].birthMonth == undefined
+          value[0].birthDay == null ||
+          value[0].birthDay == undefined ||
+          value[0].birthMonth == "" ||
+          value[0].birthMonth == null ||
+          value[0].birthMonth == undefined
           ? null
           : value[0].birthDay + " " + value[0].birthMonth;
       setBirthDay(bDay);
@@ -118,6 +117,61 @@ const Profile = ({ route, navigation }) => {
       controller.abort();
     };
   }, [focus]);
+
+  // const openAppSettings = () => {
+  //   const { openSettings } = require("react-nativse-permissions");
+  //   closeModal();
+  //   openSettings().catch(() => console.warn("Cannot open settings"));
+  // };
+
+  const [openModal, setOpenModal] = useState(false);
+  // Function to show the modal
+  const showModal = () => {
+    setOpenModal(true);
+  };
+
+  // // Function to hide the modal
+  const hideModal = () => {
+    setOpenModal(false);
+  };
+
+  const handleDelete = async () => {
+    try {
+      // Show confirmation alert before deleting
+      Alert.alert(
+        "Confirm Deletion",
+        "Are you sure you want to delete this item?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel"
+          },
+          {
+            text: "Confirm",
+            onPress: async () => {
+              try {
+                await axios.delete(`${Globals.API_URL}/MemberProfiles/PermanentDeleteMemberByMemberID/${MemberData[0].memberId}`);
+                Alert.alert("Success", "Item deleted successfully");
+                await AsyncStorage.removeItem("token");
+                await AsyncStorage.clear();
+                navigation.navigate("LandingScreen");
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: "LandingScreen" }],
+                });
+              } catch (error) {
+                console.error('Error deleting item:', error);
+                await useErrorHandler("(Android): Profile > handleDelete:")
+                Alert.alert("Error", "Could not delete the item");
+              }
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Error handling delete:', error);
+    }
+  };
 
   return (
     <>
@@ -177,11 +231,11 @@ const Profile = ({ route, navigation }) => {
               {(memberProfilePic == null ||
                 memberProfilePic == "" ||
                 memberProfilePic == undefined) && (
-                <Image
-                  source={require("../assets/user.png")}
-                  style={styles.img1}
-                />
-              )}
+                  <Image
+                    source={require("../assets/user.png")}
+                    style={styles.img1}
+                  />
+                )}
               <TouchableOpacity onPress={handleGalleryImagePress}>
                 {memberProfilePic != null &&
                   memberProfilePic != "" &&
@@ -239,19 +293,19 @@ const Profile = ({ route, navigation }) => {
                   {(emailId == null ||
                     emailId == "" ||
                     emailId == undefined) && (
-                    <Text
-                      style={{
-                        color: "#676767",
-                        fontSize: 16,
-                        fontWeight: "700",
-                        marginTop: "2%",
-                        marginLeft: "5%",
-                        width: "80%",
-                      }}
-                    >
-                      Email
-                    </Text>
-                  )}
+                      <Text
+                        style={{
+                          color: "#676767",
+                          fontSize: 16,
+                          fontWeight: "700",
+                          marginTop: "2%",
+                          marginLeft: "5%",
+                          width: "80%",
+                        }}
+                      >
+                        Email
+                      </Text>
+                    )}
                 </View>
                 <View
                   style={{
@@ -275,19 +329,19 @@ const Profile = ({ route, navigation }) => {
                   {(birthDay == null ||
                     birthDay == "" ||
                     birthDay == undefined) && (
-                    <Text
-                      style={{
-                        color: "#676767",
-                        fontSize: 16,
-                        fontWeight: "700",
-                        marginTop: "2%",
-                        marginLeft: "5%",
-                        width: "80%",
-                      }}
-                    >
-                      Birth Date
-                    </Text>
-                  )}
+                      <Text
+                        style={{
+                          color: "#676767",
+                          fontSize: 16,
+                          fontWeight: "700",
+                          marginTop: "2%",
+                          marginLeft: "5%",
+                          width: "80%",
+                        }}
+                      >
+                        Birth Date
+                      </Text>
+                    )}
                 </View>
               </View>
 
@@ -406,6 +460,66 @@ const Profile = ({ route, navigation }) => {
                     <Text style={styles.innerDText}>Logout</Text>
                   </TouchableOpacity>
                 </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    width: "95%",
+                    alignItems: "left",
+                    justifyContent: "left",
+                    marginLeft: 16,
+                  }}
+                >
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={showModal}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "left",
+                      justifyContent: "left",
+                    }}
+                  >
+                    <Image
+                      source={require("../assets/delete.png")}
+                      style={styles.iconimg1}
+                    />
+                    <Text style={styles.innerDText}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
+
+
+                <View style={styles.containers}>
+                  <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={openModal}
+                    onRequestClose={hideModal}
+                  >
+                    <View style={styles.overlay}>
+                      <View style={styles.modalContent}>
+                        <Text style={{ color: 'red', textAlign: 'center', fontWeight: 700, fontSize: 22 }}>ALERT!</Text>
+                        <Text style={styles.text}>By deleting your profile from Revords,
+                          you will not get any promotions from the Revords merchants. Also, you will lose existing promotions
+                          and all the points that you have accumulated from Revords merchants.
+                          Are you sure you want to delete your profile?
+                        </Text>
+                        <View style={styles.buttonContainer}>
+                          <TouchableOpacity
+                            style={styles.button}
+                            onPress={hideModal}
+                          >
+                            <Text style={styles.buttonText}>Cancel</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={{ alignItems: 'center', top: 15, marginLeft: 15 }}
+                            onPress={handleDelete}
+                          >
+                            <Text style={styles.buttonTextRed}>Delete</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </View>
+                  </Modal>
+                </View>
               </View>
               <Text style={{ fontWeight: "600", color: "#c2c3c5" }}>
                 App Version: 1.0.12
@@ -482,6 +596,56 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
+  },
+
+  // new css 
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    width: "100%",
+  },
+  button: {
+    // flex: 1,
+    pointerEvents: "auto",
+    padding: 15,
+    backgroundColor: "#7d5513",
+    borderRadius: 5,
+    alignItems: "center",
+    marginHorizontal: 5,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  buttonTextRed: {
+    color: "#FF0000",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  containers: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',  // Semi-transparent background
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: 350,
+  },
+  text: {
+    fontSize: 18,
+    marginBottom: 20,
+    marginTop: 10,
+    fontFamily: 'Cochin'
   },
 });
 

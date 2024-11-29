@@ -9,7 +9,10 @@
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
   <uses-permission android:name="android.permission.CAMERA" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
+  <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+  <uses-permission android:name="android.permission.READ_PROFILE" />
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
   <queries>
     <intent>
       <action android:name="android.intent.action.VIEW"/>
@@ -48,6 +51,7 @@
         <action android:name="com.google.firebase.MESSAGING_EVENT"/>
       </intent-filter>
     </service>
+     <service android:name="com.google.android.gms.auth.api.phone.SmsRetrieverService" android:exported="true"/>
     <receiver
         android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
         android:exported="true"

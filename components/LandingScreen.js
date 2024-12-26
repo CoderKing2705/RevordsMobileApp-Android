@@ -100,6 +100,7 @@ const LandingScreen = () => {
       }
     };
   }, [handleNotificationOpenedApp, navigation]);
+  
   const getMemberData = async (phone, value) => {
     try {
       const response = await fetch(

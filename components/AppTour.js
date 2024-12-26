@@ -31,6 +31,7 @@ const AppTourGuide = ({ route, navigation }) => {
         setStep(null);
         try {
             if (MemberData) {
+                console.log("md1", MemberData)
                 await getDeviceToken();
                 fetch(`${Globals.API_URL}/MemberProfiles/PutDeviceTokenInMobileApp/${MemberData[0].memberId}/${tokenid}/${platformOS}/${isNotificationAllowed}`, {
                     method: 'PUT'
@@ -38,6 +39,7 @@ const AppTourGuide = ({ route, navigation }) => {
                     navigation.navigate('TabNavigation', { MemberData: MemberData, Phone: Phone });
                 });
             } else {
+                console.log("md2", MemberData)
                 navigation.navigate('RegistrationPage', { Phone: Phone });
             }
         } catch (error) {

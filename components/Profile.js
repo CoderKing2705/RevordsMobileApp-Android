@@ -151,7 +151,6 @@ const Profile = ({ route, navigation }) => {
             onPress: async () => {
               try {
                 await axios.delete(`${Globals.API_URL}/MemberProfiles/PermanentDeleteMemberByMemberID/${MemberData[0].memberId}`);
-                Alert.alert("Success", "Item deleted successfully");
                 await AsyncStorage.removeItem("token");
                 await AsyncStorage.clear();
                 navigation.navigate("LandingScreen");
@@ -159,6 +158,7 @@ const Profile = ({ route, navigation }) => {
                   index: 0,
                   routes: [{ name: "LandingScreen" }],
                 });
+
               } catch (error) {
                 console.error('Error deleting item:', error);
                 await useErrorHandler("(Android): Profile > handleDelete:")
@@ -166,7 +166,7 @@ const Profile = ({ route, navigation }) => {
               }
             }
           }
-        ]
+        ],
       );
     } catch (error) {
       console.error('Error handling delete:', error);

@@ -23,6 +23,8 @@ const GetOtp = ({ route, navigation }) => {
   const [seconds, setSeconds] = useState(60);
   const [isResentDisabled, setResentDisabled] = useState(false);
   const [isNotificationAllowed, setIsNotificationAllowed] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  
   const handleInputChange = async (text, index) => {
     try {
       let newOtp = [...otp];
@@ -142,14 +144,12 @@ const GetOtp = ({ route, navigation }) => {
         if (otp.join("") == OTP) {
           setIsVerified(true);
           setSeconds(0);
-          if (CustomerExists != null) {
-            
-          }
           navigation.navigate("AppTour", {
             MemberData: CustomerExists,
             Phone: Phone,
             isNotificationAllowed: isNotificationAllowed,
           });
+          console.log("md", MemberData)
         } else {
           setIsVerified(false);
         }
@@ -217,6 +217,9 @@ const GetOtp = ({ route, navigation }) => {
     checkNotificationPermission();
     if (otp.join("").length === 4) {
       verifyOtp();
+    }
+    if (CustomerExists !== null) {
+      setShowMessage(true);
     }
     return () => {
       controller.abort();
@@ -294,12 +297,23 @@ const GetOtp = ({ route, navigation }) => {
         {seconds === 0 && isResentDisabled && (
           <Text style={styles.resentText}>Resent</Text>
         )}
+
+        {showMessage && (
+          <Text style={styles.messageText}>
+            You already have an account. Enter OTP to sign in.
+          </Text>
+        )}
       </LinearGradient>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  messageText: {
+    color: 'rgba(214, 20, 20, 0.5)',
+    fontSize: 20,
+    textAlign: 'center',
+  },
   gradient: {
     width: "100%",
     height: "100%",

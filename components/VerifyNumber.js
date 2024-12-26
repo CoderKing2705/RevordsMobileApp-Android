@@ -55,8 +55,12 @@ const VerifyNumber = ({ navigation }) => {
       const response = await axios.get(
         `${Globals.API_URL}/MemberProfiles/GetMemberByPhoneNoForCustomer/${unMaskPhone}`
       );
+
+
       const json = await response.data;
       await saveAccessToken(json.accessToken);
+
+      console.log("This is json data", json);
       CustomerExists = json.isMemberExists == true ? json.memberDetails : null;
 
       const randomOtp = await generateRandomNumber();
@@ -66,6 +70,7 @@ const VerifyNumber = ({ navigation }) => {
           CustomerExists: CustomerExists,
           Phone: unMaskPhone,
         });
+        console.log("This is res", CustomerExists);
         setLoading(false);
         return json;
       } else {
@@ -128,11 +133,11 @@ const VerifyNumber = ({ navigation }) => {
 
   const handleOnPress = async () => {
     // try {
-      if (unMaskPhone.length == 10) {
-        await fetchAPI();
-      } else {
-        setIsValid(false);
-      }
+    if (unMaskPhone.length == 10) {
+      await fetchAPI();
+    } else {
+      setIsValid(false);
+    }
     // } catch (e) {
     //   alert(e);
     // }
@@ -228,8 +233,8 @@ const VerifyNumber = ({ navigation }) => {
           {!isValid && (
             <Text style={{ color: "red", marginTop: 4 }}>
               {unMaskPhone != "" &&
-              unMaskPhone != null &&
-              unMaskPhone != undefined
+                unMaskPhone != null &&
+                unMaskPhone != undefined
                 ? "Invalid Phone Number"
                 : "Please enter phone number"}
             </Text>
@@ -248,30 +253,14 @@ const VerifyNumber = ({ navigation }) => {
           </TouchableOpacity>
 
           <View
-            style={{ width: "100%", marginBottom: 5, paddingHorizontal: 7 }}
+            style={{ width: "100%", marginBottom: 5, paddingHorizontal: 10, paddingVertical: 10 }}
           >
             <Text style={{ textAlign: "center" }}>
-              By participating, you consent to receive auto text and email
-              messages and to our&nbsp;
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => Linking.openURL("https://revords.com/t&c.html")}
-                style={{ top: 5, flexDirection: "row" }}
-              >
-                <Text style={{ color: "#646369" }}>Terms</Text>
-              </TouchableOpacity>
-              &nbsp;and&nbsp;
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() =>
-                  Linking.openURL("https://revords.com/privacy.html")
-                }
-                style={{ top: 5, flexDirection: "row" }}
-              >
-                <Text style={{ color: "#646369" }}>Privacy Policy</Text>
-              </TouchableOpacity>
-              . Message and data rates may apply. Reply STOP to any messages to
-              unsubscribe.
+              By entering your phone number, you consent to receiving
+              a one-time passcode sent by text messaging to help you log in.
+            </Text>
+            <Text style={{ textAlign: "center", top: 15 }}>
+              Standard message and data rates may apply.
             </Text>
           </View>
           <SafeAreaView style={{ flex: 1 }}>

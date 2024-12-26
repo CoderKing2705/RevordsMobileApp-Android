@@ -20,6 +20,10 @@ export default function RegistrationPage({ route }) {
     const [selectedMonth, setSelectedMonth] = useState('');
     const [selectedDay, setSelectedDay] = useState('');
     const [daysInMonth, setDaysInMonth] = useState([]);
+    const [date, setDate] = useState('');
+    const [error, setError] = useState('');
+    const [selectedYear, setSelectedYear] = useState('');
+
     const months = [
         { label: 'January', value: '01' },
         { label: 'February', value: '02' },
@@ -49,14 +53,13 @@ export default function RegistrationPage({ route }) {
             setSelectedDay('');
         }
     }, [selectedMonth]);
-
     let tokenid = "";
     const navigation = useNavigation();
 
     const getDeviceToken = async () => {
         try {
             tokenid = await messaging().getToken();
-            
+            console.log("This is tokenId", tokenid);
         } catch (error) {
             await useErrorHandler("(Android): RegistrationPage > getDeviceToken()" + error);
         }
@@ -69,8 +72,7 @@ export default function RegistrationPage({ route }) {
             let currentDate = (new Date()).toISOString();
             let currentYear = new Date().getFullYear();
             let platformOS = Platform.OS;
-            const token = await AsyncStorage.getItem('accessToken');
-            console.log("This is token", token);
+            await AsyncStorage.getItem('accessToken');
             fetch(Globals.API_URL + '/MemberProfiles/PostMemberProfileByPhone', {
                 method: 'POST',
                 headers: {
@@ -105,12 +107,10 @@ export default function RegistrationPage({ route }) {
     }
 
     const start = async () => {
-        console.log("123")
         if (email != null && email != '' && email != undefined) {
             const isValidEmail = validateEmail(email);
             setIsValid(isValidEmail);
             if (isValidEmail) {
-                console.log("456")
                 postData();
             }
         }
@@ -125,6 +125,7 @@ export default function RegistrationPage({ route }) {
             const response = await axios.get(
                 Globals.API_URL + '/MemberProfiles/GetMemberByPhoneNo/' + Phone)
             const json = await response.data;
+            console.log("This is json", json);
             navigation.navigate('TabNavigation', { MemberData: json, Phone: Phone });
         } catch (error) {
             await useErrorHandler("(Android): Registrationpage > getMemberData()" + error);
@@ -132,40 +133,73 @@ export default function RegistrationPage({ route }) {
 
     }
 
+    // Validation method for Email Input
     const validateEmail = (email) => {
         const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         return emailPattern.test(email);
     }
 
+    // Validation method for Date input
+    const validateDate = (dateString) => {
+        setError('');
+        const parts = dateString.split('/');
+
+        // Validate Month
+        if (parts[0] && (Number(parts[0]) < 1 || Number(parts[0]) > 12)) {
+            setError('Month must be between 01 and 12.');
+            return;
+        }
+
+        // Validate Day
+        if (parts[1] && (Number(parts[1]) < 1 || Number(parts[1]) > 31)) {
+            setError('Day must be between 01 and 31.');
+            return;
+        }
+
+        // Additional validation for days in a month
+        if (parts[0] && parts[1]) {
+            const month = Number(parts[0]);
+            const day = Number(parts[1]);
+            const maxDays = new Date(2024, month, 0).getDate();
+            if (day > maxDays) {
+                setError(`Invalid day for the month ${month}.`);
+            }
+        }
+    }
+
+    const handleDateChange = (input) => {
+
+        const formattedInput = input.replace(/[^0-9/]/g, '');
+        setDate(formattedInput);
+
+
+        if (formattedInput.length === 2 || formattedInput.length === 5) {
+            setDate(formattedInput + '/');
+        }
+
+        validateDate(formattedInput);
+
+        const dateParts = formattedInput.split('/');
+        if (dateParts.length === 3) {
+            const [month, day, year] = dateParts;
+            setSelectedMonth(month);
+            setSelectedDay(day);
+            setSelectedYear(year);
+        }
+    };
+
     return (
         <View style={styles.screen93X}>
             <Text style={styles.createYourAccount}> Create your Account! </Text>
-            <TextInput style={styles.nameInput} onChangeText={(t) => setName(t)} placeholder='Enter your Name'></TextInput>
+            <TextInput style={styles.nameInput} onChangeText={(t) => setName(t)} placeholder='Enter first and last name'></TextInput>
             <View style={styles.lineOne}></View>
             <TextInput style={styles.emailInput} onChangeText={(t) => setEmail(t)} placeholder='Enter your Email' />
             <View style={styles.lineTwo}></View>
             {!isValid && <Text style={{ color: 'red', marginTop: '2%', marginLeft: '4%', }}>Invalid Email Address</Text>}
 
-            <View style={styles.pickerContainer}>
-                <RNPickerSelect
-                    placeholder={{ label: 'Select Birth Month', value: null }}
-                    items={months}
-                    onValueChange={(value) => setSelectedMonth(value)}
-                    style={pickerSelectStyles}
-                    value={selectedMonth}
-                />
-            </View>
+            <TextInput style={styles.dateInput} onChangeText={handleDateChange} keyboardType='numeric' value={date} placeholder='MM/DD/YYYY' />
             <View style={styles.lineThree}></View>
-            <View style={styles.pickerContainer}>
-                <RNPickerSelect
-                    placeholder={{ label: 'Select Birth Day', value: null }}
-                    items={daysInMonth}
-                    onValueChange={(value) => setSelectedDay(value)}
-                    style={pickerSelectStyles}
-                    value={selectedDay}
-                />
-            </View>
-            <View style={styles.lineThree}></View>
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <View style={styles.registrationViewBtn}>
                 <TouchableOpacity activeOpacity={.7} style={styles.btnRegister} onPress={start}>
                     <Text style={styles.txtRegister}>
@@ -266,6 +300,21 @@ const styles = StyleSheet.create({
         color: '#203139',
         marginLeft: '4%',
         fontFamily: 'Satoshi Variable, "Source Sans Pro"'
+    },
+    dateInput: {
+        width: '100%',
+        height: '23',
+        marginTop: '7%',
+        fontSize: 18,
+        fontWeight: '500',
+        color: '#203139',
+        marginLeft: '4%',
+        fontFamily: 'Satoshi Variable, "Source Sans Pro"'
+    },
+    errorText: {
+        color: 'red',
+        marginTop: 8,
+        paddingLeft: 13
     },
     lineOne: {
         width: '95%',

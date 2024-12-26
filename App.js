@@ -36,6 +36,8 @@ import { check } from "react-native-permissions";
 import { setUpInterceptor } from "./components/interceptor";
 import PageSequenceContext from "./components/contexts/PageSequence/PageSequenceContext";
 import LogoutHandler from "./components/LogoutHandler";
+import TermsCondition from "./components/TermsCondition";
+import NotFoundScreen from "./components/NotFoundScreen";
 
 export const navigationRef = React.createRef();
 export default function App() {
@@ -108,7 +110,7 @@ export default function App() {
       .catch(async (error) => {
         await useErrorHandler("App > checkVersion(): " + error);
       });
-      console.log(getCurrentVersion.data)
+    console.log(getCurrentVersion.data)
     let data;
     switch (getCurrentVersion.data.mobileFirstTab) {
       case 1:
@@ -373,6 +375,18 @@ export default function App() {
             component={NotificationTray}
             options={{ headerShown: false }}
           />
+
+          <Stack.Screen
+            name="TermsAndCondition"
+            component={TermsCondition}
+            options={{ headerShown: false }}
+          />
+
+          <Stack.Screen
+            name="NotFoundScreen"
+            component={NotFoundScreen}
+            options={{ headerShown: false }}
+          />
         </Stack.Navigator>
         <Modal
           animationType="slide"
@@ -387,55 +401,12 @@ export default function App() {
                 source={require("./assets/Applogo.png")}
                 style={styles.modalAppLogo}
               />
-              {/* <Text
-                style={{
-                  fontSize: 20,
-                  marginBottom: 20,
-                  fontWeight: "bold",
-                }}
-              >
-                App Update Required!
-              </Text>
-              <Text style={{ textAlign: "center" }}>
-                {" "}
-                We have launched new and improved version. Please update the app
-                for better experience.{" "}
-              </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  marginTop: 20,
-                }}
-              >
-                {isUpdateRequired == true && (
-                  <View style={{ marginRight: 15 }}>
-                    <Button
-                      title="Cancel"
-                      onPress={() => setIsModalVisible(false)}
-                    />
-                  </View>
-                )}
-                <View style={{ marginRight: 5 }}>
-                  <Button title="Update" onPress={openStores} />
-                </View>
-              </View> */}
-
               <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
                 }}
               >
-                {/* <Image
-                  source={require("../assets/navigation.png")}
-                  style={{
-                    width: 20,
-                    height: 20,
-                    marginRight: 2,
-                    marginBottom: 8,
-                  }}
-                /> */}
                 <Text style={styles.modalTitle}>App Update Required!</Text>
               </View>
               <Text style={styles.modalMessage}>
